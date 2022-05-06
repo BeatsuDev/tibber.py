@@ -4,27 +4,10 @@ class QueryBuilder:
     @classmethod
     def create_query_from_dict(cls, query_dict: dict, indentation: int = 0, last: bool = True) -> str:
         """Creates a graphQL query from the keys of a dictionary.
-        
+
         :param query_dict: The dictionary to convert to a query.
         :param indentation: The amount of spaces to indent the returned query.
         :param last: Specifies if the function call is the last in a recursive loop.
-        
-        Example:
-            {
-                "name": "",
-                "homes": {
-                    "id": "",
-                    "timeZone": ""
-                }
-            }
-            becomes:
-            "{
-                name
-                homes {
-                    id
-                    timezone
-                }
-            }"
         """
         string_query = "{\n"
 
@@ -40,31 +23,31 @@ class QueryBuilder:
             string_query += "}"
             
         return string_query
-    
+
     @classmethod
     def combine_dicts(cls, dict1: dict, dict2: dict) -> dict:
         """Combines two nested dictionaries. The values from second dictionary overwrites the first one
         if the keys are exactly the same. The only exception to this is if the first dictionary's value
         is a dict, while the second dictionary value is a string. Then the dictionary with a dictionary
         typed value is prioritized.
-        
+
         This method is meant to be used to combine query building components in dictionary form.
-        
+
         :param dict1: The first dict to combine with the second dict
         :param dict2: The second dict to combine with the first dict
         :throws TypeError: If none of the parameters are dicts
         """
         if not (isinstance(dict1, dict) and isinstance(dict2, dict)):
             raise TypeError(f"Cannot combine types {type(dict1)} and {type(dict2)}.")
-        
+
         result_dict = dict1
-        
+
         for key, value in dict2.items():
             # The key in the second dict does not exist in the first so it's safe to add it
             # without overwriting the value from dict1 (because there is none)
             if not key in dict1.keys():
                 result_dict[key] = value
-                
+
             # If the value in dict1 is a string, and we know the key exists in both dict1
             # and dict2, the value from dict2 overwrite the value in dict1.
             elif isinstance(dict1[key], str):
@@ -74,31 +57,31 @@ class QueryBuilder:
             # are also dicts, we need to call the function again on these dicts to resolve "merge conflicts"
             elif isinstance(value, dict):
                 result_dict[key] = cls.combine_dicts(dict1[key], dict2[key])
-                
+
             # We know the key exists in both dicts. If the value in dict1 is a dictionary, but
             # the value in dict2 is a string, the dict1 value is prioritized.
             elif isinstance(dict1[key], dict):
                 # We can continue because the values of dict1 is already in the resulting dict
                 continue
-            
+
             # If the value in both dicts are strings.
             else:
                 result_dict[key] = value
-        
+
         return result_dict
-    
+
     @classmethod
     @property
     def update_client_info(cls) -> str:
         """Returns the query to update the Tibber client information (name, id, etc.)."""
         return cls.create_query_from_dict(cls.query_viewer)
-    
+
     @classmethod
     @property
     def update_homes_info(cls) -> str:
         """Returns the query to update information on all the homes (address, homes, etc.)."""
         return cls.create_query_from_dict(cls.bulk_query_homes)
-    
+
     @classmethod
     @property
     def update_price_info(cls) -> str:
@@ -107,7 +90,7 @@ class QueryBuilder:
         query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceInfo)
         query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceRating)
         return cls.create_query_from_dict(query_dict)
-        
+
     @classmethod
     @property
     def update_all_info(cls) -> str:
@@ -128,7 +111,7 @@ class QueryBuilder:
         query_dict = cls.combine_dicts(query_dict, cls.query_homes_meteringPointData)
         query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription)
         return query_dict
-    
+
     @classmethod
     @property
     def bulk_query_homes_owner(cls) -> dict:
@@ -149,7 +132,7 @@ class QueryBuilder:
         query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceInfo)
         query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceRating)
         return query_dict
-    
+
     @classmethod
     @property
     def bulk_query_homes_currentSubscription_subscriber(cls) -> dict:
@@ -159,7 +142,7 @@ class QueryBuilder:
         query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_subscriber_contactInfo)
         query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_subscriber_address)
         return query_dict
-    
+
     @classmethod
     @property
     def bulk_query_homes_currentSubscription_priceInfo(cls) -> dict:
@@ -198,7 +181,7 @@ class QueryBuilder:
         query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceRating_daily)
         query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceRating_daily_entries)
         return query_dict
-    
+
     @classmethod
     @property
     def bulk_query_homes_currentSubscription_priceRating_monthly(cls) -> dict:
@@ -207,11 +190,13 @@ class QueryBuilder:
         query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceRating_monthly)
         query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceRating_monthly_entries)
         return query_dict
-    
+
     # The smallest queries building components
     @classmethod
     @property
     def query_viewer(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer query"""
         return {
             "viewer": {
                 "name": "",
@@ -220,10 +205,12 @@ class QueryBuilder:
                 "accountType": ""
             }
         }
-    
+
     @classmethod
     @property
     def query_homes(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes query"""
         return {
             "viewer": {
                 "homes": {
@@ -240,10 +227,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_address(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > address query"""
         return {
             "viewer": {
                 "homes": {
@@ -260,10 +249,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_owner(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > owner query"""
         return {
             "viewer": {
                 "homes": {
@@ -280,10 +271,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_owner_contactInfo(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > owner > contactInfo query"""
         return {
             "viewer": {
                 "homes": {
@@ -296,10 +289,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_owner_address(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > owner > address query"""
         return {
             "viewer": {
                 "homes": {
@@ -318,10 +313,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_meteringPointData(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > meteringPointData query"""
         return {
             "viewer": {
                 "homes": {
@@ -338,10 +335,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currenSubscription query"""
         return {
             "viewer": {
                 "homes": {
@@ -354,10 +353,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_subscriber(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > subscriber query"""
         return {
             "viewer": {
                 "homes": {
@@ -376,10 +377,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_subscriber_contactInfo(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > subscriber > contactInfo query"""
         return {
             "viewer": {
                 "homes": {
@@ -394,10 +397,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_subscriber_address(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > subscriber > address query"""
         return {
             "viewer": {
                 "homes": {
@@ -418,10 +423,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_priceInfo_current(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > priceInfo > current query"""
         return {
             "viewer": {
                 "homes": {
@@ -440,10 +447,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_priceInfo_today(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > priceInfo > today query"""
         return {
             "viewer": {
                 "homes": {
@@ -462,10 +471,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_priceInfo_tomorrow(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > priceInfo > tomorrow query"""
         return {
             "viewer": {
                 "homes": {
@@ -484,10 +495,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_priceRating_thresholdPercentages(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > priceRating > thresholdPercentages query"""
         return {
             "viewer": {
                 "homes": {
@@ -502,10 +515,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_priceRating_hourly(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > priceRating > hourly query"""
         return {
             "viewer": {
                 "homes": {
@@ -523,10 +538,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_priceRating_hourly_entries(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > priceRating > hourly > entries query"""
         return {
             "viewer": {
                 "homes": {
@@ -547,10 +564,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_priceRating_daily(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > priceRating > daily query"""
         return {
             "viewer": {
                 "homes": {
@@ -568,10 +587,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_priceRating_daily_entries(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > priceRating > daily > entries query"""
         return {
             "viewer": {
                 "homes": {
@@ -592,10 +613,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_priceRating_monthly(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > priceRating > monthly query"""
         return {
             "viewer": {
                 "homes": {
@@ -613,10 +636,12 @@ class QueryBuilder:
                 }
             }
         }
-    
+
     @classmethod
     @property
     def query_homes_currentSubscription_priceRating_monthly_entries(cls) -> dict:
+        """Return a dict with query values as keys with all keys that are do not have 
+        dictionary values under the viewer > homes > currentSubscription > priceRating > monthly > entries query"""
         return {
             "viewer": {
                 "homes": {
@@ -637,7 +662,7 @@ class QueryBuilder:
                 }
             }
         }
-    
+
 # Template for creating more builder methods:
 #    @classmethod
 #    @property
