@@ -1,4 +1,6 @@
-from .enums import Resolution
+from tibber.enums import Resolution
+from tibber.client import Client
+from tibber.home import TibberHome
 
 __version__ = "0.1.0"
 DEMO_TOKEN = "476c477d8a039529478ebd690d35ddd80e3308ffc49b59c65b142321aee963a4"
