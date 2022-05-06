@@ -2,7 +2,7 @@
 
 class QueryBuilder:
     @classmethod
-    def create_query_from_dict(cls, query_dict: dict, indentation: int = 0, last: bool=True) -> str:
+    def create_query_from_dict(cls, query_dict: dict, indentation: int = 0, last: bool = True) -> str:
         """Creates a graphQL query from the keys of a dictionary.
         
         :param query_dict: The dictionary to convert to a query.
@@ -97,16 +97,15 @@ class QueryBuilder:
     @property
     def update_homes_info(cls) -> str:
         """Returns the query to update information on all the homes (address, homes, etc.)."""
-        query_dict = {}
-        # TODO: Create home info query.
-        return cls.create_query_from_dict(query_dict)
+        return cls.create_query_from_dict(cls.bulk_query_homes)
     
     @classmethod
     @property
     def update_price_info(cls) -> str:
         """Returns the query to update the price for all homes (current price, yesterdays price, etc.)."""
         query_dict = {}
-        # TODO: Create price info query.
+        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceInfo)
+        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceRating)
         return cls.create_query_from_dict(query_dict)
         
     @classmethod
