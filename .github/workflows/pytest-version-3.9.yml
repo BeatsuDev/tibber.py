@@ -27,4 +27,5 @@ jobs:
             pip install aiohttp pytest
       - name: Pytest
         run: |
-            py.test tests
+            cd tests
+            py.test .

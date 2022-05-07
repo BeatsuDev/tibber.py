@@ -1,6 +1,7 @@
 __pycache__
 .pytest_cache
 .coverage
+coverage.xml
 build/*
 dist/*
 tibber.py.egg-info/*
