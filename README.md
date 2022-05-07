@@ -6,7 +6,7 @@
 ![Tests 3.9](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.9.yml/badge.svg)
 ![Tests 3.10](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.10.yml/badge.svg)
 
-A python wrapper module for communication with the [Tibber API](https://developer.tibber.com/).
+A python wrapper module for communication with the [Tibber API](https://developer.tibber.com/). This package requires Python 3.9+ (This may be changed in the future to support 3.7+. For now the simpler solution was simply to require Python 3.9+) and depends only on aiohttp.
 
 ## Installation
 ```
