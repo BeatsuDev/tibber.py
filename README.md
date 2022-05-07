@@ -1,12 +1,13 @@
 # tibber.py - The Python wrapper for the Tibber API
-![MIT license badge](https://img.shields.io/github/license/BeatsuDev/tibber.py)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/BeatsuDev/tibber.py.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/BeatsuDev/tibber.py/context:python)
-![Publish to PyPi status](https://github.com/BeatsuDev/tibber.py/actions/workflows/publish-to-pypi.yml/badge.svg)
+![MIT license badge](https://img.shields.io/github/license/BeatsuDev/tibber.py)
+![Code Coverage](https://img.shields.io/codecov/c/github/BeatsuDev/tibber.py)
 
+![Publish to PyPi status](https://github.com/BeatsuDev/tibber.py/actions/workflows/publish-to-pypi.yml/badge.svg)
 ![Tests 3.9](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.9.yml/badge.svg)
 ![Tests 3.10](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.10.yml/badge.svg)
 
-A python wrapper module for communication with the [Tibber API](https://developer.tibber.com/).
+A python wrapper module for communication with the [Tibber API](https://developer.tibber.com/). This package requires Python 3.9+ (This may be changed in the future to support 3.7+. For now the simpler solution was simply to require Python 3.9+) and depends only on aiohttp.
 
 ## Installation
 ```
