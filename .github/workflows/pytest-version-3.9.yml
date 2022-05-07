@@ -27,5 +27,4 @@ jobs:
             pip install aiohttp pytest
       - name: Pytest
         run: |
-            cd tests
-            py.test cached_tests.py
+            py.test tests
