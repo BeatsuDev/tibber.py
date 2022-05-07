@@ -1,7 +1,7 @@
 # tibber.py - The Python wrapper for the Tibber API
 ![MIT license badge](https://img.shields.io/github/license/BeatsuDev/tibber.py)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/BeatsuDev/tibber.py.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/BeatsuDev/tibber.py/context:python)
-![Publish to PyPi status](https://github.com/BeatsuDev/tibber.py/actions/workflows/publish-to-pypi.yml/badge.svg?branch=master)
+![Publish to PyPi status](https://github.com/BeatsuDev/tibber.py/actions/workflows/publish-to-pypi.yml/badge.svg)
 
 ![Tests 3.7](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.7.yml/badge.svg)
 ![Tests 3.8](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.8.yml/badge.svg)
