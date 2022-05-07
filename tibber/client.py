@@ -38,4 +38,30 @@ class Client(QueryExecutor):
         if not isinstance(token, str):
             raise TypeError("The token must be a string.")
         self.token = token
-        
+
+    # Client data gathered from cache
+    @property
+    def name(self):
+        # TODO: Error handling if the key does not exist
+        return self.cache["viewer"].get("name")
+
+    @property
+    def login(self):
+        # TODO: Error handling if the key does not exist
+        return self.cache["viewer"].get("login")
+
+    @property
+    def user_id(self):
+        # TODO: Error handling if the key does not exist
+        return self.cache["viewer"].get("userId")
+
+    @property
+    def account_type(self):
+        # TODO: Error handling if the key does not exist
+        return self.cache["viewer"].get("accountType")
+    
+    @property
+    def homes(self):
+        from tibber import TibberHome
+        # TODO: Error handling if the key does not exist
+        return [ TibberHome(data, self) for data in self.cache["viewer"]["homes"] ]
