@@ -49,7 +49,8 @@ class QueryExecutor:
         resp = await self.websession.post(API_ENDPOINT, **post_args)
         result = await resp.json()
 
-        if errors := result.get("errors"):
+        errors = result.get("errors")
+        if errors:
             # TODO: Handle errors
             pass
 
