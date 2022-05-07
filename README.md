@@ -3,8 +3,6 @@
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/BeatsuDev/tibber.py.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/BeatsuDev/tibber.py/context:python)
 ![Publish to PyPi status](https://github.com/BeatsuDev/tibber.py/actions/workflows/publish-to-pypi.yml/badge.svg)
 
-![Tests 3.7](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.7.yml/badge.svg)
-![Tests 3.8](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.8.yml/badge.svg)
 ![Tests 3.9](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.9.yml/badge.svg)
 ![Tests 3.10](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.10.yml/badge.svg)
 
