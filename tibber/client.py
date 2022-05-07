@@ -13,25 +13,23 @@ class Client(QueryExecutor):
             that this will only be checked if the immediate_update parameter is set to True.
         """
         self.cache: dict = {}
-        self.token: str = token
+        self._token: str = token
 
-        super()
+        super().__init__()
 
         if immediate_update:
             # TODO: Check if the token is valid
-            self.init_update()
+            self.initial_update()
 
-    def init_update(self):
+    def initial_update(self):
         """Updates all information and caches it."""
-        self.execute_query(QueryBuilder.update_all_info)
-
-    @property
-    def cache(self) -> dict:
-        return self.cache
+        data = self.execute_query(self.token, QueryBuilder.update_all_info)
+        # TODO: Move cache update to when the query is executed and successful
+        self.cache = QueryBuilder.combine_dicts(self.cache, data)
 
     @property
     def token(self) -> str:
-        return self.token
+        return self._token
 
     @token.setter
     def token(self, token: str):

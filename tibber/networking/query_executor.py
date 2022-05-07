@@ -1,14 +1,23 @@
+import asyncio
 from typing import Optional
 
 import aiohttp
+
+from tibber import API_ENDPOINT # TODO: Fix circular import 
 
 
 class QueryExecutor:
     """A class for executing sessions."""
     def __init__(self, websession: Optional[aiohttp.ClientSession] = None):
         """Instantiates the query executor. This creates a websession among other things."""
-        self.websession = websession if websession else aiohttp.ClientSession()
-        from tibber import API_ENDPOINT
+        try:
+            self.eventloop = asyncio.get_running_loop()
+        except RuntimeError:
+            self.eventloop = asyncio.get_event_loop()
+        self.eventloop.run_until_complete(self.__async_init__(websession))
+        
+    async def __async_init__(self, websession: Optional[aiohttp.ClientSession] = None):
+        self._websession = websession if websession else aiohttp.ClientSession()
 
     def execute_query(self, access_token: str, query: str, retries: int = 3):
         """Executes a GraphQL query to the Tibber API.
@@ -27,7 +36,7 @@ class QueryExecutor:
             "data": payload,
         }
 
-        return asyncio.run(send_request(post_args))
+        return self.eventloop.run_until_complete(self.send_request(post_args))
 
     async def send_request(self, post_args: dict, retries: int = 3):
         """Sends a request to the Tibber API.
@@ -38,23 +47,23 @@ class QueryExecutor:
         """
         # TODO: Handle errors
         resp = await self.websession.post(API_ENDPOINT, **post_args)
+        result = await resp.json()
 
         if errors := result.get("errors"):
             # TODO: Handle errors
             pass
 
-        result = await resp.json()
-        return result
+        return result.get("data")
 
     @property
     def websession(self):
-        return websession
+        return self._websession
 
     @websession.setter
     def websession(self):
         # TODO: Close the websession before setting it to a new one.
         pass
-
-    @property
-    def user_agent(self):
-        return user_agent
+    
+    def __del__(self):
+        """Close the websession when the class is deloaded"""
+        self.eventloop.run_until_complete(self.websession.close())
