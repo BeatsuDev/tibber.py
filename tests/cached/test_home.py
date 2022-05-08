@@ -6,6 +6,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
 
 import tibber
+from tibber import LegalEntity
 
 
 @pytest.fixture
@@ -42,3 +43,6 @@ def test_reading_has_ventilation_system(home):
     
 def test_reading_main_fuse_size(home):
     assert home.main_fuse_size == 63
+
+def test_reading_owner(home):
+    assert isinstance(home.owner, LegalEntity)
