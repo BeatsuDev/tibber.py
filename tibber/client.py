@@ -24,7 +24,7 @@ class Client(QueryExecutor):
 
     def initial_update(self):
         """Updates all information and caches it."""
-        data = self.execute_query(self.token, QueryBuilder.update_all_info)
+        data = self.execute_query(self.token, QueryBuilder.query_all_data)
         # TODO: Move cache update to when the query is executed and successful
         self.cache = QueryBuilder.combine_dicts(self.cache, data)
 

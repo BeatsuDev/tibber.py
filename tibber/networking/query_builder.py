@@ -72,599 +72,199 @@ class QueryBuilder:
 
     @classmethod
     @property
-    def update_client_info(cls) -> str:
-        """Returns the query to update the Tibber client information (name, id, etc.)."""
-        return cls.create_query_from_dict(cls.query_viewer)
-
-    @classmethod
-    @property
-    def update_homes_info(cls) -> str:
-        """Returns the query to update information on all the homes (address, homes, etc.)."""
-        return cls.create_query_from_dict(cls.bulk_query_homes)
-
-    @classmethod
-    @property
-    def update_price_info(cls) -> str:
-        """Returns the query to update the price for all homes (current price, yesterdays price, etc.)."""
-        query_dict = {}
-        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceInfo)
-        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceRating)
-        return cls.create_query_from_dict(query_dict)
-
-    @classmethod
-    @property
-    def update_all_info(cls) -> str:
-        """Returns the query to update all info on the Tibber client, homes and price (client name, homes, price info, etc.)"""
-        query_dict = cls.query_viewer
-        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes)
-        return cls.create_query_from_dict(query_dict)
-
-    # Larger bulk query building components
-    @classmethod
-    @property
-    def bulk_query_homes(cls) -> dict:
-        """Return a dict with query values as keys with all keys under the viewer > homes query."""
-        query_dict = {}
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes)
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_address)
-        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_owner)
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_meteringPointData)
-        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription)
-        return query_dict
-
-    @classmethod
-    @property
-    def bulk_query_homes_owner(cls) -> dict:
-        """Return a dict with query values as keys with all keys under the viewer > homes > address query."""
-        query_dict = {}
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_owner)
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_owner_contactInfo)
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_owner_address)
-        return query_dict
+    def query_all_data(cls) -> str:
+        return cls.create_query_from_dict(QueryBuilder.query)
+    
+    # -------------------------------------------------------------------
+    # Query dicts for the Tibber API types. Remember that values ignored.
+    # -------------------------------------------------------------------
     
     @classmethod
     @property
-    def bulk_query_homes_currentSubscription(cls) -> dict:
-        """Return a dict with query values as keys with all keys under the viewer > homes > currentSubscription query."""
-        query_dict = {}
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription)
-        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_subscriber)
-        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceInfo)
-        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceRating)
-        return query_dict
-
+    def query(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `Query` type. This type is the base type
+        which all queries are nested in. Therefore, this query returns all information available from the api.
+        """
+        return {"viewer": QueryBuilder.viewer}
+    
     @classmethod
     @property
-    def bulk_query_homes_currentSubscription_subscriber(cls) -> dict:
-        """Return a dict with query values as keys with all keys under the viewer > homes > currentSubscription > subscriber query."""
-        query_dict = {}
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_subscriber)
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_subscriber_contactInfo)
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_subscriber_address)
-        return query_dict
-
-    @classmethod
-    @property
-    def bulk_query_homes_currentSubscription_priceInfo(cls) -> dict:
-        """Return a dict with query values as keys with all keys under the viewer > homes > currentSubscription > priceInfo query."""
-        query_dict = {}
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceInfo_current)
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceInfo_today)
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceInfo_tomorrow)
-        return query_dict
-
-    @classmethod
-    @property
-    def bulk_query_homes_currentSubscription_priceRating(cls) -> dict:
-        """Return a dict with query values as keys with all keys under the viewer > homes > currentSubscription > priceRating query."""
-        query_dict = {}
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceRating_thresholdPercentages)
-        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceRating_hourly)
-        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceRating_daily)
-        query_dict = cls.combine_dicts(query_dict, cls.bulk_query_homes_currentSubscription_priceRating_monthly)
-        return query_dict
-
-    @classmethod
-    @property
-    def bulk_query_homes_currentSubscription_priceRating_hourly(cls) -> dict:
-        """Return a dict with query values as keys with all keys under the viewer > homes > currentSubscription > priceRating > hourly query."""
-        query_dict = {}
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceRating_hourly)
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceRating_hourly_entries)
-        return query_dict
-
-    @classmethod
-    @property
-    def bulk_query_homes_currentSubscription_priceRating_daily(cls) -> dict:
-        """Return a dict with query values as keys with all keys under the viewer > homes > currentSubscription > priceRating > daily query."""
-        query_dict = {}
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceRating_daily)
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceRating_daily_entries)
-        return query_dict
-
-    @classmethod
-    @property
-    def bulk_query_homes_currentSubscription_priceRating_monthly(cls) -> dict:
-        """Return a dict with query values as keys with all keys under the viewer > homes > currentSubscription > priceRating > monthly query."""
-        query_dict = {}
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceRating_monthly)
-        query_dict = cls.combine_dicts(query_dict, cls.query_homes_currentSubscription_priceRating_monthly_entries)
-        return query_dict
-
-    # The smallest queries building components
-    @classmethod
-    @property
-    def query_viewer(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer query"""
+    def viewer(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `Viewer` type."""
         return {
-            "viewer": {
-                "name": "",
-                "login": "",
-                "userId": "",
-                "accountType": ""
-            }
+            "login": "",
+            "userId": "",
+            "name": "",
+            "accountType": [],
+            "homes": QueryBuilder.home
         }
 
     @classmethod
     @property
-    def query_homes(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes query"""
+    def home(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `Home` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "id": "",
-                    "timeZone": "",
-                    "appNickname": "",
-                    "appAvatar": "",
-                    "size": "",
-                    "type": "",
-                    "numberOfResidents": "",
-                    "primaryHeatingSource": "",
-                    "hasVentilationSystem": "",
-                    "mainFuseSize": ""
-                }
-            }
+            "id": "",
+            "timeZone": "",
+            "appNickname": "",
+            "appAvatar": "",
+            "size": 0,
+            "type": "",
+            "numberOfResidents": 0,
+            "primaryHeatingSource": "",
+            "hasVentilationSystem": False,
+            "mainFuseSize": 0,
+            "address": QueryBuilder.address,
+            "owner": QueryBuilder.legal_entity,
+            "meteringPointData": QueryBuilder.metering_point_data,
+            "currentSubscription": QueryBuilder.subscription,
+            "subscriptions": QueryBuilder.subscription,
+            "features": QueryBuilder.features
         }
 
     @classmethod
     @property
-    def query_homes_address(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > address query"""
+    def address(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `Address` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "address": {
-                        "address1": "",
-                        "address2": "",
-                        "address3": "",
-                        "city": "",
-                        "postalCode": "",
-                        "country": "",
-                        "latitude": "",
-                        "longitude": ""
-                    }
-                }
-            }
+            "address1": "",
+            "address2": "",
+            "address3": "",
+            "city": "",
+            "postalCode": "",
+            "country": "",
+            "latitude": "",
+            "longitude": ""
         }
 
     @classmethod
     @property
-    def query_homes_owner(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > owner query"""
+    def legal_entity(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `LegalEntity` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "owner": {     
-                        "id": "",
-                        "firstName": "",
-                        "isCompany": "",
-                        "name": "",
-                        "middleName": "",
-                        "lastName": "",
-                        "organizationNo": "",
-                        "language": ""
-                    }
-                }
-            }
+            "id": "",
+            "firstName": "",
+            "isCompany": False,
+            "name": "",
+            "middleName": "",
+            "lastName": "",
+            "organizationNo": "",
+            "language": "",
+            "contactInfo": QueryBuilder.contact_info,
+            "address": QueryBuilder.address
         }
 
     @classmethod
     @property
-    def query_homes_owner_contactInfo(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > owner > contactInfo query"""
+    def metering_point_data(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `MeteringPointData` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "owner": {
-                        "contactInfo": {
-                            "email": "",
-                            "mobile": ""
-                        }
-                    }
-                }
-            }
+            "consumptionEan": "",
+            "gridCompany": "",
+            "gridAreaCode": "",
+            "priceAreaCode": "",
+            "productionEan": "",
+            "energyTaxType": "",
+            "vatType": "",
+            "estimatedAnnualConsumption": 0
         }
 
     @classmethod
     @property
-    def query_homes_owner_address(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > owner > address query"""
+    def subscription(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `Subscription` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "owner": {
-                        "address": {
-                            "address1": "",
-                            "address2": "",
-                            "address3": "",
-                            "city": "",
-                            "postalCode": "",
-                            "country": "",
-                            "latitude": "",
-                            "longitude": ""
-                        }
-                    }
-                }
-            }
+            "id": "",
+            "subscriber": QueryBuilder.legal_entity,
+            "validFrom": "",
+            "validTo": "",
+            "status": "",
+            "priceInfo": QueryBuilder.price_info,
+            "priceRating": QueryBuilder.price_rating
         }
 
     @classmethod
     @property
-    def query_homes_meteringPointData(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > meteringPointData query"""
+    def features(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `HomeFeatures` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "meteringPointData": {
-                        "consumptionEan": "",
-                        "gridCompany": "",
-                        "gridAreaCode": "",
-                        "priceAreaCode": "",
-                        "productionEan": "",
-                        "energyTaxType": "",
-                        "vatType": "",
-                        "estimatedAnnualConsumption": ""
-                    }
-                }
-            }
+            "realTimeConsumptionEnabled": False
         }
 
     @classmethod
     @property
-    def query_homes_currentSubscription(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currenSubscription query"""
+    def contact_info(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `ContactInfo` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "id": "",
-                        "validFrom": "",
-                        "validTo": "",
-                        "status": ""
-                    }
-                }
-            }
+            "email": "",
+            "mobile": ""
         }
 
     @classmethod
     @property
-    def query_homes_currentSubscription_subscriber(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > subscriber query"""
+    def price_info(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `PriceInfo` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "subscriber": {
-                            "id": "",
-                            "firstName": "",
-                            "isCompany": "",
-                            "name": "",
-                            "middleName": "",
-                            "lastName": "",
-                            "organizationNo": "",
-                            "language": ""
-                        }
-                    }
-                }
-            }
+            "current": QueryBuilder.price,
+            "today": QueryBuilder.price,
+            "tomorrow": QueryBuilder.price
         }
 
     @classmethod
     @property
-    def query_homes_currentSubscription_subscriber_contactInfo(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > subscriber > contactInfo query"""
+    def price_rating(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `PriceRating` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "subscriber": {
-                            "contactInfo": {
-                                "email": "",
-                                "mobile": ""
-                            }
-                        }
-                    }
-                }
-            }
+            "thresholdPercentages": QueryBuilder.price_rating_threshold_percentages,
+            "hourly": QueryBuilder.price_rating_type,
+            "daily": QueryBuilder.price_rating_type,
+            "monthly": QueryBuilder.price_rating_type,
         }
 
     @classmethod
     @property
-    def query_homes_currentSubscription_subscriber_address(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > subscriber > address query"""
+    def price(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `Price` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "subscriber": {
-                            "address": {
-                                "address1": "",
-                                "address2": "",
-                                "address3": "",
-                                "city": "",
-                                "postalCode": "",
-                                "country": "",
-                                "latitude": "",
-                                "longitude": ""
-                            }
-                        }
-                    }
-                }
-            }
+            "total": 0.0,
+            "energy": 0.0,
+            "tax": 0.0,
+            "startsAt": "",
+            "currency": "",
+            "level": ""
         }
 
     @classmethod
     @property
-    def query_homes_currentSubscription_priceInfo_current(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > priceInfo > current query"""
+    def price_rating_threshold_percentages(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `PriceRatingThresholdPercentages` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "priceInfo": {
-                            "current": {
-                                "total": "",
-                                "energy": "",
-                                "tax": "",
-                                "startsAt": "",
-                                "currency": "",
-                                "level": ""
-                            }
-                        }
-                    }
-                }
-            }
+            "high": 0.0,
+            "low": 0.0
         }
 
     @classmethod
     @property
-    def query_homes_currentSubscription_priceInfo_today(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > priceInfo > today query"""
+    def price_rating_type(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `PriceRatingType` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "priceInfo": {
-                            "today": {
-                                "total": "",
-                                "energy": "",
-                                "tax": "",
-                                "startsAt": "",
-                                "currency": "",
-                                "level": ""
-                            }
-                        }
-                    }
-                }
-            }
+            "minEnergy": 0.0,
+            "maxEnergy": 0.0,
+            "minTotal": 0.0,
+            "maxTotal": 0.0,
+            "currency": "",
+            "entries": QueryBuilder.price_rating_entry
         }
 
     @classmethod
     @property
-    def query_homes_currentSubscription_priceInfo_tomorrow(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > priceInfo > tomorrow query"""
+    def price_rating_entry(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `PriceRatingEntry` type."""
         return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "priceInfo": {
-                            "tomorrow": {
-                                "total": "",
-                                "energy": "",
-                                "tax": "",
-                                "startsAt": "",
-                                "currency": "",
-                                "level": ""
-                            }
-                        }
-                    }
-                }
-            }
+            "time": "",
+            "energy": 0.0,
+            "total": 0.0,
+            "tax": 0.0,
+            "difference": 0.0,
+            "level": ""
         }
-
-    @classmethod
-    @property
-    def query_homes_currentSubscription_priceRating_thresholdPercentages(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > priceRating > thresholdPercentages query"""
-        return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "priceRating": {
-                            "thresholdPercentages": {
-                                "high": "",
-                                "low": ""
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-    @classmethod
-    @property
-    def query_homes_currentSubscription_priceRating_hourly(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > priceRating > hourly query"""
-        return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "priceRating": {
-                            "hourly": {
-                                "minEnergy": "",
-                                "maxEnergy": "",
-                                "minTotal": "",
-                                "maxTotal": "",
-                                "currency": ""
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-    @classmethod
-    @property
-    def query_homes_currentSubscription_priceRating_hourly_entries(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > priceRating > hourly > entries query"""
-        return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "priceRating": {
-                            "hourly": {
-                                "entries": {
-                                    "time": "",
-                                    "energy": "",
-                                    "total": "",
-                                    "tax": "",
-                                    "difference": "",
-                                    "level": ""
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-    @classmethod
-    @property
-    def query_homes_currentSubscription_priceRating_daily(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > priceRating > daily query"""
-        return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "priceRating": {
-                            "daily": {
-                                "minEnergy": "",
-                                "maxEnergy": "",
-                                "minTotal": "",
-                                "maxTotal": "",
-                                "currency": ""
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-    @classmethod
-    @property
-    def query_homes_currentSubscription_priceRating_daily_entries(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > priceRating > daily > entries query"""
-        return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "priceRating": {
-                            "daily": {
-                                "entries": {
-                                    "time": "",
-                                    "energy": "",
-                                    "total": "",
-                                    "tax": "",
-                                    "difference": "",
-                                    "level": ""
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-    @classmethod
-    @property
-    def query_homes_currentSubscription_priceRating_monthly(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > priceRating > monthly query"""
-        return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "priceRating": {
-                            "monthly": {
-                                "minEnergy": "",
-                                "maxEnergy": "",
-                                "minTotal": "",
-                                "maxTotal": "",
-                                "currency": ""
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-    @classmethod
-    @property
-    def query_homes_currentSubscription_priceRating_monthly_entries(cls) -> dict:
-        """Return a dict with query values as keys with all keys that are do not have 
-        dictionary values under the viewer > homes > currentSubscription > priceRating > monthly > entries query"""
-        return {
-            "viewer": {
-                "homes": {
-                    "currentSubscription": {
-                        "priceRating": {
-                            "monthly": {
-                                "entries": {
-                                    "time": "",
-                                    "energy": "",
-                                    "total": "",
-                                    "tax": "",
-                                    "difference": "",
-                                    "level": ""
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-# Template for creating more builder methods:
-#    @classmethod
-#    @property
-#    def query_(cls) -> dict:
-#        pass

@@ -3,6 +3,7 @@ from tibber.types.legal_entity import LegalEntity
 from tibber.types.address import Address
 from tibber.types.metering_point_data import MeteringPointData
 from tibber.types.subscription import Subscription
+from tibber.types.home_features import HomeFeatures
 
 
 class TibberHome:
@@ -65,7 +66,7 @@ class TibberHome:
     
     @property
     def subscriptions(self) -> list[Subscription]:
-        return [Subscription(sub) for sub in self.cache.get("subscriptions", [])]
+        return [Subscription(sub, self.tibber_client) for sub in self.cache.get("subscriptions", [])]
     
     @property
     def features(self):

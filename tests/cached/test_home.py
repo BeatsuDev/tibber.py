@@ -48,10 +48,10 @@ def test_reading_owner(home):
     assert isinstance(home.owner, LegalEntity)
 
 def test_reading_metering_point_data(home):
-    assert isinstance(home.owner, MeteringPointData)
+    assert isinstance(home.metering_point_data, MeteringPointData)
 
 def test_reading_current_subscription(home):
-    assert isinstance(home.owner, Subscription)
+    assert isinstance(home.current_subscription, Subscription)
 
 def test_reading_subscriptions(home):
     assert len(home.subscriptions) == 2
