@@ -1,3 +1,5 @@
+from tibber.types.price_rating_threshold_percentages import PriceRatingThresholdPercentages
+from tibber.types.price import Price
 from tibber.types.contact_info import ContactInfo
 from tibber.types.address import Address
 from tibber.types.legal_entity import LegalEntity
