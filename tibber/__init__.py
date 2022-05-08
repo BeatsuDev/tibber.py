@@ -6,4 +6,5 @@ SUBSCRIPTION_ENDPOINT = "wss://api.tibber.com/v1-beta/gql/subscriptions"
 # Import modules after definig constants to avoid circular import error.
 from tibber.enums import Resolution
 from tibber.client import Client
-from tibber.home import TibberHome
+from tibber.models.home import TibberHome
+from tibber.models.owner import HomeOwner

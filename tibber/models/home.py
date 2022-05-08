@@ -1,6 +1,6 @@
 """Classes for retrieving data of a Tibber Home"""
-from tibber.owner import HomeOwner
-from tibber.cache import Cache
+from tibber.models import HomeOwner
+from tibber.utils import Cache
 
 class TibberHome:
     """A Tibber home with methods to get/fetch home information without the decorator functions to subscribe to live data."""

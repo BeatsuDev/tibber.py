@@ -1,6 +1,6 @@
 from tibber.networking import QueryExecutor
 from tibber.networking import QueryBuilder
-from tibber.cache import Cache
+from tibber.utils import Cache
 
 class Client(QueryExecutor):
     """The main Tibber class to communicate with the Tibber API."""
