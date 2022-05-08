@@ -3,7 +3,7 @@ from typing import Optional
 
 import aiohttp
 
-from tibber import API_ENDPOINT # TODO: Fix circular import 
+from tibber import API_ENDPOINT
 
 
 class QueryExecutor:
