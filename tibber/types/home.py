@@ -60,8 +60,16 @@ class TibberHome:
         return MeteringPointData(self.cache.get("meteringPointData"), self.tibber_client)
 
     @property
-    def subscription(self) -> Subscription:
+    def current_subscription(self) -> Subscription:
         return Subscription(self.cache.get("currentSubscription"), self.tibber_client)
+    
+    @property
+    def subscriptions(self) -> list[Subscription]:
+        return [Subscription(sub) for sub in self.cache.get("subscriptions")]
+    
+    @property
+    def features(self):
+        return HomeFeatures(self.cache.get("features"), self.tibber_client)
     
     # Support 1 to 1 Tibber API representation.
     @property
