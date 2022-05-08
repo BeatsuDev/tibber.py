@@ -7,12 +7,15 @@
 ![Tests 3.9](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.9.yml/badge.svg)
 ![Tests 3.10](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.10.yml/badge.svg)
 
-A python wrapper module for communication with the [Tibber API](https://developer.tibber.com/). This package requires Python 3.9+ (This may be changed in the future to support 3.7+. For now the simpler solution was simply to require Python 3.9+) and depends only on aiohttp.
+A python wrapper package for communication with the [Tibber API](https://developer.tibber.com/). This package aims to cover all functionalities of the Tibber API. 
 
 ## Installation
+### Install via pip
 ```
 python -m pip install tibber.py
 ```
+### Requirements
+tibber.py depends only on aiohttp. As of now, the project requires Python 3.9+ as well (this might change in the future to support Python 3.7+).
 
 ## Examples
 Getting basic client data:
@@ -46,3 +49,35 @@ print(home.primary_heating_source) # "AIR2AIR_HEATPUMP"
 print(home.has_ventilation_system) # True
 print(home.main_fuse_size)         # 63
 ```
+## 100% API coverage TODO / Progress list
+All the API features are documented here: https://developer.tibber.com/docs/reference
+- [x] Address
+- [ ] Consumption
+- [x] ContactInfo
+- [x] Home
+- [ ] HomeConsumptionConnection
+- [ ] HomeConsumptionEdge
+- [ ] HomeConsumptionPageInfo
+- [x] HomeFeatures
+- [ ] HomeProductionConnection
+- [ ] HomeProductionEdge
+- [ ] HomeProductionPageInfo
+- [x] LegalEntity
+- [ ] LiveMeasurement
+- [ ] MeterReadingResponse
+- [x] MeteringPointData
+- [x] Price
+- [x] PriceInfo
+- [x] PriceRating
+- [x] PriceRatingEntry
+- [x] PriceRatingThresholdPercentages
+- [x] PriceRatingType
+- [ ] Production
+- [ ] PushNotificationResponse
+- [ ] RootMutation
+- [ ] RootSubscription
+- [x] Subscription
+- [ ] SubscriptionPriceConnection
+- [ ] SubscriptionPriceConnectionPageInfo
+- [ ] SubscriptionPriceEdge
+- [x] Viewer
