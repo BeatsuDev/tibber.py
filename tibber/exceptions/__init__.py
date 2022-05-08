@@ -1,1 +1,1 @@
-from tibber.exceptions.api import *
+from tibber.exceptions.api import InvalidToken
