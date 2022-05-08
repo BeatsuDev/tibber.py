@@ -1,5 +1,5 @@
 """A class representing the PriceInfo type from the GraphQL Tibber API."""
-
+from tibber.types.price import Price
 
 class PriceInfo:
     """A class to get price info."""
@@ -8,16 +8,13 @@ class PriceInfo:
         self.tibber_client: "Client" = tibber_client
 
     @property
-    def current(self) -> dict:
-        # TODO: Create a Price type
-        return self.cache.get("current")
+    def current(self) -> Price:
+        return Price(self.cache.get("current"), self.tibber_client)
 
     @property
-    def today(self) -> dict:
-        # TODO: Create a Price type
-        return self.cache.get("today")
+    def today(self) -> list[Price]:
+        return [Price(hour, self.tibber_client) for hour in self.cache.get("today")]
 
     @property
-    def tomorrow(self) -> dict:
-        # TODO: Create a Price type
-        return self.cache.get("tomorrow")
+    def tomorrow(self) -> list[Price]:
+        return [Price(hour, self.tibber_client) for hour in self.cache.get("tomorrow")]
