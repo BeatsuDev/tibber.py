@@ -13,7 +13,7 @@ setup(
     license="MIT",
     version=__version__,
     description="A python wrapper for the Tibber API.",
-    python_requires=">=3.7.0",
+    python_requires=">=3.9.0",
     author="BeatsuDev",
     author_email="",
     url="https://github.com/BeatsuDev/tibber.py",
