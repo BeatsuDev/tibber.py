@@ -1,9 +1,10 @@
 from tibber.networking import QueryExecutor
 from tibber.networking import QueryBuilder
+from tibber.cache import Cache
 
 class Client(QueryExecutor):
     """The main Tibber class to communicate with the Tibber API."""
-    def __init__(self, token: str, immediate_update: bool=True):
+    def __init__(self, token: str, immediate_update: bool = True):
         """Initialize the tibber client.
 
         :param token: The token to log in with
@@ -12,7 +13,7 @@ class Client(QueryExecutor):
         :throws InvalidToken: If the provided token was not accepted by the Tibber API. Note
             that this will only be checked if the immediate_update parameter is set to True.
         """
-        self.cache: dict = {}
+        self.cache: Cache = Cache()
         self._token: str = token
 
         super().__init__()

@@ -1,12 +1,12 @@
 """Classes for retrieving data of a Tibber Home"""
-
+from tibber.owner import HomeOwner
+from tibber.cache import Cache
 
 class TibberHome:
     """A Tibber home with methods to get/fetch home information without the decorator functions to subscribe to live data."""
-    def __init__(self, data: dict, tibber_client: "TibberClient"):
-        self.cache = data
-        self.tibber_client = tibber_client
-
+    def __init__(self, data: dict, tibber_client: "Client"):
+        self.cache: "Cache" = Cache(data)
+        self.tibber_client: "Client" = tibber_client
 
     @property
     def id(self):
@@ -47,8 +47,55 @@ class TibberHome:
     @property
     def main_fuse_size(self):
         return self.cache.get("mainFuseSize")
+
+    @property
+    def owner(self):
+        return self.cache.get("owner")
+
+    @property
+    def metering_point_data(self):
+        return self.cache.get("meteringPointData")
+
+    @property
+    def subscription(self):
+        return self.cache.get("currentSubscription")
     
-    # TODO: Add other values as well
+    # Support 1 to 1 Tibber API representation.
+    @property
+    def address(self):
+        return self.cache.get("address")
+    
+    @property
+    def address1(self):
+        return self.cache.get("address", "address1")
+
+    @property
+    def address2(self):
+        return self.cache.get("address", "address2")
+
+    @property
+    def address3(self):
+        return self.cache.get("address", "address3")
+
+    @property
+    def city(self):
+        return self.cache.get("address", "city")
+
+    @property
+    def postal_code(self):
+        return self.cache.get("address", "postalCode")
+
+    @property
+    def country(self):
+        return self.cache.get("address", "country")
+
+    @property
+    def latitude(self):
+        return self.cache.get("address", "latitude")
+
+    @property
+    def longitude(self):
+        return self.cache.get("address", "longitude")
 
 
 class DecoratedTibberHome(TibberHome):
