@@ -72,12 +72,20 @@ class QueryBuilder:
 
     @classmethod
     @property
-    def query_viewer(cls) -> str:
-        return cls.create_query_from_dict(QueryBuilder.viewer)
+    def query_all_data(cls) -> str:
+        return cls.create_query_from_dict(QueryBuilder.query)
     
     # -------------------------------------------------------------------
     # Query dicts for the Tibber API types. Remember that values ignored.
     # -------------------------------------------------------------------
+    
+    @classmethod
+    @property
+    def query(cls) -> dict:
+        """Return a dict with query values as keys for all information on the `Query` type. This type is the base type
+        which all queries are nested in. Therefore, this query returns all information available from the api.
+        """
+        return {"viewer": QueryBuilder.viewer}
     
     @classmethod
     @property
@@ -250,7 +258,7 @@ class QueryBuilder:
 
     @classmethod
     @property
-    def price_rating_type(cls) -> dict:
+    def price_rating_entry(cls) -> dict:
         """Return a dict with query values as keys for all information on the `PriceRatingEntry` type."""
         return {
             "time": "",
