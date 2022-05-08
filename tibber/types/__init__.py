@@ -1,3 +1,6 @@
+# TODO: Sort imports for better readability
+from tibber.types.price_rating_entry import PriceRatingEntry
+from tibber.types.price_rating_type import PriceRatingType
 from tibber.types.price_rating_threshold_percentages import PriceRatingThresholdPercentages
 from tibber.types.price import Price
 from tibber.types.contact_info import ContactInfo
