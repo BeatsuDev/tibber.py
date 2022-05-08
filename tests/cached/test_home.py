@@ -1,0 +1,39 @@
+"""Tests for reading tibber.TibberHome properties from cached values after the Tibber client is initialized."""
+import pytest
+import tibber
+
+
+@pytest.fixture
+def home():
+    client = tibber.Client(tibber.DEMO_TOKEN)
+    try:
+        return client.homes[0]
+    except IndexError:
+        raise ValueError("The instanciated demo client does not have any homes. Cannot perform home tests.")
+
+def test_reading_id(home):
+    assert home.id == "cc83e83e-8cbf-4595-9bf7-c3cf192f7d9c"
+    
+def test_reading_time_zome(home):
+    assert home.time_zone == "Europe/Oslo"
+    
+def test_reading_app_nickname(home):
+    assert home.app_nickname == "Ulltang casa"
+    
+def test_reading_size(home):
+    assert home.size == 200
+    
+def test_reading_type(home):
+    assert home.type == "HOUSE"
+    
+def test_reading_number_of_residents(home):
+    assert home.number_of_residents == 4
+    
+def test_reading_primary_heating_source(home):
+    assert home.primary_heating_source == "AIR2AIR_HEATPUMP"
+    
+def test_reading_has_ventilation_system(home):
+    assert home.has_ventilation_system == True
+    
+def test_reading_main_fuse_size(home):
+    assert home.main_fuse_size == 63
