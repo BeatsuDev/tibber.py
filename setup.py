@@ -1,4 +1,3 @@
-import os
 from setuptools import setup
 
 from tibber import __version__
