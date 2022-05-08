@@ -27,8 +27,7 @@ jobs:
             pip install aiohttp pytest pytest-cov
       - name: Pytest
         run: |
-            cd tests
-            pytest . --cov=tibber ./ --cov-report xml:coverage.xml
+            pytest --cov=tibber tests/ --cov-report xml:coverage.xml
       - name: Upload to codecov
         run: |
             curl -Os https://uploader.codecov.io/v0.1.0_4653/linux/codecov
