@@ -17,48 +17,51 @@ def home():
     except IndexError:
         raise ValueError("The instanciated demo client does not have any homes. Cannot perform home tests.")
 
-def test_reading_id(home):
+def test_getting_id(home):
     assert home.id == "cc83e83e-8cbf-4595-9bf7-c3cf192f7d9c"
     
-def test_reading_time_zome(home):
+def test_getting_time_zome(home):
     assert home.time_zone == "Europe/Oslo"
     
-def test_reading_app_nickname(home):
+def test_getting_app_nickname(home):
     assert home.app_nickname == "Ulltang casa"
     
-def test_reading_size(home):
+def test_getting_size(home):
     assert home.size == 200
     
-def test_reading_type(home):
+def test_getting_type(home):
     assert home.type == "HOUSE"
     
-def test_reading_number_of_residents(home):
+def test_getting_number_of_residents(home):
     assert home.number_of_residents == 4
     
-def test_reading_primary_heating_source(home):
+def test_getting_primary_heating_source(home):
     assert home.primary_heating_source == "AIR2AIR_HEATPUMP"
     
-def test_reading_has_ventilation_system(home):
+def test_getting_has_ventilation_system(home):
     assert home.has_ventilation_system == True
     
-def test_reading_main_fuse_size(home):
+def test_getting_main_fuse_size(home):
     assert home.main_fuse_size == 63
 
-def test_reading_owner(home):
+def test_getting_owner(home):
     assert isinstance(home.owner, LegalEntity)
 
-def test_reading_metering_point_data(home):
+def test_getting_metering_point_data(home):
     assert isinstance(home.metering_point_data, MeteringPointData)
 
-def test_reading_current_subscription(home):
+def test_getting_current_subscription(home):
     assert isinstance(home.current_subscription, Subscription)
 
-def test_reading_subscriptions(home):
+def test_getting_subscriptions(home):
     assert len(home.subscriptions) == 2
     assert isinstance(home.subscriptions[0], Subscription)
 
-def test_reading_features(home):
+def test_getting_features(home):
     assert isinstance(home.features, HomeFeatures)
     
-def test_reading_address(home):
+def test_getting_address(home):
     assert isinstance(home.address, Address)
+    
+def test_getting_address1(home):
+    assert home.address1 == "Winterfell Castle 1"
