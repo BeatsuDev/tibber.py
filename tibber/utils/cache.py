@@ -1,10 +1,9 @@
 """Contains a cache class for storing dicts and retrieving values from nested dicts."""
 from typing import Any
 
-class Cache(dict):
+class Cache:
     """A dict with an overriden get() method."""
     def __init__(self, data: dict = {}):
-        super().__init__(data)
         self.data = data
         
     def get(self, *keys, default: Any = None, _dict_to_get_from: dict = None):
