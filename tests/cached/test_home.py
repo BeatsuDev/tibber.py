@@ -1,12 +1,12 @@
 """Tests for reading tibber.TibberHome properties from cached values after the Tibber client is initialized."""
 import pytest
 
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
-
 import tibber
-from tibber import LegalEntity
+from tibber.types import LegalEntity
+from tibber.types import MeteringPointData
+from tibber.types import Subscription
+from tibber.types import HomeFeatures
+from tibber.types import Address
 
 
 @pytest.fixture
@@ -46,3 +46,19 @@ def test_reading_main_fuse_size(home):
 
 def test_reading_owner(home):
     assert isinstance(home.owner, LegalEntity)
+
+def test_reading_metering_point_data(home):
+    assert isinstance(home.owner, MeteringPointData)
+
+def test_reading_current_subscription(home):
+    assert isinstance(home.owner, Subscription)
+
+def test_reading_subscriptions(home):
+    assert len(home.subscriptions) == 2
+    assert isinstance(home.subscriptions[0], Subscription)
+
+def test_reading_features(home):
+    assert isinstance(home.features, HomeFeatures)
+    
+def test_reading_address(home):
+    assert isinstance(home.address, Address)
