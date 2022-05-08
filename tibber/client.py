@@ -1,6 +1,6 @@
 from tibber.networking import QueryExecutor
 from tibber.networking import QueryBuilder
-from tibber.utils import Cache
+from tibber.types.viewer import Viewer
 
 class Client(QueryExecutor):
     """The main Tibber class to communicate with the Tibber API."""
@@ -13,7 +13,7 @@ class Client(QueryExecutor):
         :throws InvalidToken: If the provided token was not accepted by the Tibber API. Note
             that this will only be checked if the immediate_update parameter is set to True.
         """
-        self.cache: Cache = Cache()
+        self.cache: dict = {}
         self._token: str = token
 
         super().__init__()
@@ -39,30 +39,27 @@ class Client(QueryExecutor):
         if not isinstance(token, str):
             raise TypeError("The token must be a string.")
         self.token = token
+        
+    @property
+    def viewer(self):
+        return Viewer(self.cache.get("viewer"), self)
 
-    # Client data gathered from cache
     @property
     def name(self):
-        # TODO: Error handling if the key does not exist
-        return self.cache["viewer"].get("name")
+        return self.viewer.name
 
     @property
     def login(self):
-        # TODO: Error handling if the key does not exist
-        return self.cache["viewer"].get("login")
+        return self.viewer.login
 
     @property
     def user_id(self):
-        # TODO: Error handling if the key does not exist
-        return self.cache["viewer"].get("userId")
+        return self.viewer.user_id
 
     @property
     def account_type(self):
-        # TODO: Error handling if the key does not exist
-        return self.cache["viewer"].get("accountType")
+        return self.viewer.account_type
     
     @property
     def homes(self):
-        from tibber import TibberHome
-        # TODO: Error handling if the key does not exist
-        return [ TibberHome(data, self) for data in self.cache["viewer"]["homes"] ]
+        return self.viewer.homes
