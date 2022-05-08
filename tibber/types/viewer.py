@@ -26,4 +26,4 @@ class Viewer:
     
     @property
     def homes(self):
-        return [ TibberHome(home, self.tibber_client) for home in self.cache.get("homes") ]
+        return [ TibberHome(home, self.tibber_client) for home in self.cache.get("homes", []) ]

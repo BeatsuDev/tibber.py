@@ -30,4 +30,4 @@ class PriceRatingType:
 
     @property
     def entries(self) -> list[PriceRatingEntry]:
-        return [PriceRatingEntry(entry, self.tibber_client) for entry in self.cache.get("entries")]
+        return [PriceRatingEntry(entry, self.tibber_client) for entry in self.cache.get("entries", [])]

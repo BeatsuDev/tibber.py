@@ -13,8 +13,8 @@ class PriceInfo:
 
     @property
     def today(self) -> list[Price]:
-        return [Price(hour, self.tibber_client) for hour in self.cache.get("today")]
+        return [Price(hour, self.tibber_client) for hour in self.cache.get("today", [])]
 
     @property
     def tomorrow(self) -> list[Price]:
-        return [Price(hour, self.tibber_client) for hour in self.cache.get("tomorrow")]
+        return [Price(hour, self.tibber_client) for hour in self.cache.get("tomorrow", [])]

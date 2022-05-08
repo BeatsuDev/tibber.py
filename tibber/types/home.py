@@ -65,7 +65,7 @@ class TibberHome:
     
     @property
     def subscriptions(self) -> list[Subscription]:
-        return [Subscription(sub) for sub in self.cache.get("subscriptions")]
+        return [Subscription(sub) for sub in self.cache.get("subscriptions", [])]
     
     @property
     def features(self):
