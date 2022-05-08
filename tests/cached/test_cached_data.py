@@ -15,9 +15,10 @@ def client():
 
 def test_reading_viewer_info(client):
     assert client.name == "Arya Stark"
+    assert client.login == "edgeir@tibber.com"
     assert client.user_id == "df4b53bf-0709-4679-8744-08876cbb03c1"
     assert client.account_type == ["tibber", "customer"]
-    assert client.login == "edgeir@tibber.com"
+    # client.homes is tested in test_reading_home_info
 
 
 def test_reading_home_info(client):
