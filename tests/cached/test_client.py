@@ -1,10 +1,6 @@
 """Tests for reading tibber.Client properties from cached values after the Tibber client is initialized."""
 import pytest
 
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
-
 import tibber
 
 
