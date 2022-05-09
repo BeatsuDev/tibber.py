@@ -1,5 +1,5 @@
 """A class representing the PriceRatingThresholdPercentages type from the GraphQL Tibber API."""
-from tibber.types.price import Price
+
 
 class PriceRatingThresholdPercentages:
     """A class to get price info."""
