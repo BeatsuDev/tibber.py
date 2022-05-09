@@ -67,4 +67,6 @@ class QueryExecutor:
     
     def __del__(self):
         """Close the websession when the class is deloaded"""
+        if self.eventloop.is_closed(): return
+        if self.websession.closed: return
         self.eventloop.run_until_complete(self.websession.close())
