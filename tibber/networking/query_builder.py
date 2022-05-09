@@ -268,3 +268,118 @@ class QueryBuilder:
             "difference": 0.0,
             "level": ""
         }
+
+    # Queries with arguments. Note that these are different than queries in the way that
+    # these components need to return the key for the query as well as all it's properties
+    # not just the queries. This means that these should be unpacked when combined with
+    # other queries, not added as a value of a key.
+
+    @classmethod
+    def single_home(home_id: str) -> dict:
+        return {
+            f"home({home_id})": QueryBuilder.home
+        }
+        
+    @classmethod
+    def consumption_query(resolution: str, first: int, last: int, before: str, after: str, filter_empty_nodes: bool = False):
+        return {
+            f"consumption(resolution: {resolution}, " \
+                        f"first: {first}, " \
+                        f"last: {last}, " \
+                        f"before: {before}, " \
+                        f"after: {after}, " \
+                        f"filterEmptyNodes: {filter_empty_nodes})": {
+                "pageInfo": QueryBuilder.home_consumption_page_info,
+                "nodes": QueryBuilder.consumption,
+                "edges": QueryBuilder.home_consumption_edge
+            }
+        }
+
+    @classmethod
+    def production_query(resolution: str, first: int, last: int, before: str, after: str, filter_empty_nodes: bool = False):
+        return {
+            f"production(resolution: {resolution}, " \
+                        f"first: {first}, " \
+                        f"last: {last}, " \
+                        f"before: {before}, " \
+                        f"after: {after}, " \
+                        f"filterEmptyNodes: {filter_empty_nodes})": {
+                "pageInfo": QueryBuilder.home_production_page_info,
+                "nodes": QueryBuilder.production,
+                "edges": QueryBuilder.home_production_edge
+            }
+        }
+
+    @classmethod
+    @property
+    def home_consumption_page_info(self):
+        return {
+            "endCursor": "",
+            "hasNextPage": False,
+            "hasPreviousPage": False,
+            "startCursor": "",
+            "count": 0,
+            "currency": "",
+            "totalCost": 0.0,
+            "totalConsumption": 0.0,
+            "filtered:": 0
+        }
+
+    @classmethod
+    @property
+    def consumption():
+        return {
+            "from": "",
+            "to": "",
+            "unitPrice": 0.0,
+            "unitPriceVAT": 0.0,
+            "consumption": 0.0,
+            "consumptionUnit": "",
+            "cost": 0.0,
+            "currency": ""
+        }
+
+    @classmethod
+    @property
+    def home_consumption_edge():
+        return {
+            "cursor": "",
+            "node": QueryBuilder.consumption
+        }
+
+    @classmethod
+    @property
+    def home_production_page_info(self):
+        return {
+            "endCursor": "",
+            "hasNextPage": False,
+            "hasPreviousPage": False,
+            "startCursor": "",
+            "count": 0,
+            "currency": "",
+            "totalProfit": 0.0,
+            "totalProduction": 0.0,
+            "filtered:": 0
+        }
+
+    @classmethod
+    @property
+    def production():
+        return {
+            "from": "",
+            "to": "",
+            "unitPrice": 0.0,
+            "unitPriceVAT": 0.0,
+            "production": 0.0,
+            "productionUnit": "",
+            "profit": 0.0,
+            "currency": ""
+        }
+
+    @classmethod
+    @property
+    def home_production_edge():
+        return {
+            "cursor": "",
+            "node": QueryBuilder.production
+        }
