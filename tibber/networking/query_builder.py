@@ -23,7 +23,28 @@ class QueryBuilder:
             string_query += "}"
             
         return string_query
-
+    
+    @classmethod
+    def create_query(cls, *args):
+        """Creates a query given keys. The last argument must be a valid property of QueryBuilder that fits
+        according to the GraphQL structure of the Tibber API.
+        
+        Exmaple:
+            create_query("viewer", "homes", "currentSubscription", QueryBuilder.price_info)
+        
+            This returns a string query that queries specifically for the
+            price_info of the current subscription in all homes.
+        """
+        if len(args) == 0:
+            raise TypeError("The QueryBuilder.create_query method requires at least one argument!")
+        
+        def nest_dict(*keys):
+            if len(keys) == 1:
+                return keys[0]
+            return {keys[0]: create_query(*keys[1:])}
+        
+        return QueryBuilder.create_query_from_dict(nest_dict(*args))
+        
     @classmethod
     def combine_dicts(cls, dict1: dict, dict2: dict) -> dict:
         """Combines two nested dictionaries. The values from second dictionary overwrites the first one
