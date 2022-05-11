@@ -64,7 +64,7 @@ All the API features are documented here: https://developer.tibber.com/docs/refe
 - [x] HomeProductionEdge
 - [x] HomeProductionPageInfo
 - [x] LegalEntity
-- [ ] LiveMeasurement
+- [x] LiveMeasurement
 - [ ] MeterReadingResponse
 - [x] MeteringPointData
 - [x] Price
