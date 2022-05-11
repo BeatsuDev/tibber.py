@@ -333,7 +333,7 @@ class QueryBuilder:
 
     @classmethod
     @property
-    def home_consumption_page_info(self):
+    def home_consumption_page_info(cls):
         return {
             "endCursor": "",
             "hasNextPage": False,
@@ -348,7 +348,7 @@ class QueryBuilder:
 
     @classmethod
     @property
-    def consumption():
+    def consumption(cls):
         return {
             "from": "",
             "to": "",
@@ -362,7 +362,7 @@ class QueryBuilder:
 
     @classmethod
     @property
-    def home_consumption_edge():
+    def home_consumption_edge(cls):
         return {
             "cursor": "",
             "node": QueryBuilder.consumption
@@ -370,7 +370,7 @@ class QueryBuilder:
 
     @classmethod
     @property
-    def home_production_page_info(self):
+    def home_production_page_info(cls):
         return {
             "endCursor": "",
             "hasNextPage": False,
@@ -385,7 +385,7 @@ class QueryBuilder:
 
     @classmethod
     @property
-    def production():
+    def production(cls):
         return {
             "from": "",
             "to": "",
@@ -399,7 +399,7 @@ class QueryBuilder:
 
     @classmethod
     @property
-    def home_production_edge():
+    def home_production_edge(cls):
         return {
             "cursor": "",
             "node": QueryBuilder.production
