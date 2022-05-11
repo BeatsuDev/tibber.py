@@ -56,13 +56,13 @@ All the API features are documented here: https://developer.tibber.com/docs/refe
 - [ ] Consumption
 - [x] ContactInfo
 - [x] Home
-- [ ] HomeConsumptionConnection
+- [x] HomeConsumptionConnection
 - [ ] HomeConsumptionEdge
-- [ ] HomeConsumptionPageInfo
+- [x] HomeConsumptionPageInfo
 - [x] HomeFeatures
-- [ ] HomeProductionConnection
+- [x] HomeProductionConnection
 - [ ] HomeProductionEdge
-- [ ] HomeProductionPageInfo
+- [x] HomeProductionPageInfo
 - [x] LegalEntity
 - [ ] LiveMeasurement
 - [ ] MeterReadingResponse
