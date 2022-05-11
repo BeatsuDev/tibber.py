@@ -1,6 +1,7 @@
 """A class representing the HomeProductionConnection type from the GraphQL Tibber API."""
 from tibber.types.home_production_page_info import HomeProductionPageInfo
 from tibber.types.production import Production
+from tibber.types.home_production_edge import HomeProductionEdge
 
 
 class HomeProductionConnection:
@@ -20,4 +21,4 @@ class HomeProductionConnection:
 
     @property
     def edges(self) -> list:
-        return self.cache.get("edges")
+        return [HomeProductionEdge(edge, self.tibber_client) for edge in self.cache.get("edges")]

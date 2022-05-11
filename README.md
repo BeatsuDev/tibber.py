@@ -53,15 +53,15 @@ print(home.main_fuse_size)         # 63
 ## 100% API coverage TODO / Progress list
 All the API features are documented here: https://developer.tibber.com/docs/reference
 - [x] Address
-- [ ] Consumption
+- [x] Consumption
 - [x] ContactInfo
 - [x] Home
 - [x] HomeConsumptionConnection
-- [ ] HomeConsumptionEdge
+- [x] HomeConsumptionEdge
 - [x] HomeConsumptionPageInfo
 - [x] HomeFeatures
 - [x] HomeProductionConnection
-- [ ] HomeProductionEdge
+- [x] HomeProductionEdge
 - [x] HomeProductionPageInfo
 - [x] LegalEntity
 - [ ] LiveMeasurement
@@ -73,7 +73,7 @@ All the API features are documented here: https://developer.tibber.com/docs/refe
 - [x] PriceRatingEntry
 - [x] PriceRatingThresholdPercentages
 - [x] PriceRatingType
-- [ ] Production
+- [x] Production
 - [ ] PushNotificationResponse
 - [ ] RootMutation
 - [ ] RootSubscription
