@@ -2,9 +2,15 @@ from setuptools import setup
 
 from tibber import __version__
 
+# read the contents of your README file
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="tibber.py",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     packages=["tibber"],
     install_requires=[
         "aiohttp>=3.7.0"
