@@ -41,7 +41,7 @@ class QueryBuilder:
         def nest_dict(*keys):
             if len(keys) == 1:
                 return keys[0]
-            return {keys[0]: create_query(*keys[1:])}
+            return {keys[0]: nest_dict(*keys[1:])}
         
         return QueryBuilder.create_query_from_dict(nest_dict(*args))
         
@@ -302,14 +302,21 @@ class QueryBuilder:
         }
         
     @classmethod
-    def consumption_query(cls, resolution: str, first: int, last: int, before: str, after: str, filter_empty_nodes: bool = False):
+    def consumption_query(cls, resolution: str, 
+                          first: int = None, 
+                          last: int = None, 
+                          before: str = None, 
+                          after: str = None, 
+                          filter_empty_nodes: bool = False):
+        # TODO: I feel like this can be improved...
+        first_arg = f"first: {first}" if first else ""
+        last_arg = f"last: {last}" if last else ""
+        before_arg = f"before: \"{before}\"" if before else ""
+        after_arg = f"after: \"{after}\"" if after else ""
+
+        args = ", ".join([arg for arg in [first_arg, last_arg, before_arg, after_arg] if arg])
         return {
-            f"consumption(resolution: {resolution}, " \
-                        f"first: {first}, " \
-                        f"last: {last}, " \
-                        f"before: {before}, " \
-                        f"after: {after}, " \
-                        f"filterEmptyNodes: {filter_empty_nodes})": {
+            f"consumption(resolution: {resolution}, {args}, filterEmptyNodes: {str(filter_empty_nodes).lower()})": {
                 "pageInfo": QueryBuilder.home_consumption_page_info,
                 "nodes": QueryBuilder.consumption,
                 "edges": QueryBuilder.home_consumption_edge
@@ -317,14 +324,20 @@ class QueryBuilder:
         }
 
     @classmethod
-    def production_query(cls, resolution: str, first: int, last: int, before: str, after: str, filter_empty_nodes: bool = False):
+    def production_query(cls, resolution: str,
+                         first: int = None,
+                         last: int = None,
+                         before: str = None,
+                         after: str = None,
+                         filter_empty_nodes: bool = False):
+        first_arg = f"first: {first}" if first else ""
+        last_arg = f"last: {last}" if last else ""
+        before_arg = f"before: \"{before}\"" if before else ""
+        after_arg = f"after: \"{after}\"" if after else ""
+
+        args = ", ".join([arg for arg in [first_arg, last_arg, before_arg, after_arg] if arg])
         return {
-            f"production(resolution: {resolution}, " \
-                        f"first: {first}, " \
-                        f"last: {last}, " \
-                        f"before: {before}, " \
-                        f"after: {after}, " \
-                        f"filterEmptyNodes: {filter_empty_nodes})": {
+            f"production(resolution: {resolution}, {args}, filterEmptyNodes: {str(filter_empty_nodes).lower()})": {
                 "pageInfo": QueryBuilder.home_production_page_info,
                 "nodes": QueryBuilder.production,
                 "edges": QueryBuilder.home_production_edge
@@ -343,7 +356,7 @@ class QueryBuilder:
             "currency": "",
             "totalCost": 0.0,
             "totalConsumption": 0.0,
-            "filtered:": 0
+            "filtered": 0
         }
 
     @classmethod
@@ -380,7 +393,7 @@ class QueryBuilder:
             "currency": "",
             "totalProfit": 0.0,
             "totalProduction": 0.0,
-            "filtered:": 0
+            "filtered": 0
         }
 
     @classmethod
