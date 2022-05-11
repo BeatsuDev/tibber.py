@@ -19,13 +19,11 @@ class Client(QueryExecutor):
         super().__init__()
 
         if immediate_update:
-            # TODO: Check if the token is valid
             self.initial_update()
 
     def initial_update(self):
         """Updates all information and caches it."""
         data = self.execute_query(self.token, QueryBuilder.query_all_data)
-        # TODO: Move cache update to when the query is executed and successful
         self.update_cache(data)
         
     def update_cache(self, data):

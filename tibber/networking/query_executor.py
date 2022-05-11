@@ -45,14 +45,13 @@ class QueryExecutor:
             contain a "headers" key with the access token authorization and a "data" key with.
         :param retries: The amount of retries to attempt before raising an asyncio Timeout error.
         """
-        # TODO: Handle errors
         resp = await self.websession.post(API_ENDPOINT, **post_args)
         result = await resp.json()
 
         errors = result.get("errors")
         if errors:
-            # TODO: Handle errors
-            pass
+            # TODO: Handle errors better
+            raise APIException("Something went wrong with the request.\n\nErrors:\n" + errors)
 
         return result.get("data")
 
