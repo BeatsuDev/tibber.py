@@ -1,5 +1,6 @@
 """A class representing the HomeConsumptionConnection type from the GraphQL Tibber API."""
 from tibber.types.home_consumption_page_info import HomeConsumptionPageInfo
+from tibber.types.consumption import Consumption
 
 
 class HomeConsumptionConnection:
@@ -15,7 +16,7 @@ class HomeConsumptionConnection:
 
     @property
     def nodes(self) -> list:
-        return self.cache.get("nodes")
+        return [Consumption(node, self.tibber_client) for node in self.cache.get("nodes")]
 
     @property
     def edges(self) -> list:
