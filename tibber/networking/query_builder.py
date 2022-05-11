@@ -302,7 +302,7 @@ class QueryBuilder:
         }
         
     @classmethod
-    def consumption_query(resolution: str, first: int, last: int, before: str, after: str, filter_empty_nodes: bool = False):
+    def consumption_query(cls, resolution: str, first: int, last: int, before: str, after: str, filter_empty_nodes: bool = False):
         return {
             f"consumption(resolution: {resolution}, " \
                         f"first: {first}, " \
@@ -317,7 +317,7 @@ class QueryBuilder:
         }
 
     @classmethod
-    def production_query(resolution: str, first: int, last: int, before: str, after: str, filter_empty_nodes: bool = False):
+    def production_query(cls, resolution: str, first: int, last: int, before: str, after: str, filter_empty_nodes: bool = False):
         return {
             f"production(resolution: {resolution}, " \
                         f"first: {first}, " \
