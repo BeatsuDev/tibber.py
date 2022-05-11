@@ -8,6 +8,7 @@ from tibber.types.home_consumption_connection import HomeConsumptionConnection
 from tibber.types.home_production_connection import HomeProductionConnection
 from tibber.networking import QueryBuilder
 
+
 class TibberHome:
     """A Tibber home with methods to get/fetch home information without the decorator functions to subscribe to live data."""
     def __init__(self, data: dict, tibber_client: "Client"):
