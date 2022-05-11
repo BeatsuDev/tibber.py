@@ -9,7 +9,7 @@ class HomeProductionPageInfo:
         self.tibber_client: "Client" = tibber_client
 
     @property
-    def endCursor(self) -> str:
+    def end_cursor(self) -> str:
         return self.cache.get("endCursor")
 
     @property
