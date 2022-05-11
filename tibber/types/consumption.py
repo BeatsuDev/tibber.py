@@ -8,11 +8,11 @@ class Consumption:
         self.tibber_client: "Client" = tibber_client
 
     @property
-    def from(self) -> str:
+    def from_time(self) -> str:
         return self.cache.get("from")
 
     @property
-    def to(self) -> str:
+    def to_time(self) -> str:
         return self.cache.get("to")
 
     @property
