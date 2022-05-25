@@ -1,4 +1,5 @@
 """Classes representing the Home type from the GraphQL Tibber API."""
+import json
 import asyncio
 import websockets
 from typing import Callable
@@ -9,6 +10,7 @@ from tibber.types.address import Address
 from tibber.types.metering_point_data import MeteringPointData
 from tibber.types.subscription import Subscription
 from tibber.types.home_features import HomeFeatures
+from tibber.types.live_measurement import LiveMeasurement
 from tibber.types.home_consumption_connection import HomeConsumptionConnection
 from tibber.types.home_production_connection import HomeProductionConnection
 from tibber.networking import QueryBuilder
@@ -154,7 +156,18 @@ class TibberHome(NonDecoratedTibberHome):
         self._callbacks = {}
 
     def event(self, event_to_listen_for) -> Callable:
+        """Returns a decorator that registers the function being
+        decorated as a callback function for the given event
+        
+        :param event_to_listen_for: The event the decorator should register the function
+            as a callback for.
+        """
         def decorator(callback):
+            """Returns the function as it is, but registers it as a callback for an event.
+            
+            :param callback: The function being decorated.
+            :throws ValueError: if the given event is not a valid event.
+            """
             # Initialize webhook if there is not already.
             
             if event_to_listen_for == "consumption":
@@ -175,5 +188,47 @@ class TibberHome(NonDecoratedTibberHome):
         self.tibber_client.eventloop.run_until_complete(self.run_websocket_loop())
         
     async def run_websocket_loop(self):
-        async with websockets.connect(SUBSCRIPTION_ENDPOINT, subprotocols=["graphql-ws"]) as websocket:
-            pass
+        """Starts a websocket."""
+        # Tell the websocket that we are wanting to connect
+        connection_init_message = json.dumps(
+            {"type": "connection_init", "payload": {}}
+        )
+            
+        # Request the data we want
+        root_subscription_query = QueryBuilder.live_measurement(self.id)
+        request_message = json.dumps(
+            {"type": "start", "id": "1", "payload": {"query": root_subscription_query}}
+        )
+        
+        # Connect the websocket, then fire off the created requests
+        async with websockets.connect(
+            SUBSCRIPTION_ENDPOINT,
+            subprotocols=["graphql-ws"],
+            extra_headers={"Authorization": self.tibber_client.token}
+        ) as websocket:
+            await websocket.send(connection_init_message)
+            await websocket.send(request_message)
+            
+            # Now we should be receiving data!
+            async for data in websocket:
+                response = json.loads(data)
+                if response["type"] == "connection_ack":
+                    # TODO: Logger info. The server accepted the connection!
+                    pass
+                elif response["type"] == "ka":
+                    # TODO: Logger info. The server sent a keep alive message!
+                    pass
+                elif response["type"] == "error":
+                    # TODO: Error handling
+                    raise Exception("Something went wrong: " + response["payload"]["message"])
+                else:
+                    # TODO: Differentiate between consumption data, production data and other data.
+                    self.broadcast_event("consumption", LiveMeasurement(response["payload"]["data"]["liveMeasurement"], self.tibber_client))
+                    
+    def broadcast_event(self, event, data):
+        if not event in self._callbacks:
+            # TODO: This should log a warning instead of raising an exception
+            raise ValueError(f"Could not broadcast the event \"{event}\". No callbacks are registered to it!")
+        
+        for callback in self._callbacks[event]:
+            callback(data)

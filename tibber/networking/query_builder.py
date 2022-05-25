@@ -417,3 +417,37 @@ class QueryBuilder:
             "cursor": "",
             "node": QueryBuilder.production
         }
+        
+    # Live data - This WILL be rewritten together with this whole class.
+    @classmethod
+    def live_measurement(cls, home_id):
+        return f"""subscription {{
+            liveMeasurement(homeId: "{home_id}") {{
+                timestamp
+                power
+                lastMeterConsumption
+                accumulatedConsumption
+                accumulatedProduction
+                accumulatedConsumptionLastHour
+                accumulatedProductionLastHour
+                accumulatedCost
+                accumulatedReward
+                currency
+                minPower
+                averagePower
+                maxPower
+                powerProduction
+                powerProductionReactive
+                minPowerProduction
+                maxPowerProduction
+                lastMeterProduction
+                powerFactor
+                voltagePhase1
+                voltagePhase2
+                voltagePhase3
+                currentL1
+                currentL2
+                currentL3
+                signalStrength
+            }}
+        }}"""
