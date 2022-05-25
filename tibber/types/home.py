@@ -1,4 +1,9 @@
 """Classes representing the Home type from the GraphQL Tibber API."""
+import asyncio
+import websockets
+from typing import Callable
+
+from tibber import SUBSCRIPTION_ENDPOINT
 from tibber.types.legal_entity import LegalEntity
 from tibber.types.address import Address
 from tibber.types.metering_point_data import MeteringPointData
@@ -9,7 +14,7 @@ from tibber.types.home_production_connection import HomeProductionConnection
 from tibber.networking import QueryBuilder
 
 
-class TibberHome:
+class NonDecoratedTibberHome:
     """A Tibber home with methods to get/fetch home information without the decorator functions to subscribe to live data."""
     def __init__(self, data: dict, tibber_client: "Client"):
         self.cache: dict = data
@@ -98,7 +103,7 @@ class TibberHome:
         return Subscription(self.cache.get("currentSubscription"), self.tibber_client)
     
     @property
-    def subscriptions(self) -> list[Subscription]:
+    def subscriptions(self) -> list:
         return [Subscription(sub, self.tibber_client) for sub in self.cache.get("subscriptions", [])]
     
     @property
@@ -142,7 +147,33 @@ class TibberHome:
     def longitude(self) -> str:
         return self.address.longitude
 
+class TibberHome(NonDecoratedTibberHome):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.loop = asyncio.get_event_loop()
+        self._callbacks = {}
 
-class DecoratedTibberHome(TibberHome):
-    """A Tibber home with methods to get/fetch home information and decorators to subscribe to real time data."""
-    pass
+    def event(self, event_to_listen_for) -> Callable:
+        def decorator(callback):
+            # Initialize webhook if there is not already.
+            
+            if event_to_listen_for == "consumption":
+                # Create the consumption key if it does not exist already
+                if not ("consumption" in self._callbacks):
+                    self._callbacks["consumption"] = []
+                # Append the callback function to the dict of callbacks
+                self._callbacks["consumption"].append(callback)
+
+            else: 
+                raise ValueError(f"Could not recognize the event you want to listen for: {event_to_listen_for}")
+            return callback
+        return decorator
+        
+        
+    def start_livefeed(self):
+        """Creates a websocket and starts pushing data out to registered callbacks."""
+        self.tibber_client.eventloop.run_until_complete(self.run_websocket_loop())
+        
+    async def run_websocket_loop(self):
+        async with websockets.connect(SUBSCRIPTION_ENDPOINT, subprotocols=["graphql-ws"]) as websocket:
+            pass

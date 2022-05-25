@@ -12,5 +12,5 @@ from tibber.types.price_info import PriceInfo
 from tibber.types.price_rating import PriceRating
 from tibber.types.subscription import Subscription
 from tibber.types.home import TibberHome
-from tibber.types.home import DecoratedTibberHome
+from tibber.types.home import NonDecoratedTibberHome
 from tibber.types.viewer import Viewer

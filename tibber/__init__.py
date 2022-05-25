@@ -7,4 +7,4 @@ SUBSCRIPTION_ENDPOINT = "wss://api.tibber.com/v1-beta/gql/subscriptions"
 from tibber.client import Client
 
 from tibber.types.home import TibberHome
-from tibber.types.home import DecoratedTibberHome
+from tibber.types.home import NonDecoratedTibberHome
