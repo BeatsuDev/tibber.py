@@ -32,7 +32,7 @@ class Client(QueryExecutor):
         self.update_cache(data)
         
     def update_cache(self, data):
-        """Updates the cache with values from data
+        """Updates the cache with values from data.
         
         :param data: The data to add / update values in the cache with.
         """
