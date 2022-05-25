@@ -16,7 +16,7 @@ A python wrapper package for communication with the [Tibber API](https://develop
 python -m pip install tibber.py
 ```
 ### Requirements
-tibber.py depends only on aiohttp. As of now, the project requires Python 3.9+ as well (this might change in the future to support Python 3.7+).
+tibber.py depends only on aiohttp and websockets. As of now, the project requires Python 3.9+ as well (this might change in the future to support Python 3.7+).
 
 ## Examples
 Getting basic client data:
