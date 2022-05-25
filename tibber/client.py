@@ -1,10 +1,12 @@
+import logging
+
 from tibber.networking import QueryExecutor
 from tibber.networking import QueryBuilder
 from tibber.types.viewer import Viewer
 
 class Client(QueryExecutor):
     """The main Tibber class to communicate with the Tibber API."""
-    def __init__(self, token: str, immediate_update: bool = True):
+    def __init__(self, token: str, immediate_update: bool = True, log_level=logging.WARNING):
         """Initialize the tibber client.
 
         :param token: The token to log in with
@@ -15,6 +17,9 @@ class Client(QueryExecutor):
         """
         self.cache: dict = {}
         self._token: str = token
+        self.LOG_LEVEL: int = log_level
+        
+        self.logger = logging.getLogger(f"Client(0x{id(self):016X})")
 
         super().__init__()
 

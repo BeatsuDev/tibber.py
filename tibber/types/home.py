@@ -1,8 +1,10 @@
 """Classes representing the Home type from the GraphQL Tibber API."""
 import json
 import asyncio
-import websockets
+import logging
 from typing import Callable
+
+import websockets
 
 from tibber import SUBSCRIPTION_ENDPOINT
 from tibber.types.legal_entity import LegalEntity
@@ -21,6 +23,10 @@ class NonDecoratedTibberHome:
     def __init__(self, data: dict, tibber_client: "Client"):
         self.cache: dict = data
         self.tibber_client: "Client" = tibber_client
+        
+        # Logging
+        self.logger = logging.getLogger(f"Home({self.id})")
+        self.logger.setLevel(self.tibber_client.LOG_LEVEL)
 
     def fetch_consumption(self, 
                           resolution: str, 
