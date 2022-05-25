@@ -36,6 +36,9 @@ class Client(QueryExecutor):
         
         :param data: The data to add / update values in the cache with.
         """
+        self.logger.info("Overwriting the cache data with")
+        self.logger.debug("Old data: " + json.dumps(self.cache))
+        self.logger.debug("New data: " + json.dumps(data))
         self.cache = QueryBuilder.combine_dicts(self.cache, data)
 
     @property
@@ -47,8 +50,10 @@ class Client(QueryExecutor):
         if self.token:
             raise AttributeError("Can't set token once it has already been set.")
         if not isinstance(token, str):
+            self.logger.error("Attempted to set the token to a non-string datatype: " + type(token))
             raise TypeError("The token must be a string.")
         self.token = token
+        self.logger.debug("The tibber token was set to: " + token)
         
     @property
     def viewer(self):
