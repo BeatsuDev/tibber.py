@@ -47,8 +47,6 @@ class Client(QueryExecutor):
 
     @token.setter
     def token(self, token: str):
-        if self.token:
-            raise AttributeError("Can't set token once it has already been set.")
         if not isinstance(token, str):
             self.logger.error("Attempted to set the token to a non-string datatype: " + type(token))
             raise TypeError("The token must be a string.")
