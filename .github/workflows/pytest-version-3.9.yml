@@ -24,7 +24,7 @@ jobs:
           key: pip_cache
       - name: Install depencency
         run: |
-            pip install aiohttp pytest
+            pip install aiohttp websockets pytest
       - name: Pytest
         run: |
             python -m pytest tests

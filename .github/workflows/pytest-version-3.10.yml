@@ -24,7 +24,7 @@ jobs:
           key: pip_cache
       - name: Install depencency
         run: |
-            pip install aiohttp pytest pytest-cov
+            pip install aiohttp websockets pytest pytest-cov
       - name: Pytest
         run: |
             python -m pytest --cov=tibber tests/ --cov-report xml:coverage.xml
