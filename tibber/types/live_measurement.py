@@ -1,5 +1,4 @@
 """A class representing the LiveMeasurement type from the GraphQL Tibber API."""
-from tibber.types.production import Production
 
 
 class LiveMeasurement:

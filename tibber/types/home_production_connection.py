@@ -21,4 +21,4 @@ class HomeProductionConnection:
 
     @property
     def edges(self) -> list:
-        return [HomeProductionEdge(edge, self.tibber_client) for edge in self.cache.get("edges")]
+        return [HomeProductionEdge(self.resolution, edge, self.tibber_client) for edge in self.cache.get("edges")]
