@@ -13,7 +13,8 @@ setup(
     long_description_content_type='text/markdown',
     packages=["tibber"],
     install_requires=[
-        "aiohttp>=3.7.0"
+        "aiohttp>=3.7.0",
+        "websockets>=9.1"
     ],
     license="MIT",
     version=__version__,
