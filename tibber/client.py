@@ -32,6 +32,10 @@ class Client(QueryExecutor):
         self.update_cache(data)
         
     def update_cache(self, data):
+        """Updates the cache with values from data
+        
+        :param data: The data to add / update values in the cache with.
+        """
         self.cache = QueryBuilder.combine_dicts(self.cache, data)
 
     @property
