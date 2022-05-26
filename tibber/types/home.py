@@ -173,12 +173,12 @@ class TibberHome(NonDecoratedTibberHome):
             :param callback: The function being decorated.
             :throws ValueError: if the given event is not a valid event.
             """
-            if event_to_listen_for == "consumption":
-                # Create the consumption key if it does not exist already
-                if not ("consumption" in self._callbacks):
-                    self._callbacks["consumption"] = []
+            if event_to_listen_for == "live_measurement":
+                # Create the live_measurement key if it does not exist already
+                if not ("live_measurement" in self._callbacks):
+                    self._callbacks["live_measurement"] = []
                 # Append the callback function to the dict of callbacks
-                self._callbacks["consumption"].append(callback)
+                self._callbacks["live_measurement"].append(callback)
 
             else: 
                 raise ValueError(f"Could not recognize the event you want to listen for: {event_to_listen_for}")

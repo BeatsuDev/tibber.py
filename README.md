@@ -61,12 +61,12 @@ import tibber
 client = tibber.Client(tibber.DEMO_TOKEN)
 home = client.homes[0]
 
-@home.event("consumption")
+@home.event("live_measurement")
 def show_current_power(data):
   print(data.power)
 
 # Multiple callback functions for the same event!
-@home.event("consumption")
+@home.event("live_measurement")
 def show_accumulated_cost(data):
   print(f"{data.accumulated_cost} {data.currency}")
   
