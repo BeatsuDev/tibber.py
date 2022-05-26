@@ -173,8 +173,6 @@ class TibberHome(NonDecoratedTibberHome):
             :param callback: The function being decorated.
             :throws ValueError: if the given event is not a valid event.
             """
-            # Initialize webhook if there is not already.
-            
             if event_to_listen_for == "consumption":
                 # Create the consumption key if it does not exist already
                 if not ("consumption" in self._callbacks):
