@@ -25,8 +25,7 @@ class NonDecoratedTibberHome:
         self.tibber_client: "Client" = tibber_client
         
         # Logging
-        self.logger = logging.getLogger(f"Home({self.id})")
-        self.logger.setLevel(self.tibber_client.LOG_LEVEL)
+        self.logger = logging.getLogger(__name__)
 
     def fetch_consumption(self, 
                           resolution: str, 

@@ -18,7 +18,6 @@ class Client(QueryExecutor):
         """
         self.cache: dict = {}
         self._token: str = token
-        self.LOG_LEVEL: int = log_level
 
         self.logger = logging.getLogger(__name__)
 
