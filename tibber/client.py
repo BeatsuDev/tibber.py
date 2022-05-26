@@ -1,4 +1,5 @@
 import logging
+import json
 
 from tibber.networking import QueryExecutor
 from tibber.networking import QueryBuilder
@@ -6,7 +7,7 @@ from tibber.types.viewer import Viewer
 
 class Client(QueryExecutor):
     """The main Tibber class to communicate with the Tibber API."""
-    def __init__(self, token: str, immediate_update: bool = True, log_level=logging.WARNING):
+    def __init__(self, token: str, immediate_update: bool = True):
         """Initialize the tibber client.
 
         :param token: The token to log in with
@@ -18,8 +19,8 @@ class Client(QueryExecutor):
         self.cache: dict = {}
         self._token: str = token
         self.LOG_LEVEL: int = log_level
-        
-        self.logger = logging.getLogger(f"Client(0x{id(self):016X})")
+
+        self.logger = logging.getLogger(__name__)
 
         super().__init__()
 
@@ -36,7 +37,7 @@ class Client(QueryExecutor):
         
         :param data: The data to add / update values in the cache with.
         """
-        self.logger.info("Overwriting the cache data with")
+        self.logger.debug("Overwriting the cache data.")
         self.logger.debug("Old data: " + json.dumps(self.cache))
         self.logger.debug("New data: " + json.dumps(data))
         self.cache = QueryBuilder.combine_dicts(self.cache, data)
