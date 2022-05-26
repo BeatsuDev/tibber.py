@@ -216,11 +216,9 @@ class TibberHome(NonDecoratedTibberHome):
             async for data in websocket:
                 response = json.loads(data)
                 if response["type"] == "connection_ack":
-                    # TODO: Logger info. The server accepted the connection!
-                    pass
+                    self.logger.debug("Retrieved connection_ack. The websocket connection was accepted.")
                 elif response["type"] == "ka":
-                    # TODO: Logger info. The server sent a keep alive message!
-                    pass
+                    self.logger.debug("Received ka (Keep Alive) from websocket.")
                 elif response["type"] == "error":
                     # TODO: Error handling
                     raise Exception("Something went wrong: " + response["payload"]["message"])
