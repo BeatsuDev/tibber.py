@@ -224,7 +224,7 @@ class TibberHome(NonDecoratedTibberHome):
                     raise Exception("Something went wrong: " + response["payload"]["message"])
                 else:
                     # TODO: Differentiate between consumption data, production data and other data.
-                    self.broadcast_event("consumption", LiveMeasurement(response["payload"]["data"]["liveMeasurement"], self.tibber_client))
+                    self.broadcast_event("live_measurement", LiveMeasurement(response["payload"]["data"]["liveMeasurement"], self.tibber_client))
                     
     def broadcast_event(self, event, data):
         if not event in self._callbacks:
