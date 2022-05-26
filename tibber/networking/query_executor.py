@@ -1,4 +1,6 @@
 import asyncio
+import logging
+import json
 from typing import Optional
 
 import aiohttp
@@ -10,14 +12,22 @@ class QueryExecutor:
     """A class for executing sessions."""
     def __init__(self, websession: Optional[aiohttp.ClientSession] = None):
         """Instantiates the query executor. This creates a websession among other things."""
+        self.logger = logging.getLogger(__name__)
+        
         try:
             self.eventloop = asyncio.get_running_loop()
         except RuntimeError:
+            self.logger.debug("No running event loop was found. Creating a new one with asyncio.get_event_loop()")
             self.eventloop = asyncio.get_event_loop()
+
         self.eventloop.run_until_complete(self.__async_init__(websession))
         
     async def __async_init__(self, websession: Optional[aiohttp.ClientSession] = None):
-        self._websession = websession if websession else aiohttp.ClientSession()
+        if websession:
+            self._websession = websession
+        else:
+            self.logger.debug("A websession was not provided. Creating a new aiohttp.ClientSession.")
+            self._websession = aiohttp.ClientSession()
 
     def execute_query(self, access_token: str, query: str, retries: int = 3):
         """Executes a GraphQL query to the Tibber API.
@@ -36,6 +46,13 @@ class QueryExecutor:
             "data": payload,
         }
 
+        if self.logger.level == logging.DEBUG:
+            # Redact the access token in the debug message in case users share log files with others.
+            from copy import deepcopy
+            debug_post_args = deepcopy(post_args)
+            debug_post_args["headers"]["Authorization"] = "Bearer <## TOKEN REDACTED ##>"
+            self.logger.debug("Executing a query with these post args:\n" + debug_post_args)
+
         return self.eventloop.run_until_complete(self.send_request(post_args))
 
     async def send_request(self, post_args: dict, retries: int = 3):
@@ -47,6 +64,8 @@ class QueryExecutor:
         """
         resp = await self.websession.post(API_ENDPOINT, **post_args)
         result = await resp.json()
+        
+        self.logger.debug("Response received. The json data is:\n" + json.dumps(result))
 
         errors = result.get("errors")
         if errors:
