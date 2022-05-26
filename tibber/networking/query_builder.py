@@ -419,6 +419,7 @@ class QueryBuilder:
         }
         
     # Live data - This WILL be rewritten together with this whole class.
+    # TODO: Rewrite the whole class from a dict-based approach to a string-based approach.
     @classmethod
     def live_measurement(cls, home_id):
         return f"""subscription {{
