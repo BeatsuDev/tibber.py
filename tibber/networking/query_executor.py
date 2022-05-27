@@ -32,28 +32,42 @@ class QueryExecutor:
     def execute_query(self, access_token: str, query: str, retries: int = 3):
         """Executes a GraphQL query to the Tibber API.
 
+        :param access_token: The Tibber API token to use for the request.
         :param query: The query to send to the Tibber API.
         :param retries: The amount of retries to attempt before raising an asyncio Timeout error.
         """
-        # Create post args
-        # TODO: Implement query variables
-        payload = {"query": query, "variables": {}} 
+        post_args = self.create_request(access_token, query)
+        return self.eventloop.run_until_complete(self.send_request(post_args))
+    
+    def execute_mutation(self, access_token: str, data: str, retries: int = 3):
+        """Executes a GraphQL mutation to the Tibber API.
 
-        post_args = {
+        :param access_token: The Tibber API token to use for the request.
+        :param data: The mutation to send to the Tibber API.
+        :param retries: The amount of retries to attempt before raising an asyncio Timeout error.
+        """
+        post_args = self.create_request(access_token, query, "mutation")
+        return self.eventloop.run_until_complete(self.send_request(post_args))
+        
+    
+    def create_request(self, access_token: str, data: str, request_type: str = "query"):
+        """Creates a GraphQL request, but does not execute it. Returns a dict that can
+        be passed to the send_request method.
+        
+        :param access_token: The access token to use for the request.
+        :param data: The data to be sent in the request.
+        :param request_type: The root type of the request (e.g. "mutation" or "query").
+        """
+        # TODO: Implement query variables
+        payload = {request_type: data, "variables": {}} 
+
+        request = {
             "headers": {
                 "Authorization": "Bearer " + access_token
             },
             "data": payload,
         }
-
-        if self.logger.level == logging.DEBUG:
-            # Redact the access token in the debug message in case users share log files with others.
-            from copy import deepcopy
-            debug_post_args = deepcopy(post_args)
-            debug_post_args["headers"]["Authorization"] = "Bearer <## TOKEN REDACTED ##>"
-            self.logger.debug("Executing a query with these post args:\n" + debug_post_args)
-
-        return self.eventloop.run_until_complete(self.send_request(post_args))
+        return request
 
     async def send_request(self, post_args: dict, retries: int = 3):
         """Sends a request to the Tibber API.
@@ -62,6 +76,13 @@ class QueryExecutor:
             contain a "headers" key with the access token authorization and a "data" key with.
         :param retries: The amount of retries to attempt before raising an asyncio Timeout error.
         """
+        # Log the request we are making (and redact the access token in case users share the logs)
+        if self.logger.level == logging.DEBUG:
+            from copy import deepcopy
+            debug_post_args = deepcopy(post_args)
+            debug_post_args["headers"]["Authorization"] = "Bearer <## TOKEN REDACTED ##>"
+            self.logger.debug("Executing a query with these post args:\n" + debug_post_args)
+
         resp = await self.websession.post(API_ENDPOINT, **post_args)
         result = await resp.json()
         
