@@ -1,4 +1,6 @@
 """A class representing the PriceRating type from the GraphQL Tibber API."""
+from tibber.types.price_rating_threshold_percentages import PriceRatingThresholdPercentages
+from tibber.types.price_rating_type import PriceRatingType
 
 
 class PriceRating:
@@ -9,20 +11,16 @@ class PriceRating:
 
     @property
     def threshold_percentages(self) -> dict:
-        # TODO: Create a PriceRatingThresholdPercentages type.
-        return self.cache.get("thresholdPercentages")
+        return PriceRatingThresholdPercentages(self.cache.get("thresholdPercentages"), self.tibber_client)
 
     @property
     def hourly(self) -> dict:
-        # TODO: Create a PriceRatingType type
-        return self.cache.get("hourly")
+        return PriceRatingType(self.cache.get("hourly"), self.tibber_client)
 
     @property
     def daily(self) -> dict:
-        # TODO: Create a PriceRatingType type
-        return self.cache.get("daily")
+        return PriceRatingType(self.cache.get("daily"), self.tibber_client)
 
     @property
     def monthly(self) -> dict:
-        # TODO: Create a PriceRatingType type
-        return self.cache.get("monthly")
+        return PriceRatingType(self.cache.get("monthly"), self.tibber_client)
