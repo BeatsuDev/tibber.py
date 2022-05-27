@@ -228,8 +228,8 @@ class TibberHome(NonDecoratedTibberHome):
                     
     def broadcast_event(self, event, data):
         if not event in self._callbacks:
-            # TODO: This should log a warning instead of raising an exception
-            raise ValueError(f"Could not broadcast the event \"{event}\". No callbacks are registered to it!")
+            self.logger.warning("The event that was broadcasted has no listeners / callbacks! Nothing was run.")
+            return
         
         for callback in self._callbacks[event]:
             callback(data)
