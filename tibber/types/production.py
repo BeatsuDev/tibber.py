@@ -29,7 +29,7 @@ class Production:
         return self.cache.get("production")
 
     @property
-    def production_nit(self) -> str:
+    def production_unit(self) -> str:
         return self.cache.get("productionUnit")
 
     @property
