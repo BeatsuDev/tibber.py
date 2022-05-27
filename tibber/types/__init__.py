@@ -1,4 +1,3 @@
-# TODO: Sort imports for better readability
 from tibber.types.home_features import HomeFeatures
 from tibber.types.price_rating_entry import PriceRatingEntry
 from tibber.types.price_rating_type import PriceRatingType
