@@ -67,23 +67,24 @@ class QueryExecutor:
             contain a "headers" key with the access token authorization and a "data" key with.
         :param retries: The amount of retries to attempt before raising an asyncio Timeout error.
         """
+        # TODO: Only run deepcopy if the logger level is DEBUG.
         # Log the request we are making (and redact the access token in case users share the logs)
-        if self.logger.level == logging.DEBUG:
-            from copy import deepcopy
-            debug_post_args = deepcopy(post_args)
-            debug_post_args["headers"]["Authorization"] = "Bearer <## TOKEN REDACTED ##>"
-            self.logger.debug("Executing a query with these post args:\n" + debug_post_args)
+        from copy import deepcopy
+        debug_post_args = deepcopy(post_args)
+        debug_post_args["headers"]["Authorization"] = "Bearer <## TOKEN REDACTED ##>"
+        debug_query = debug_post_args["data"]["query"]
+        debug_post_args["data"]["query"] = "<QUERY>"
+        self.logger.debug("Executing a query with these post args:\n" + json.dumps(debug_post_args) + "\nWhere <QUERY> is:\n" + debug_query)
 
         resp = await self.websession.post(API_ENDPOINT, **post_args)
         result = await resp.json()
         
-        self.logger.debug("Response received. The json data is:\n" + json.dumps(result))
+        self.logger.debug("Response received. The json data is:\n" + json.dumps(result, indent=4))
 
         errors = result.get("errors")
         if errors:
             # TODO: Handle errors better
-            print(errors)
-            raise APIException("Something went wrong with the request.ERRORS:\n" + "\n".join(e.get("message") for e in errors))
+            raise APIException(f"Something went wrong with the request. The following errors occured:\n{json.dumps(errors, indent=4)}")
 
         return result.get("data")
 
