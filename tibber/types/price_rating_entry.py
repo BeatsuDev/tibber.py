@@ -9,24 +9,30 @@ class PriceRatingEntry:
 
     @property
     def time(self) -> str:
+        """The start time of the price"""
         return self.cache.get("time")
 
     @property
     def energy(self) -> float:
+        """Nordpool spot price"""
         return self.cache.get("energy")
 
     @property
     def total(self) -> float:
+        """The total price (incl. tax)"""
         return self.cache.get("total")
 
     @property
     def tax(self) -> float:
+        """The tax part of the price (guarantee of origin certificate, energy tax (Sweden only) and VAT)"""
         return self.cache.get("tax")
 
     @property
     def difference(self) -> float:
+        """The percentage difference compared to the trailing price average (1 day for 'hourly', 30 days for 'daily' and 32 months for 'monthly')"""
         return self.cache.get("difference")
 
     @property
     def level(self) -> str:
+        """The price level compared to recent price values (calculated using 'difference' and 'priceRating.thresholdPercentages')"""
         return self.cache.get("level")

@@ -15,36 +15,45 @@ class LegalEntity:
         
     @property
     def first_name(self) -> str:
+        """First/Christian name of the entity"""
         return self.cache.get("firstName")
         
     @property
     def is_company(self) -> bool:
+        """'true' if the entity is a company"""
         return self.cache.get("isCompany")
         
     @property
     def name(self) -> str:
+        """Full name of the entity"""
         return self.cache.get("name")
         
     @property
     def middle_name(self) -> str:
+        """Middle name of the entity"""
         return self.cache.get("middleName")
         
     @property
     def last_name(self) -> str:
+        """Last name of the entity"""
         return self.cache.get("lastName")
         
     @property
     def organization_no(self) -> str:
+        """Organization number - only populated if entity is a company (isCompany=true)"""
         return self.cache.get("organizationNo")
         
     @property
     def language(self) -> str:
+        """The primary language of the entity"""
         return self.cache.get("language")
         
     @property
     def contact_info(self) -> ContactInfo:
+        """Contact information of the entity"""
         return ContactInfo(self.cache.get("contactInfo"), self.tibber_client)
         
     @property
     def address(self) -> Address:
+        """Address information for the entity"""
         return Address(self.cache.get("address"), self.tibber_client)

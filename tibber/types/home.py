@@ -34,6 +34,7 @@ class NonDecoratedTibberHome:
                           before: str = None, 
                           after: str = None, 
                           filter_empty_nodes: bool = False) -> HomeConsumptionConnection:
+        """Consumption connection"""
         consumption_query = QueryBuilder.consumption_query(resolution, first, last, before, after, filter_empty_nodes)
         full_query = QueryBuilder.create_query("viewer", f"home(id: \"{self.id}\")", consumption_query)
         unsanitized_data = self.tibber_client.execute_query(self.tibber_client.token, full_query)
@@ -63,42 +64,52 @@ class NonDecoratedTibberHome:
 
     @property
     def time_zone(self) -> str:
+        """The time zone the home resides in"""
         return self.cache.get("timeZone")
 
     @property
     def app_nickname(self) -> str:
+        """The nickname given to the home by the user"""
         return self.cache.get("appNickname")
 
     @property
     def app_avatar(self) -> str:
+        """The chosen avatar for the home"""
         return self.cache.get("appAvatar")
 
     @property
     def size(self) -> int:
+        """The size of the home in square meters"""
         return self.cache.get("size")
 
     @property
     def type(self) -> str:
+        """The type of home."""
         return self.cache.get("type")
 
     @property
     def number_of_residents(self) -> int:
+        """The number of people living in the home"""
         return self.cache.get("numberOfResidents")
 
     @property
     def primary_heating_source(self) -> str:
+        """The primary form of heating in the household"""
         return self.cache.get("primaryHeatingSource")
 
     @property
     def has_ventilation_system(self) -> bool:
+        """Whether the home has a ventilation system"""
         return self.cache.get("hasVentilationSystem")
 
     @property
     def main_fuse_size(self) -> int:
+        """The main fuse size"""
         return self.cache.get("mainFuseSize")
 
     @property
     def owner(self) -> LegalEntity:
+        """The registered owner of the house"""
         return LegalEntity(self.cache.get("owner"), self.tibber_client)
 
     @property
@@ -107,10 +118,12 @@ class NonDecoratedTibberHome:
 
     @property
     def current_subscription(self) -> Subscription:
+        """The current/latest subscription related to the home"""
         return Subscription(self.cache.get("currentSubscription"), self.tibber_client)
     
     @property
     def subscriptions(self) -> list:
+        """All historic subscriptions related to the home"""
         return [Subscription(sub, self.tibber_client) for sub in self.cache.get("subscriptions", [])]
     
     @property

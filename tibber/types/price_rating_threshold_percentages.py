@@ -9,8 +9,10 @@ class PriceRatingThresholdPercentages:
 
     @property
     def high(self) -> float:
+        """The percentage difference when the price is considered to be 'high' (market dependent)"""
         return self.cache.get("high")
 
     @property
     def low(self) -> float:
+        """The percentage difference when the price is considered to be 'low' (market dependent)"""
         return self.cache.get("current")

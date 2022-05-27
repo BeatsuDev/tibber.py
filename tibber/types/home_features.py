@@ -9,4 +9,5 @@ class HomeFeatures:
 
     @property
     def real_time_consumption_enabled(self) -> bool:
+        """'true' if Tibber Pulse or Watty device is paired at home"""
         return self.cache.get("realTimeConsumptionEnabled")

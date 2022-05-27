@@ -9,32 +9,40 @@ class MeteringPointData:
 
     @property
     def consumption_ean(self) -> str:
+        """The metering point ID of the home"""
         return self.cache.get("consumptionEan")
 
     @property
     def grid_company(self) -> str:
+        """The grid provider of the home"""
         return self.cache.get("gridCompany")
 
     @property
     def grid_area_code(self) -> str:
+        """The grid area the home/metering point belongs to"""
         return self.cache.get("gridAreaCode")
 
     @property
     def price_area_code(self) -> str:
+        """The price area the home/metering point belongs to"""
         return self.cache.get("priceAreaCode")
 
     @property
     def production_ean(self) -> str:
+        """The metering point ID of the production"""
         return self.cache.get("productionEan")
 
     @property
     def energy_tax_type(self) -> str:
+        """The eltax type of the home (only relevant for Swedish homes)"""
         return self.cache.get("energyTaxType")
 
     @property
     def vat_type(self) -> str:
+        """The VAT type of the home (only relevant for Norwegian homes)"""
         return self.cache.get("vatType")
 
     @property
     def estimated_annual_consumption(self) -> int:
+        """The estimated annual consumption as reported by grid company"""
         return self.cache.get("estimatedAnnualConsumption")

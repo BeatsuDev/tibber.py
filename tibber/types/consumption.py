@@ -25,6 +25,7 @@ class Consumption:
 
     @property
     def consumption(self) -> float:
+        """kWh consumed"""
         return self.cache.get("consumption")
 
     @property
@@ -37,4 +38,5 @@ class Consumption:
 
     @property
     def currency(self) -> str:
+        """The cost currency"""
         return self.cache.get("currency")

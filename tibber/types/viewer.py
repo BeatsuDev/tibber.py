@@ -3,7 +3,6 @@ from tibber.types.home import TibberHome
 
 
 class Viewer:
-    """A class to get information about the viewer."""
     def __init__(self, data: dict, tibber_client: "Client"):
         self.cache: dict = data
         self.tibber_client: "Client" = tibber_client
@@ -18,12 +17,17 @@ class Viewer:
 
     @property
     def user_id(self):
+        """Unique user identifier"""
         return self.cache.get("userId")
 
     @property
     def account_type(self):
+        """The type of account for the logged-in user."""
         return self.cache.get("accountType")
     
     @property
     def homes(self):
+        """All homes visible to the logged-in user"""
         return [ TibberHome(home, self.tibber_client) for home in self.cache.get("homes", []) ]
+    
+    # TODO: Implement home(id: ID!): Home! method. (get_home and fetch_home)

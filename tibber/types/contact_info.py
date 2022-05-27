@@ -9,8 +9,10 @@ class ContactInfo:
 
     @property
     def email(self) -> str:
+        """The email of the corresponding entity"""
         return self.cache.get("email")
 
     @property
     def mobile(self) -> str:
+        """The mobile phone no of the corresponding entity"""
         return self.cache.get("mobile")

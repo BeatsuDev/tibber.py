@@ -25,6 +25,7 @@ class Production:
 
     @property
     def production(self) -> float:
+        """kWh produced""" # Docs actually say consumed here, but I assume it means to say produced
         return self.cache.get("production")
 
     @property
@@ -33,8 +34,10 @@ class Production:
 
     @property
     def profit(self) -> float:
+        """Total profit of the production"""
         return self.cache.get("profit")
 
     @property
     def currency(self) -> str:
+        """The cost currency"""
         return self.cache.get("currency")

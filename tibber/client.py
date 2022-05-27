@@ -67,12 +67,15 @@ class Client(QueryExecutor):
 
     @property
     def user_id(self):
+        """Unique user identifier"""
         return self.viewer.user_id
 
     @property
     def account_type(self):
+        """The type of account for the logged-in user."""
         return self.viewer.account_type
     
     @property
     def homes(self):
+        """All homes visible to the logged-in user"""
         return self.viewer.homes
