@@ -222,6 +222,10 @@ class TibberHome(NonDecoratedTibberHome):
             subprotocols=["graphql-ws"],
             extra_headers={"Authorization": self.tibber_client.token}
         ) as websocket:
+            self.logger.debug("Sending initial payloads to start connection with live data websocket.")
+            self.logger.debug("Connection init message:\n" + connection_init_message)
+            self.logger.debug("Request message:\n" + request_message)
+            
             await websocket.send(connection_init_message)
             await websocket.send(request_message)
             
