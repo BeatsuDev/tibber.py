@@ -452,3 +452,16 @@ class QueryBuilder:
                 signalStrength
             }}
         }}"""
+
+    @classmethod
+    def send_push_notification(cls, title: str, message: str, screen_to_open: str = None):
+        return f"""mutation {{
+            sendPushNotification(input: {{
+                title: "{title}",
+                message: "{message}",
+                {'screenToOpen: ' + screen_to_open if screen_to_open else ""}
+            }}) {{
+                successful
+                pushedToNumberOfDevices
+            }}
+        }}"""
