@@ -8,7 +8,16 @@
 ![Tests 3.10](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.10.yml/badge.svg)
 ![Publish to PyPi status](https://github.com/BeatsuDev/tibber.py/actions/workflows/publish-to-pypi.yml/badge.svg)
 
-A python wrapper package for communication with the [Tibber API](https://developer.tibber.com/). This package aims to cover all functionalities of the Tibber API. 
+A python wrapper package for communication with the [Tibber API](https://developer.tibber.com/).
+This package aims to cover all functionalities of the Tibber API. You can read all the capabilites of the API and explore it 
+with [Tibbers' API explorer](https://developer.tibber.com/explorer). 
+
+Every field of the API types should be found in the corresponding `tibber.type` (e.g. the `size: Int` field of `Home`
+type, should be accessed in the tibber.py package as: `Home.size` and return an int). In addition to these "1 to 1",
+field to property/method functions, there might be extra properties or methods for simpler access of common properties
+(one example: it is possible to simply write `home.address1` instead of `home.address.address1`, although the latter is
+also supported). The docstrings of the `tibber.types` correspond to the description of each type in the api explorer
+docs (located on the right side of the Tibber API explorer).
 
 ## Installation
 ### Install via pip
@@ -16,7 +25,7 @@ A python wrapper package for communication with the [Tibber API](https://develop
 python -m pip install tibber.py
 ```
 ### Requirements
-tibber.py depends only on aiohttp and websockets. As of now, the project requires Python 3.9+ as well (this might change in the future to support Python 3.7+).
+tibber.py depends only on aiohttp and websockets. As of now, the project ***requires Python 3.9+***.
 
 ## Examples
 ### Getting basic client data
@@ -99,9 +108,9 @@ All the API features are documented here: https://developer.tibber.com/docs/refe
 - [x] Production
 - [ ] PushNotificationResponse
 - [ ] RootMutation
-- [ ] RootSubscription
+- [x] RootSubscription
 - [x] Subscription
-- [ ] SubscriptionPriceConnection
-- [ ] SubscriptionPriceConnectionPageInfo
-- [ ] SubscriptionPriceEdge
+- [ ] SubscriptionPriceConnection - // Missing?
+- [ ] SubscriptionPriceConnectionPageInfo - // Missing?
+- [ ] SubscriptionPriceEdge - // Missing?
 - [x] Viewer
