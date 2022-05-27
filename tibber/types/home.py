@@ -228,20 +228,28 @@ class TibberHome(NonDecoratedTibberHome):
             
             await websocket.send(connection_init_message)
             await websocket.send(request_message)
-            
+
             # Now we should be receiving data!
             async for data in websocket:
-                response = json.loads(data)
-                if response["type"] == "connection_ack":
-                    self.logger.debug("Retrieved connection_ack. The websocket connection was accepted.")
-                elif response["type"] == "ka":
-                    self.logger.debug("Received ka (Keep Alive) from websocket.")
-                elif response["type"] == "error":
-                    # TODO: Error handling
-                    raise Exception("Something went wrong: " + response["payload"]["message"])
-                else:
-                    # TODO: Differentiate between consumption data, production data and other data.
-                    self.broadcast_event("live_measurement", LiveMeasurement(response["payload"]["data"]["liveMeasurement"], self.tibber_client))
+                dict_data = json.loads(data)
+                self.process_websocket_response(dict_data)
+    
+    async def process_websocket_response(self, data):
+        """Processes a response with data from the live data websocket."""
+        if data["type"] == "connection_ack":
+            self.logger.debug("Retrieved connection_ack. The websocket connection was accepted.")
+            return
+        
+        elif data["type"] == "ka":
+            self.logger.debug("Received ka (Keep Alive) from websocket.")
+            return
+        
+        elif data["type"] == "error":
+            # TODO: Better error handling
+            raise Exception("Something went wrong: " + data["payload"]["message"])
+            
+        # TODO: Differentiate between consumption data, production data and other data.
+        self.broadcast_event("live_measurement", LiveMeasurement(data["payload"]["data"]["liveMeasurement"], self.tibber_client))
                     
     def broadcast_event(self, event, data):
         if not event in self._callbacks:
