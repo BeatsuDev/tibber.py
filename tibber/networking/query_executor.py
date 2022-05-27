@@ -39,19 +39,9 @@ class QueryExecutor:
         """
         post_args = self.create_request(access_token, query)
         return self.eventloop.run_until_complete(self.send_request(post_args))
-    
-    def execute_mutation(self, access_token: str, data: str, retries: int = 3):
-        """Executes a GraphQL mutation to the Tibber API.
-
-        :param access_token: The Tibber API token to use for the request.
-        :param data: The mutation to send to the Tibber API.
-        :param retries: The amount of retries to attempt before raising an asyncio Timeout error.
-        """
-        post_args = self.create_request(access_token, data, "mutation")
-        return self.eventloop.run_until_complete(self.send_request(post_args))
         
     
-    def create_request(self, access_token: str, data: str, request_type: str = "query"):
+    def create_request(self, access_token: str, data: str):
         """Creates a GraphQL request, but does not execute it. Returns a dict that can
         be passed to the send_request method.
         
@@ -60,7 +50,7 @@ class QueryExecutor:
         :param request_type: The root type of the request (e.g. "mutation" or "query").
         """
         # TODO: Implement query variables
-        payload = {request_type: data, "variables": {}} 
+        payload = {"query": data, "variables": {}} 
 
         request = {
             "headers": {
