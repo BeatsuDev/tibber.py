@@ -6,6 +6,7 @@ from typing import Optional
 import aiohttp
 
 from tibber import API_ENDPOINT
+from tibber.exceptions import APIException
 
 
 class QueryExecutor:
@@ -46,7 +47,7 @@ class QueryExecutor:
         :param data: The mutation to send to the Tibber API.
         :param retries: The amount of retries to attempt before raising an asyncio Timeout error.
         """
-        post_args = self.create_request(access_token, query, "mutation")
+        post_args = self.create_request(access_token, data, "mutation")
         return self.eventloop.run_until_complete(self.send_request(post_args))
         
     
@@ -91,7 +92,8 @@ class QueryExecutor:
         errors = result.get("errors")
         if errors:
             # TODO: Handle errors better
-            raise APIException("Something went wrong with the request.\n\nErrors:\n" + errors)
+            print(errors)
+            raise APIException("Something went wrong with the request.ERRORS:\n" + "\n".join(e.get("message") for e in errors))
 
         return result.get("data")
 
