@@ -107,7 +107,7 @@ All the API features are documented here: https://developer.tibber.com/docs/refe
 - [x] PriceRatingType
 - [x] Production
 - [ ] PushNotificationResponse
-- [x] RootMutation
+- [x] RootMutation - // Only push notification
 - [x] RootSubscription
 - [x] Subscription - // Will be rewritten
 - [ ] SubscriptionPriceConnection - // Missing?
