@@ -4,6 +4,7 @@ import json
 from tibber.networking import QueryExecutor
 from tibber.networking import QueryBuilder
 from tibber.types.viewer import Viewer
+from tibber.types.push_notification_response import PushNotificationResponse
 
 class Client(QueryExecutor):
     """The main Tibber class to communicate with the Tibber API."""
@@ -44,7 +45,8 @@ class Client(QueryExecutor):
     def send_push_notification(self, title: str, message: str, screen_to_open: str = None):
         """Sends a push notification to all registered devices connected to the account owning the API key."""
         data = QueryBuilder.send_push_notification(title, message, screen_to_open)
-        return self.execute_query(self.token, data)
+        response_data = self.execute_query(self.token, data).get("sendPushNotification")
+        return PushNotificationResponse(response_data, self)
 
     @property
     def token(self) -> str:
