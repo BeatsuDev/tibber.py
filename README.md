@@ -116,6 +116,19 @@ All the API features are documented here: https://developer.tibber.com/docs/refe
 - [x] Viewer
 
 ## v0.1.0 TODO list
+A TODO list of things to be done before v0.1.0 is released.
 - [ ] Fix issue #6 (This seems to be an issue with the API though...)
 - [ ] More documentation
 - [ ] Minimum 90% test coverage
+
+## v1.0.0 TODO list
+A TODO list of things to be done before v1.0.0 is released.
+- [ ] Fix issue #6
+- [ ] Readable and understandable documentation
+- [ ] Minimum 90% test coverage
+- [ ] 100% API coverage
+- [ ] Implement certain fetch methods to fetch specific data (and not just get from cache)
+- [ ] Look into refactoring the QueryBuilder
+- [ ] Better error handling. Throw more detailed exceptions.
+- [ ] Standardize formatting (perhaps black)
+- [ ] Add explanation on how to contribute
