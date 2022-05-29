@@ -84,7 +84,8 @@ class QueryExecutor:
         errors = result.get("errors")
         if errors:
             # TODO: Handle errors better
-            raise APIException(f"Something went wrong with the request. The following errors occured:\n{json.dumps(errors, indent=4)}")
+            # For now, errors are simply logged since the method can still return data although there's an error. (see issue #6)
+            self.logger.error(f"Something went wrong with the request. The following errors occured:\n{json.dumps(errors, indent=4)}")
 
         return result.get("data")
 
