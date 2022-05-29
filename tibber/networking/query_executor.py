@@ -76,18 +76,28 @@ class QueryExecutor:
         debug_post_args["data"]["query"] = "<QUERY>"
         self.logger.debug("Executing a query with these post args:\n" + json.dumps(debug_post_args) + "\nWhere <QUERY> is:\n" + debug_query)
 
-        resp = await self.websession.post(API_ENDPOINT, **post_args)
-        result = await resp.json()
-        
-        self.logger.debug("Response received. The json data is:\n" + json.dumps(result, indent=4))
+        json_response = {}
+        times_attempted = 0
+        while not json_response.get("data") and times_attempted <= retries:
+            if times_attempted > 0:
+                self.logger.info(f"Failed to retrieve data from api request. Retrying ({times_attempted} of {retries} times).")
 
-        errors = result.get("errors")
-        if errors:
-            # TODO: Handle errors better
-            # For now, errors are simply logged since the method can still return data although there's an error. (see issue #6)
-            self.logger.error(f"Something went wrong with the request. The following errors occured:\n{json.dumps(errors, indent=4)}")
+            response = await self.websession.post(API_ENDPOINT, **post_args)
+            json_response = await response.json()
+            self.logger.debug("Response from API request received. The json data is:\n" + json.dumps(json_response, indent=4))
 
-        return result.get("data")
+            errors = json_response.get("errors")
+            if errors:
+                # TODO: Handle errors better
+                # For now, errors are simply logged since the method can still return data although there's an error. (see issue #6)
+                self.logger.error(f"Something went wrong with the request. The following errors occured:\n{json.dumps(errors, indent=4)}")
+
+            times_attempted += 1
+
+        if not json_response.get("data"):
+            raise APIException(f"Something went wrong with the request. The following errors occured:\n{json.dumps(errors, indent=4)}")
+
+        return json_response.get("data")
 
     @property
     def websession(self):
