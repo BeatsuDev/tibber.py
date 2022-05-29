@@ -30,7 +30,7 @@ class QueryExecutor:
             self.logger.debug("A websession was not provided. Creating a new aiohttp.ClientSession.")
             self._websession = aiohttp.ClientSession()
 
-    def execute_query(self, access_token: str, query: str, retries: int = 3):
+    def execute_query(self, access_token: str, query: str, retries: int = 2):
         """Executes a GraphQL query to the Tibber API.
 
         :param access_token: The Tibber API token to use for the request.
@@ -60,7 +60,7 @@ class QueryExecutor:
         }
         return request
 
-    async def send_request(self, post_args: dict, retries: int = 3):
+    async def send_request(self, post_args: dict, retries: int = 2):
         """Sends a request to the Tibber API.
 
         :param post_args: The arguments to send in the Tibber API web request. The post args should
