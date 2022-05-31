@@ -25,13 +25,13 @@ class Client(QueryExecutor):
         super().__init__()
 
         if immediate_update:
-            self.initial_update()
+            self.fetch_all()
 
-    def initial_update(self):
-        """Updates all information and caches it."""
+    def fetch_all(self):
+        """Fetches all available data from the API and caches it."""
         data = self.execute_query(self.token, QueryBuilder.query_all_data)
         self.update_cache(data)
-        
+
     def update_cache(self, data):
         """Updates the cache with values from data.
         
