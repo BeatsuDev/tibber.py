@@ -2,7 +2,7 @@
 import pytest
 
 import tibber
-from tibber.types import Home
+from tibber.types import NonDecoratedTibberHome
 from tibber.types import Viewer
 
 
@@ -29,4 +29,4 @@ def test_getting_homes(client):
     assert len(client.homes) == 1
     
 def test_homes_are_correct_type(client):
-    assert all(isinstance(home, Home) for home in client.homes)
+    assert all(isinstance(home, NonDecoratedTibberHome) for home in client.homes)
