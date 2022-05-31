@@ -7,6 +7,7 @@ import aiohttp
 
 from tibber import API_ENDPOINT
 from tibber.exceptions import APIException
+from tibber.exceptions import InvalidTokenException
 
 
 class QueryExecutor:
@@ -91,6 +92,10 @@ class QueryExecutor:
                 # TODO: Handle errors better
                 # For now, errors are simply logged since the method can still return data although there's an error. (see issue #6)
                 self.logger.error(f"Something went wrong with the request. The following errors occured:\n{json.dumps(errors, indent=4)}")
+                
+                # InvalidToken:
+                if "UNAUTHENTICATED" in map(lambda e: e["extensions"]["code"], errors):
+                    raise InvalidTokenException("Could not authenticate with the given token!")
 
             times_attempted += 1
 
