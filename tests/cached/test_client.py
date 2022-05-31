@@ -2,12 +2,16 @@
 import pytest
 
 import tibber
+from tibber.types import Home
+from tibber.types import Viewer
 
 
 @pytest.fixture
 def client():
     return tibber.Client(tibber.DEMO_TOKEN)
 
+def test_getting_viewer(client):
+    assert isinstance(client.viewer, Viewer)
 
 def test_getting_name(client):
     assert client.name == "Arya Stark"
@@ -23,3 +27,6 @@ def test_getting_account_type(client):
     
 def test_getting_homes(client):
     assert len(client.homes) == 1
+    
+def test_homes_are_correct_type(client):
+    assert all(isinstance(home, Home) for home in client.homes)
