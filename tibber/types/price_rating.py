@@ -1,6 +1,12 @@
 """A class representing the PriceRating type from the GraphQL Tibber API."""
+from typing import TYPE_CHECKING
+
 from tibber.types.price_rating_threshold_percentages import PriceRatingThresholdPercentages
 from tibber.types.price_rating_type import PriceRatingType
+
+# Import type checking modules
+if TYPE_CHECKING:
+    from tibber.client import Client 
 
 
 class PriceRating:

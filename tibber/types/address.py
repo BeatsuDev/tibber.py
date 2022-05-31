@@ -1,4 +1,9 @@
 """A class representing the Address type from the GraphQL Tibber API."""
+from typing import TYPE_CHECKING
+
+# Import type checking modules
+if TYPE_CHECKING:
+    from tibber.client import Client
 
 
 class Address:

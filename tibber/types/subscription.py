@@ -1,7 +1,13 @@
 """A class representing the Subscription type from the GraphQL Tibber API."""
+from typing import TYPE_CHECKING
+
 from tibber.types.legal_entity import LegalEntity
 from tibber.types.price_info import PriceInfo
 from tibber.types.price_rating import PriceRating
+
+# Import type checking modules
+if TYPE_CHECKING:
+    from tibber.client import Client 
 
 
 class Subscription:

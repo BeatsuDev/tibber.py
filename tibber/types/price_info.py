@@ -1,5 +1,11 @@
 """A class representing the PriceInfo type from the GraphQL Tibber API."""
+from typing import TYPE_CHECKING
+
 from tibber.types.price import Price
+
+# Import type checking modules
+if TYPE_CHECKING:
+    from tibber.client import Client 
 
 class PriceInfo:
     """A class to get price info."""

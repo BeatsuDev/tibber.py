@@ -1,5 +1,11 @@
 """A class representing the HomeProductionEdge type from the GraphQL Tibber API."""
+from typing import TYPE_CHECKING
+
 from tibber.types.production import Production
+
+# Import type checking modules
+if TYPE_CHECKING:
+    from tibber.client import Client 
 
 
 class HomeProductionEdge:

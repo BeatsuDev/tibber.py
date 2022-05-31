@@ -1,7 +1,13 @@
 """A class representing the HomeConsumptionConnection type from the GraphQL Tibber API."""
+from typing import TYPE_CHECKING
+
 from tibber.types.home_consumption_page_info import HomeConsumptionPageInfo
 from tibber.types.consumption import Consumption
 from tibber.types.home_consumption_edge import HomeConsumptionEdge
+
+# Import type checking modules
+if TYPE_CHECKING:
+    from tibber.client import Client
 
 
 class HomeConsumptionConnection:

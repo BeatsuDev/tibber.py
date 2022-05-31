@@ -3,6 +3,7 @@ import json
 import asyncio
 import logging
 from typing import Callable
+from typing import TYPE_CHECKING
 
 import websockets
 
@@ -16,6 +17,10 @@ from tibber.types.live_measurement import LiveMeasurement
 from tibber.types.home_consumption_connection import HomeConsumptionConnection
 from tibber.types.home_production_connection import HomeProductionConnection
 from tibber.networking import QueryBuilder
+
+# Import type checking modules
+if TYPE_CHECKING:
+    from tibber.client import Client 
 
 
 class NonDecoratedTibberHome:
