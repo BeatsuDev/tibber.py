@@ -1,2 +1,2 @@
-from tibber.exceptions.api import InvalidToken
+from tibber.exceptions.api import InvalidTokenException
 from tibber.exceptions.api import APIException

@@ -1,5 +1,5 @@
 class APIException(Exception):
     pass
 
-class InvalidToken(APIException):
+class InvalidTokenException(APIException):
     pass
