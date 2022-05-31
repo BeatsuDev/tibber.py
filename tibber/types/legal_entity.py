@@ -6,7 +6,7 @@ from tibber.types.address import Address
 class LegalEntity:
     """A LegalEntity (most commonly an owner of a home for example). This class contains methods to get information such as address, name and contact info."""
     def __init__(self, data: dict, tibber_client: "Client"):
-        self.cache: dict = data
+        self.cache: dict = data or {}
         self.tibber_client: "Client" = tibber_client
         
     @property

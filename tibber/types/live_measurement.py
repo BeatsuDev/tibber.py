@@ -4,7 +4,7 @@
 class LiveMeasurement:
     """A class containing the live household electricity information."""
     def __init__(self, data: dict, tibber_client: "Client"):
-        self.cache: dict = data
+        self.cache: dict = data or {}
         self.tibber_client: "Client" = tibber_client
 
     @property

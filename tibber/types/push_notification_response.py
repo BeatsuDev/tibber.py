@@ -3,7 +3,7 @@
 
 class PushNotificationResponse:
     def __init__(self, data: dict, tibber_client: "Client"):
-        self.data = data
+        self.data = data or {}
 
     @property
     def successful(self):

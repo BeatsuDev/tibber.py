@@ -7,7 +7,7 @@ from tibber.types.price_rating import PriceRating
 class Subscription:
     """A class to get information about the subscription of a TibberHome."""
     def __init__(self, data: dict, tibber_client: "Client"):
-        self.cache: dict = data
+        self.cache: dict = data or {}
         self.tibber_client: "Client" = tibber_client
 
     @property

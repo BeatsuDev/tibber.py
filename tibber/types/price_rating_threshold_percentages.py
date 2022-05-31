@@ -4,7 +4,7 @@
 class PriceRatingThresholdPercentages:
     """A class to get price info."""
     def __init__(self, data: dict, tibber_client: "Client"):
-        self.cache: dict = data
+        self.cache: dict = data or {}
         self.tibber_client: "Client" = tibber_client
 
     @property

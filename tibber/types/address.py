@@ -4,7 +4,7 @@
 class Address:
     """An address type to get information about the location of a TibberHome."""
     def __init__(self, data: dict, tibber_client: "Client"):
-        self.cache: dict = data
+        self.cache: dict = data or {}
         self.tibber_client: "Client" = tibber_client
 
     @property

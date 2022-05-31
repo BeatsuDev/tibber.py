@@ -21,7 +21,7 @@ from tibber.networking import QueryBuilder
 class NonDecoratedTibberHome:
     """A Tibber home with methods to get/fetch home information without the decorator functions to subscribe to live data."""
     def __init__(self, data: dict, tibber_client: "Client"):
-        self.cache: dict = data
+        self.cache: dict = data or {}
         self.tibber_client: "Client" = tibber_client
         
         # Logging

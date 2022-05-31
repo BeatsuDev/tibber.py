@@ -7,7 +7,7 @@ from tibber.types.price_rating_entry import PriceRatingEntry
 class PriceRatingType:
     """A class to get the rating of a price in relative terms."""
     def __init__(self, data: dict, tibber_client: "Client"):
-        self.cache: dict = data
+        self.cache: dict = data or {}
         self.tibber_client: "Client" = tibber_client
 
     @property

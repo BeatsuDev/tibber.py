@@ -4,7 +4,7 @@
 class Production:
     """A class containing concrete household electricity production information for a time period."""
     def __init__(self, data: dict, tibber_client: "Client"):
-        self.cache: dict = data
+        self.cache: dict = data or {}
         self.tibber_client: "Client" = tibber_client
 
     @property

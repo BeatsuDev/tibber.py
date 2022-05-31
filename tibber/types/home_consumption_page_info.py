@@ -5,7 +5,7 @@ class HomeConsumptionPageInfo:
     """A class containing household electricity consumption information for a time period."""
     def __init__(self, resolution: str, data: dict, tibber_client: "Client"):
         self.resolution = resolution
-        self.cache: dict = data
+        self.cache: dict = data or {}
         self.tibber_client: "Client" = tibber_client
 
     @property
