@@ -253,6 +253,7 @@ class TibberHome(NonDecoratedTibberHome):
             # TODO: Better error handling
             raise Exception("Something went wrong: " + data["payload"]["message"])
             
+        # Broadcast the event
         # TODO: Differentiate between consumption data, production data and other data.
         self.broadcast_event("live_measurement", LiveMeasurement(data["payload"]["data"]["liveMeasurement"], self.tibber_client))
                     
