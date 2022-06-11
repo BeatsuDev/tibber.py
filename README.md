@@ -120,6 +120,7 @@ A TODO list of things to be done before v0.1.0 is released.
 - [ ] Fix issue #6 (This seems to be an issue with the API though...)
 - [ ] More documentation
 - [ ] Minimum 90% test coverage
+- [ ] Get historical price data
 
 ## v1.0.0 TODO list
 A TODO list of things to be done before v1.0.0 is released.
