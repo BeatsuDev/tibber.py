@@ -237,9 +237,9 @@ class TibberHome(NonDecoratedTibberHome):
             # Now we should be receiving data!
             async for data in websocket:
                 dict_data = json.loads(data)
-                await self.process_websocket_response(dict_data)
-    
-    async def process_websocket_response(self, data):
+                self.process_websocket_response(dict_data)
+
+    def process_websocket_response(self, data):
         """Processes a response with data from the live data websocket."""
         if data["type"] == "connection_ack":
             self.logger.debug("Retrieved connection_ack. The websocket connection was accepted.")
