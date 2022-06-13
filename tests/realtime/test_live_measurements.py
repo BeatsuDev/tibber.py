@@ -28,3 +28,9 @@ def test_realtime_live_measurements(home):
 
     with pytest.raises(RuntimeError):
         home.start_livefeed()
+
+def test_adding_listener_with_unknown_event_raises_exception(home):
+    with pytest.raises(ValueError):
+        @home.event("invalid-event-name")
+        def callback(data):
+            print(data)
