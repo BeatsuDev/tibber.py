@@ -41,3 +41,12 @@ def test_getting_non_fetched_property_returns_none_or_empty():
     client = tibber.Client(tibber.DEMO_TOKEN, False)
     assert client.name == None
     assert client.viewer.homes == []
+
+def test_set_token(client):
+    assert client.token == tibber.DEMO_TOKEN
+    client.token = "test"
+    assert client.token == "test"
+
+def test_setting_token_to_non_string_raises_error(client):
+    with pytest.raises(TypeError):
+        client.token = 105020
