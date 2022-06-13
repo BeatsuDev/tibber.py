@@ -1,7 +1,6 @@
 """Tests for fetching tibber.TibberHome properties from the API"""
 from datetime import datetime
 from datetime import timedelta
-from matplotlib import ft2font
 
 import pytest
 
