@@ -59,6 +59,31 @@ print(home.primary_heating_source) # "AIR2AIR_HEATPUMP"
 print(home.has_ventilation_system) # True
 print(home.main_fuse_size)         # 63
 ```
+
+### Reading historical data
+```python
+import tibber
+
+client = tibber.Client(tibber.DEMO_TOKEN)
+home = client.homes[0]
+
+# Get the first 10 hours of consumption available
+hour_data = home.fetch_consumption("HOURLY", first=10)
+
+# Get the last 3 days of consumption
+day_data = home.fetch_consumption("DAILY", last=3)
+
+# Get last 2 months
+month_data = home.fetch_consumption("MONTHLY", last=2)
+
+for hour in hour_data:
+    print(hour.from_time)
+    print(hour.to_time)
+    print(f"{hour.unit_price}{hour.currency}")
+    print(hour.consumption)
+    print(hour.cost)
+```
+
 ### Reading live measurements
 Note how you can register multiple callbacks for the same event. These will be run
 in order of which they were registered.
