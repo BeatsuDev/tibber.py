@@ -24,7 +24,9 @@ def test_fetch_first_5_hourly_consumption_nodes(home):
     assert history[0].from_time == "2020-04-27T00:00:00.000+02:00"
     assert history[0].to_time == "2020-04-27T01:00:00.000+02:00"
 
-    assert [n.unit_price for n in history] == [0.0913625, 0.0903625, 0.0903625, 0.0905, 0.09165]
+    assert [node.unit_price for node in history] == [0.0913625, 0.0903625, 0.0903625, 0.0905, 0.09165]
+    assert [node.unit_price_vat for node in history] == [0.0182725, 0.0180725, 0.0180725, 0.0181, 0.01833]
+    assert [node.consumption_unit == "kWh" for node in history]
 
 def test_fetch_first_5_hourly_production_nodes(home):
     edge = home.fetch_production("HOURLY", last=5)
@@ -41,3 +43,5 @@ def test_fetch_first_5_hourly_production_nodes(home):
 
         assert from_time == ft
         assert to_time == tt
+
+    assert [node.production_unit == "kWh" for node in history]
