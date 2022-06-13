@@ -57,7 +57,7 @@ class Client(QueryExecutor):
         if not isinstance(token, str):
             self.logger.error("Attempted to set the token to a non-string datatype: " + type(token))
             raise TypeError("The token must be a string.")
-        self.token = token
+        self._token = token
         self.logger.debug("The tibber token was set to: " + token)
         
     @property
