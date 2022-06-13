@@ -4,6 +4,7 @@ import pytest
 import tibber
 from tibber.types import NonDecoratedTibberHome
 from tibber.types import Viewer
+from tibber.exceptions import InvalidTokenException
 
 
 @pytest.fixture
@@ -30,3 +31,13 @@ def test_getting_homes(client):
     
 def test_homes_are_correct_type(client):
     assert all(isinstance(home, NonDecoratedTibberHome) for home in client.homes)
+
+def test_incorrect_token():
+    with pytest.raises(InvalidTokenException):
+        client = tibber.Client("invalidtoken")
+
+def test_getting_non_fetched_property_returns_none_or_empty():
+    """Trying to get a value which has not yet been fetched should return None"""
+    client = tibber.Client(tibber.DEMO_TOKEN, False)
+    assert client.name == None
+    assert client.viewer.homes == []
