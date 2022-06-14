@@ -4,7 +4,7 @@ API_ENDPOINT = "https://api.tibber.com/v1-beta/gql"
 SUBSCRIPTION_ENDPOINT = "wss://api.tibber.com/v1-beta/gql/subscriptions"
 
 # Import modules after defining constants to avoid circular import error.
-from tibber.client import Client
+from .client import Client
 
-from tibber.types.home import TibberHome
-from tibber.types.home import NonDecoratedTibberHome
+from .types.home import TibberHome
+from .types.home import NonDecoratedTibberHome
