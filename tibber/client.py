@@ -6,6 +6,7 @@ from .networking import QueryBuilder
 from .types.viewer import Viewer
 from .types.push_notification_response import PushNotificationResponse
 
+
 class Client(QueryExecutor):
     """The main Tibber class to communicate with the Tibber API."""
     def __init__(self, token: str, immediate_update: bool = True):
