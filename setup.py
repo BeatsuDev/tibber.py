@@ -11,7 +11,7 @@ setup(
     name="tibber.py",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    packages=["tibber"],
+    packages=["tibber", "tibber.networking", "tibber.exceptions", "tibber.types"],
     install_requires=[
         "aiohttp>=3.7.0",
         "websockets>=9.1"
