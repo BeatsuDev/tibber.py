@@ -107,11 +107,6 @@ class QueryExecutor:
     @property
     def websession(self):
         return self._websession
-
-    @websession.setter
-    def websession(self):
-        # TODO: Close the websession before setting it to a new one.
-        pass
     
     def __del__(self):
         """Close the websession when the class is deloaded"""
