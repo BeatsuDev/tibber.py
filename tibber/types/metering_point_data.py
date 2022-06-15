@@ -48,6 +48,6 @@ class MeteringPointData:
         return self.cache.get("vatType")
 
     @property
-    def estimated_annual_consumption(self) -> int:
+    def estimated_annual_consumption(self) -> int:  # pragma: no cover
         """The estimated annual consumption as reported by grid company"""
         return self.cache.get("estimatedAnnualConsumption")

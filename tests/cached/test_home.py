@@ -50,6 +50,15 @@ def test_getting_owner(home):
 def test_getting_metering_point_data(home):
     assert isinstance(home.metering_point_data, MeteringPointData)
 
+    # TODO: Move to an own test file
+    data = home.metering_point_data
+    assert data.consumption_ean == "707057500084125027"
+    assert data.grid_company == "Sunnfjord Energi AS Nett"
+    assert data.grid_area_code == "50YK05ZHDDCGA4AK"
+    assert data.price_area_code == "NO3"
+    assert data.production_ean == "707057500084125027P"
+    assert data.energy_tax_type == "none"
+
 def test_getting_current_subscription(home):
     assert isinstance(home.current_subscription, Subscription)
 
