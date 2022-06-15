@@ -27,7 +27,7 @@ class LegalEntity:
     @property
     def is_company(self) -> bool:
         """'true' if the entity is a company"""
-        return self.cache.get("isCompany")
+        return self.cache.get("isCompany")  # pragma: no cover
         
     @property
     def name(self) -> str:
@@ -37,7 +37,7 @@ class LegalEntity:
     @property
     def middle_name(self) -> str:
         """Middle name of the entity"""
-        return self.cache.get("middleName")
+        return self.cache.get("middleName")  # pragma: no cover
         
     @property
     def last_name(self) -> str:
@@ -47,12 +47,12 @@ class LegalEntity:
     @property
     def organization_no(self) -> str:
         """Organization number - only populated if entity is a company (isCompany=true)"""
-        return self.cache.get("organizationNo")
+        return self.cache.get("organizationNo")  # pragma: no cover
         
     @property
     def language(self) -> str:
         """The primary language of the entity"""
-        return self.cache.get("language")
+        return self.cache.get("language")  # pragma: no cover
         
     @property
     def contact_info(self) -> ContactInfo:
@@ -62,4 +62,4 @@ class LegalEntity:
     @property
     def address(self) -> Address:
         """Address information for the entity"""
-        return Address(self.cache.get("address"), self.tibber_client)
+        return Address(self.cache.get("address"), self.tibber_client)  # pragma: no cover

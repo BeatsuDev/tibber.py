@@ -80,17 +80,17 @@ class LiveMeasurement:
     @property
     def power_production(self) -> float:
         """Net production (A-) at the moment (Watt)"""
-        return self.cache.get("powerProduction")
+        return self.cache.get("powerProduction")  # pragma: no cover
 
     @property
     def power_reactive(self) -> float:
         """Reactive consumption (Q+) at the moment (kVAr)"""
-        return self.cache.get("powerReactive")
+        return self.cache.get("powerReactive")  # pragma: no cover
 
     @property
     def power_production_reactive(self) -> float:
         """Net reactive production (Q-) at the moment (kVAr)"""
-        return self.cache.get("powerProductionReactive")
+        return self.cache.get("powerProductionReactive")  # pragma: no cover
 
     @property
     def min_power_production(self) -> float:
@@ -110,7 +110,7 @@ class LiveMeasurement:
     @property
     def power_factor(self) -> float:
         """Power factor (active power / apparent power)"""
-        return self.cache.get("powerFactor")
+        return self.cache.get("powerFactor")  # pragma: no cover
 
     @property
     def voltage_phase_1(self) -> float:
@@ -118,7 +118,7 @@ class LiveMeasurement:
         of every HAN data frame therefore the value is null at timestamps with
         second value other than 0, 10, 20, 30, 40, 50. There can be other deviations
         based on concrete meter firmware."""
-        return self.cache.get("voltagePhase1")
+        return self.cache.get("voltagePhase1")  # pragma: no cover
 
     @property
     def voltage_phase_2(self) -> float:
@@ -126,7 +126,7 @@ class LiveMeasurement:
         of every HAN data frame therefore the value is null at timestamps with
         second value other than 0, 10, 20, 30, 40, 50. There can be other deviations
         based on concrete meter firmware."""
-        return self.cache.get("voltagePhase2")
+        return self.cache.get("voltagePhase2")  # pragma: no cover
 
     @property
     def voltage_phase_3(self) -> float:
@@ -134,7 +134,7 @@ class LiveMeasurement:
         of every HAN data frame therefore the value is null at timestamps with
         second value other than 0, 10, 20, 30, 40, 50. There can be other deviations
         based on concrete meter firmware."""
-        return self.cache.get("voltagePhase3")
+        return self.cache.get("voltagePhase3")  # pragma: no cover
 
     @property
     def currentL1(self) -> float:
@@ -142,7 +142,7 @@ class LiveMeasurement:
         every HAN data frame therefore the value is null at timestamps with
         second value other than 0, 10, 20, 30, 40, 50. There can be other deviations
         based on concrete meter firmware."""
-        return self.cache.get("currentL1")
+        return self.cache.get("currentL1")  # pragma: no cover
 
     @property
     def currentL2(self) -> float:
@@ -150,7 +150,7 @@ class LiveMeasurement:
         every HAN data frame therefore the value is null at timestamps with
         second value other than 0, 10, 20, 30, 40, 50. There can be other deviations
         based on concrete meter firmware."""
-        return self.cache.get("currentL2")
+        return self.cache.get("currentL2")  # pragma: no cover
 
     @property
     def currentL3(self) -> float:
@@ -158,9 +158,9 @@ class LiveMeasurement:
         every HAN data frame therefore the value is null at timestamps with
         second value other than 0, 10, 20, 30, 40, 50. There can be other deviations
         based on concrete meter firmware."""
-        return self.cache.get("currentL3")
+        return self.cache.get("currentL3")  # pragma: no cover
 
     @property
     def signal_strength(self) -> int:
         """Device signal strength (Pulse - dB; Watty - percent)"""
-        return self.cache.get("signalStrength")
+        return self.cache.get("signalStrength")  # pragma: no cover

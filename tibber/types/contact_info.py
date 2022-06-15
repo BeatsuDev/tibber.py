@@ -20,4 +20,4 @@ class ContactInfo:
     @property
     def mobile(self) -> str:
         """The mobile phone no of the corresponding entity"""
-        return self.cache.get("mobile")
+        return self.cache.get("mobile")  # pragma: no cover

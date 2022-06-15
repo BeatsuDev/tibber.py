@@ -7,12 +7,12 @@ if TYPE_CHECKING:
 
 class PushNotificationResponse:
     def __init__(self, data: dict, tibber_client: "Client"):
-        self.data = data or {}
+        self.data = data or {}  # pragma: no cover
 
     @property
     def successful(self):
-        return self.data.get("successful")
+        return self.data.get("successful")  # pragma: no cover
     
     @property
     def pushed_to_number_of_devices(self):
-        return self.data.get("pushedToNumberOfDevices")
+        return self.data.get("pushedToNumberOfDevices")  # pragma: no cover

@@ -146,31 +146,31 @@ class NonDecoratedTibberHome:
 
     @property
     def address2(self) -> str:
-        return self.address.address2
+        return self.address.address2  # pragma: no cover
 
     @property
     def address3(self) -> str:
-        return self.address.address3
+        return self.address.address3  # pragma: no cover
 
     @property
     def city(self) -> str:
-        return self.address.city
+        return self.address.city  # pragma: no cover
 
     @property
     def postal_code(self) -> str:
-        return self.address.postal_code
+        return self.address.postal_code  # pragma: no cover
 
     @property
     def country(self) -> str:
-        return self.address.country
+        return self.address.country  # pragma: no cover
 
     @property
     def latitude(self) -> str:
-        return self.address.latitude
+        return self.address.latitude  # pragma: no cover
 
     @property
     def longitude(self) -> str:
-        return self.address.longitude
+        return self.address.longitude  # pragma: no cover
 
 class TibberHome(NonDecoratedTibberHome):
     def __init__(self, *args, **kwargs):

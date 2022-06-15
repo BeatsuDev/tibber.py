@@ -18,28 +18,28 @@ class Address:
 
     @property
     def address2(self) -> str:
-        return self.cache.get("address2")
+        return self.cache.get("address2")  # pragma: no cover
 
     @property
     def address3(self) -> str:
-        return self.cache.get("address3")
+        return self.cache.get("address3")  # pragma: no cover
 
     @property
     def city(self) -> str:
-        return self.cache.get("city")
+        return self.cache.get("city")  # pragma: no cover
 
     @property
     def postal_code(self) -> str:
-        return self.cache.get("postalCode")
+        return self.cache.get("postalCode")  # pragma: no cover
 
     @property
     def country(self) -> str:
-        return self.cache.get("country")
+        return self.cache.get("country")  # pragma: no cover
 
     @property
     def latitude(self) -> str:
-        return self.cache.get("latitude")
+        return self.cache.get("latitude")  # pragma: no cover
 
     @property
     def longitude(self) -> str:
-        return self.cache.get("longitude")
+        return self.cache.get("longitude")  # pragma: no cover
