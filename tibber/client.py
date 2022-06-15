@@ -43,7 +43,7 @@ class Client(QueryExecutor):
         self.logger.debug("New data: " + json.dumps(data))
         self.cache = QueryBuilder.combine_dicts(self.cache, data)
 
-    def send_push_notification(self, title: str, message: str, screen_to_open: str = None):
+    def send_push_notification(self, title: str, message: str, screen_to_open: str = None):  # pragma: no cover
         """Sends a push notification to all registered devices connected to the account owning the API key."""
         data = QueryBuilder.send_push_notification(title, message, screen_to_open)
         response_data = self.execute_query(self.token, data).get("sendPushNotification")
