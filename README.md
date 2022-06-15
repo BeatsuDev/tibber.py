@@ -143,7 +143,7 @@ All the API features are documented here: https://developer.tibber.com/docs/refe
 ## v0.1.0 TODO list
 A TODO list of things to be done before v0.1.0 is released.
 - [ ] Fix issue #6 (This seems to be an issue with the API though...)
-- [ ] More documentation
+- [x] More documentation
 - [x] Minimum 90% test coverage
 - [x] Get historical price data
 
