@@ -8,6 +8,8 @@
 ![Tests 3.10](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.10.yml/badge.svg)
 ![Publish to PyPi status](https://github.com/BeatsuDev/tibber.py/actions/workflows/publish-to-pypi.yml/badge.svg)
 
+Head over to https://tibberpy.readthedocs.io/en/latest/ to read the documentation for this library!
+
 A python wrapper package for communication with the [Tibber API](https://developer.tibber.com/).
 This package aims to cover all functionalities of the Tibber API. You can read all the capabilites of the API and explore it 
 with [Tibbers' API explorer](https://developer.tibber.com/explorer). 
