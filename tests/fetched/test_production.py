@@ -26,8 +26,8 @@ def test_production_page_info(home):
 
     assert page_info.count == 10
     assert page_info.currency == "NOK"
-    assert page_info.total_profit == 1.33715513
-    assert page_info.total_production == 10.035
+    assert page_info.total_profit == 0.73834817
+    assert page_info.total_production == 5.49
     assert page_info.filtered == 0
 
 def test_production_nodes(home):
