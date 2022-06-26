@@ -182,8 +182,7 @@ class TibberHome(NonDecoratedTibberHome):
         """Returns a decorator that registers the function being
         decorated as a callback function for the given event
         
-        :param event_to_listen_for: The event the decorator should register the function
-            as a callback for.
+        :param event_to_listen_for: The event the decorator should register the function as a callback for.
         """
         def decorator(callback):
             """Returns the function as it is, but registers it as a callback for an event.
