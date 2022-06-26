@@ -30,25 +30,25 @@ python -m pip install tibber.py
 tibber.py depends only on aiohttp and websockets. As of now, the project ***requires Python 3.9+***.
 
 ## Examples
-### Getting basic client data
+### Getting basic account data
 ```python
 import tibber
 
-client = tibber.Account(tibber.DEMO_TOKEN) # Log in with an access token. All information gets updated here and stored in cache.
+account = tibber.Account(tibber.DEMO_TOKEN) # Log in with an access token. All information gets updated here and stored in cache.
 
 # These properties are retrieved from cache
-print(client.name)         # "Arya Stark"
-print(client.user_id)      # "df4b53bf-0709-4679-8744-08876cbb03c1"
-print(client.account_type) # ["tibber", "customer"]
-print(client.login)        # "edgeir@tibber.com"
+print(account.name)         # "Arya Stark"
+print(account.user_id)      # "df4b53bf-0709-4679-8744-08876cbb03c1"
+print(account.account_type) # ["tibber", "customer"]
+print(account.login)        # "edgeir@tibber.com"
 ```
 
 ### Getting basic home data
 ```python
 import tibber
 
-client = tibber.Account(tibber.DEMO_TOKEN)
-home = client.homes[0]
+account = tibber.Account(tibber.DEMO_TOKEN)
+home = account.homes[0]
 
 print(home.id)                     # "cc83e83e-8cbf-4595-9bf7-c3cf192f7d9c"
 print(home.time_zone)              # "Europe/Oslo"
@@ -66,8 +66,8 @@ print(home.main_fuse_size)         # 63
 ```python
 import tibber
 
-client = tibber.Account(tibber.DEMO_TOKEN)
-home = client.homes[0]
+account = tibber.Account(tibber.DEMO_TOKEN)
+home = account.homes[0]
 
 # Get the first 10 hours of consumption available
 hour_data = home.fetch_consumption("HOURLY", first=10)
@@ -94,8 +94,8 @@ in order of which they were registered.
 ```python
 import tibber
 
-client = tibber.Account(tibber.DEMO_TOKEN)
-home = client.homes[0]
+account = tibber.Account(tibber.DEMO_TOKEN)
+home = account.homes[0]
 
 @home.event("live_measurement")
 def show_current_power(data):
