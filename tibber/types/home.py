@@ -20,14 +20,14 @@ from tibber.networking import QueryBuilder
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.client import Client 
+    from tibber.account import Account 
 
 
 class NonDecoratedTibberHome:
     """A Tibber home with methods to get/fetch home information without the decorator functions to subscribe to live data."""
-    def __init__(self, data: dict, tibber_client: "Client"):
+    def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
-        self.tibber_client: "Client" = tibber_client
+        self.tibber_client: "Account" = tibber_client
         
         # Logging
         self.logger = logging.getLogger(__name__)

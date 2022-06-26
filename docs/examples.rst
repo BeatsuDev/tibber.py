@@ -12,8 +12,8 @@ account as the one you have generated your access token with.
 
    import tibber
 
-   client = tibber.Client("your token")
-   client.send_push_notification("My title", "Hello! I'm a message!")
+   account = tibber.Account("your token")
+   account.send_push_notification("My title", "Hello! I'm a message!")
 
 #################
 Live measurements
@@ -36,8 +36,8 @@ a live measurement is available.
 
    import tibber
 
-   client = tibber.Client("your token")
-   home = client.homes[0]
+   account = tibber.Account("your token")
+   home = account.homes[0]
 
    @home.event("live_measurement")  # register the following function to run when the live_measurement event is emitted
    def process_data(data):  # Note the data argument in the function. This is required and is of type LiveMeasurement.

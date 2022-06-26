@@ -6,14 +6,14 @@ from tibber.types.price_rating_entry import PriceRatingEntry
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.client import Client 
+    from tibber.account import Account 
 
 
 class PriceRatingType:
     """A class to get the rating of a price in relative terms."""
-    def __init__(self, data: dict, tibber_client: "Client"):
+    def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
-        self.tibber_client: "Client" = tibber_client
+        self.tibber_client: "Account" = tibber_client
 
     @property
     def min_energy(self) -> float:

@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.client import Client 
+    from tibber.account import Account 
 
 class PushNotificationResponse:
-    def __init__(self, data: dict, tibber_client: "Client"):
+    def __init__(self, data: dict, tibber_client: "Account"):
         self.data = data or {}  # pragma: no cover
 
     @property

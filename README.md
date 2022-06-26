@@ -34,7 +34,7 @@ tibber.py depends only on aiohttp and websockets. As of now, the project ***requ
 ```python
 import tibber
 
-client = tibber.Client(tibber.DEMO_TOKEN) # Log in with an access token. All information gets updated here and stored in cache.
+client = tibber.Account(tibber.DEMO_TOKEN) # Log in with an access token. All information gets updated here and stored in cache.
 
 # These properties are retrieved from cache
 print(client.name)         # "Arya Stark"
@@ -47,7 +47,7 @@ print(client.login)        # "edgeir@tibber.com"
 ```python
 import tibber
 
-client = tibber.Client(tibber.DEMO_TOKEN)
+client = tibber.Account(tibber.DEMO_TOKEN)
 home = client.homes[0]
 
 print(home.id)                     # "cc83e83e-8cbf-4595-9bf7-c3cf192f7d9c"
@@ -66,7 +66,7 @@ print(home.main_fuse_size)         # 63
 ```python
 import tibber
 
-client = tibber.Client(tibber.DEMO_TOKEN)
+client = tibber.Account(tibber.DEMO_TOKEN)
 home = client.homes[0]
 
 # Get the first 10 hours of consumption available
@@ -94,7 +94,7 @@ in order of which they were registered.
 ```python
 import tibber
 
-client = tibber.Client(tibber.DEMO_TOKEN)
+client = tibber.Account(tibber.DEMO_TOKEN)
 home = client.homes[0]
 
 @home.event("live_measurement")

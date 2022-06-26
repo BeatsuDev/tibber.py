@@ -1,4 +1,4 @@
-"""Tests for reading tibber.TibberHome properties from cached values after the Tibber client is initialized."""
+"""Tests for reading tibber.TibberHome properties from cached values after the Tibber account is initialized."""
 import pytest
 
 import tibber
@@ -11,11 +11,11 @@ from tibber.types import Address
 
 @pytest.fixture
 def home():
-    client = tibber.Client(tibber.DEMO_TOKEN)
+    account = tibber.Account(tibber.DEMO_TOKEN)
     try:
-        return client.homes[0]
+        return account.homes[0]
     except IndexError:
-        raise ValueError("The instanciated demo client does not have any homes. Cannot perform home tests.")
+        raise ValueError("The instanciated demo account does not have any homes. Cannot perform home tests.")
 
 def test_getting_id(home):
     assert home.id == "cc83e83e-8cbf-4595-9bf7-c3cf192f7d9c"

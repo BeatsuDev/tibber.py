@@ -1,4 +1,4 @@
-"""Tests for reading tibber.types.Subscription properties from cached values after the Tibber client is initialized."""
+"""Tests for reading tibber.types.Subscription properties from cached values after the Tibber account is initialized."""
 import pytest
 
 import tibber
@@ -10,11 +10,11 @@ from tibber.types import PriceRating
 
 @pytest.fixture
 def subscription():
-    client = tibber.Client(tibber.DEMO_TOKEN)
+    account = tibber.Account(tibber.DEMO_TOKEN)
     try:
-        return client.homes[0].current_subscription
+        return account.homes[0].current_subscription
     except IndexError:
-        raise ValueError("The instanciated demo client does not have any homes. Cannot perform home tests.")
+        raise ValueError("The instanciated demo account does not have any homes. Cannot perform home tests.")
 
 
 def test_correct_type(subscription):

@@ -9,11 +9,11 @@ import tibber
 
 @pytest.fixture
 def home():
-    client = tibber.Client(tibber.DEMO_TOKEN)
+    account = tibber.Account(tibber.DEMO_TOKEN)
     try:
-        return client.homes[0]
+        return account.homes[0]
     except IndexError:
-        raise ValueError("The instanciated demo client does not have any homes. Cannot perform home tests.")
+        raise ValueError("The instanciated demo account does not have any homes. Cannot perform home tests.")
 
 def test_production_page_info(home):
     home_production_connection = home.fetch_production("HOURLY", first=10, after="MjAyMi0wNi0xNFQxMzowMDowMC4wMDArMDI6MDA=")

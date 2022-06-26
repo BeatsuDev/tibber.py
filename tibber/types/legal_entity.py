@@ -6,14 +6,14 @@ from tibber.types.address import Address
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.client import Client 
+    from tibber.account import Account 
 
 
 class LegalEntity:
     """A LegalEntity (most commonly an owner of a home for example). This class contains methods to get information such as address, name and contact info."""
-    def __init__(self, data: dict, tibber_client: "Client"):
+    def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
-        self.tibber_client: "Client" = tibber_client
+        self.tibber_client: "Account" = tibber_client
         
     @property
     def id(self) -> str:

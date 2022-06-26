@@ -1,0 +1,52 @@
+"""Tests for reading tibber.Account properties from cached values after the Tibber account is initialized."""
+import pytest
+
+import tibber
+from tibber.types import NonDecoratedTibberHome
+from tibber.types import Viewer
+from tibber.exceptions import InvalidTokenException
+
+
+@pytest.fixture
+def account():
+    return tibber.Account(tibber.DEMO_TOKEN)
+
+def test_getting_viewer(account):
+    assert isinstance(account.viewer, Viewer)
+
+def test_getting_name(account):
+    assert account.name == "Arya Stark"
+    
+def test_getting_login(account):
+    assert account.login == "edgeir@tibber.com"
+    
+def test_getting_user_id(account):
+    assert account.user_id == "df4b53bf-0709-4679-8744-08876cbb03c1"
+
+def test_getting_account_type(account):
+    assert account.account_type == ["tibber", "customer"]
+    
+def test_getting_homes(account):
+    assert len(account.homes) == 1
+    
+def test_homes_are_correct_type(account):
+    assert all(isinstance(home, NonDecoratedTibberHome) for home in account.homes)
+
+def test_incorrect_token():
+    with pytest.raises(InvalidTokenException):
+        account = tibber.Account("invalidtoken")
+
+def test_getting_non_fetched_property_returns_none_or_empty():
+    """Trying to get a value which has not yet been fetched should return None"""
+    account = tibber.Account(tibber.DEMO_TOKEN, False)
+    assert account.name == None
+    assert account.viewer.homes == []
+
+def test_set_token(account):
+    assert account.token == tibber.DEMO_TOKEN
+    account.token = "test"
+    assert account.token == "test"
+
+def test_setting_token_to_non_string_raises_error(account):
+    with pytest.raises(TypeError):
+        account.token = 105020

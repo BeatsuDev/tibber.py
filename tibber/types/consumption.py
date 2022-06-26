@@ -3,14 +3,14 @@ from typing import TYPE_CHECKING
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.client import Client
+    from tibber.account import Account
 
 
 class Consumption:
     """A class containing concrete household electricity consumption information for a time period."""
-    def __init__(self, data: dict, tibber_client: "Client"):
+    def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
-        self.tibber_client: "Client" = tibber_client
+        self.tibber_client: "Account" = tibber_client
 
     @property
     def from_time(self) -> str:
