@@ -22,7 +22,7 @@ setup(
     python_requires=">=3.9.0",
     author="BeatsuDev",
     author_email="",
-    url="https://github.com/BeatsuDev/tibber.py",
+    url="https://tibberpy.readthedocs.io/en/latest/",
     classifiers=[
         "Development Status :: 1 - Planning",
         "Framework :: aiohttp",
