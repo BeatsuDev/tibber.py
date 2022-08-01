@@ -30,7 +30,7 @@ def test_getting_valid_from(subscription):
     assert subscription.valid_from == "2020-04-26T22:00:00+00:00"
 
 def test_getting_status(subscription):
-    assert subscription.status == "running"
+    assert subscription.status == "ended"
 
 def test_getting_price_info(subscription):
     assert isinstance(subscription.price_info, PriceInfo)
