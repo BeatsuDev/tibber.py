@@ -28,3 +28,6 @@ class HomeConsumptionConnection:
     @property
     def edges(self) -> list:
         return [HomeConsumptionEdge(self.resolution, edge, self.tibber_client) for edge in self.cache.get("edges")]
+    
+    def __iter__(self):
+        return iter(self.nodes)
