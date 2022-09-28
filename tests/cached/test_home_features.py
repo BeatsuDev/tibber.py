@@ -14,4 +14,4 @@ def home():
 
 
 def test_real_time_consumption(home):
-    assert not home.features.real_time_consumption_enabled
+    assert home.features.real_time_consumption_enabled

@@ -18,10 +18,10 @@ def test_getting_name(account):
     assert account.name == "Arya Stark"
     
 def test_getting_login(account):
-    assert account.login == "edgeir@tibber.com"
+    assert account.login == "arya@winterfell.com"
     
 def test_getting_user_id(account):
-    assert account.user_id == "df4b53bf-0709-4679-8744-08876cbb03c1"
+    assert account.user_id == "dcc2355e-6f55-45c2-beb9-274241fe450c"
 
 def test_getting_account_type(account):
     assert account.account_type == ["tibber", "customer"]

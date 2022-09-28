@@ -21,16 +21,16 @@ def test_correct_type(subscription):
     assert isinstance(subscription, Subscription)
 
 def test_getting_id(subscription):
-    assert subscription.id == "e9c0f9eb-4a7d-447f-8598-0794c33ca5aa"
+    assert subscription.id == "a386fd22-579e-4364-8b17-c63bef0d6bee"
 
 def test_getting_subscriber(subscription):
     assert isinstance(subscription.subscriber, LegalEntity)
 
 def test_getting_valid_from(subscription):
-    assert subscription.valid_from == "2020-04-26T22:00:00+00:00"
+    assert subscription.valid_from == "2018-11-01T23:00:00+00:00"
 
 def test_getting_status(subscription):
-    assert subscription.status == "ended"
+    assert subscription.status == "running"
 
 def test_getting_price_info(subscription):
     assert isinstance(subscription.price_info, PriceInfo)

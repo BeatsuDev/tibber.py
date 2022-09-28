@@ -16,7 +16,7 @@ def test_correct_type(legal_entity):
     assert isinstance(legal_entity, LegalEntity)
 
 def test_getting_id(legal_entity):
-    assert legal_entity.id == "df4b53bf-0709-4679-8744-08876cbb03c1"
+    assert legal_entity.id == "dcc2355e-6f55-45c2-beb9-274241fe450c"
 
 def test_getting_first_name(legal_entity):
     assert legal_entity.first_name == "Arya"

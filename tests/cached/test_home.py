@@ -18,31 +18,31 @@ def home():
         raise ValueError("The instanciated demo account does not have any homes. Cannot perform home tests.")
 
 def test_getting_id(home):
-    assert home.id == "cc83e83e-8cbf-4595-9bf7-c3cf192f7d9c"
+    assert home.id == "96a14971-525a-4420-aae9-e5aedaa129ff"
     
 def test_getting_time_zome(home):
-    assert home.time_zone == "Europe/Oslo"
+    assert home.time_zone == "Europe/Stockholm"
     
 def test_getting_app_nickname(home):
-    assert home.app_nickname == "Ulltang casa"
+    assert home.app_nickname == "Vitahuset"
     
 def test_getting_size(home):
-    assert home.size == 200
+    assert home.size == 195
     
 def test_getting_type(home):
     assert home.type == "HOUSE"
     
 def test_getting_number_of_residents(home):
-    assert home.number_of_residents == 4
+    assert home.number_of_residents == 5
     
 def test_getting_primary_heating_source(home):
-    assert home.primary_heating_source == "AIR2AIR_HEATPUMP"
+    assert home.primary_heating_source == "GROUND"
     
 def test_getting_has_ventilation_system(home):
-    assert home.has_ventilation_system == True
+    assert home.has_ventilation_system == False
     
 def test_getting_main_fuse_size(home):
-    assert home.main_fuse_size == 63
+    assert home.main_fuse_size == 25
 
 def test_getting_owner(home):
     assert isinstance(home.owner, LegalEntity)
@@ -52,18 +52,18 @@ def test_getting_metering_point_data(home):
 
     # TODO: Move to an own test file
     data = home.metering_point_data
-    assert data.consumption_ean == "707057500084125027"
-    assert data.grid_company == "Sunnfjord Energi AS Nett"
-    assert data.grid_area_code == "50YK05ZHDDCGA4AK"
-    assert data.price_area_code == "NO3"
-    assert data.production_ean == "707057500084125027P"
-    assert data.energy_tax_type == "none"
+    assert data.consumption_ean == "735999102107573183"
+    assert data.grid_company == "Ellevio AB"
+    assert data.grid_area_code == "STH"
+    assert data.price_area_code == "SE3"
+    assert data.production_ean == "735999102111362582"
+    assert data.energy_tax_type == "normal"
 
 def test_getting_current_subscription(home):
     assert isinstance(home.current_subscription, Subscription)
 
 def test_getting_subscriptions(home):
-    assert len(home.subscriptions) == 2
+    assert len(home.subscriptions) == 1
     assert isinstance(home.subscriptions[0], Subscription)
 
 def test_getting_features(home):
