@@ -38,9 +38,9 @@ account = tibber.Account(tibber.DEMO_TOKEN) # Log in with an access token. All i
 
 # These properties are retrieved from cache
 print(account.name)         # "Arya Stark"
-print(account.user_id)      # "df4b53bf-0709-4679-8744-08876cbb03c1"
+print(account.user_id)      # "dcc2355e-6f55-45c2-beb9-274241fe450c"
 print(account.account_type) # ["tibber", "customer"]
-print(account.login)        # "edgeir@tibber.com"
+print(account.login)        # "arya@winterfell.com"
 ```
 
 ### Getting basic home data
@@ -51,15 +51,15 @@ account = tibber.Account(tibber.DEMO_TOKEN)
 home = account.homes[0]
 
 print(home.id)                     # "cc83e83e-8cbf-4595-9bf7-c3cf192f7d9c"
-print(home.time_zone)              # "Europe/Oslo"
-print(home.app_nickname)           # "Ulltang casa"
-print(home.app_avatar)             # "FLOORHOUSE2"
-print(home.size)                   # 200
+print(home.time_zone)              # "Europe/Stockholm"
+print(home.app_nickname)           # "Vitahuset"
+print(home.app_avatar)             # "FLOORHOUSE3"
+print(home.size)                   # 195
 print(home.type)                   # "HOUSE"
-print(home.number_of_residents)    # 4
-print(home.primary_heating_source) # "AIR2AIR_HEATPUMP"
-print(home.has_ventilation_system) # True
-print(home.main_fuse_size)         # 63
+print(home.number_of_residents)    # 5
+print(home.primary_heating_source) # "GROUND"
+print(home.has_ventilation_system) # False
+print(home.main_fuse_size)         # 25
 ```
 
 ### Reading historical data
