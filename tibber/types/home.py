@@ -207,6 +207,8 @@ class TibberHome(NonDecoratedTibberHome):
         
     def start_livefeed(self):
         """Creates a websocket and starts pushing data out to registered callbacks."""
+        if not self.features.real_time_consumption_enabled:
+            raise ValueError("The home does not have real time consumption enabled.")
         self.tibber_client.eventloop.run_until_complete(self.run_websocket_loop())
         
     async def run_websocket_loop(self):
