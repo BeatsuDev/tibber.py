@@ -9,7 +9,6 @@ import gql
 from gql.transport.websockets import WebsocketsTransport
 from graphql import parse
 
-from tibber import SUBSCRIPTION_ENDPOINT
 from tibber.types.legal_entity import LegalEntity
 from tibber.types.address import Address
 from tibber.types.metering_point_data import MeteringPointData
