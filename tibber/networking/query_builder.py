@@ -117,7 +117,8 @@ class QueryBuilder:
             "userId": "",
             "name": "",
             "accountType": [],
-            "homes": QueryBuilder.home
+            "homes": QueryBuilder.home,
+            "websocketSubscriptionUrl": ""
         }
 
     @classmethod

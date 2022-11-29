@@ -27,7 +27,8 @@ docs (located on the right side of the Tibber API explorer).
 python -m pip install tibber.py
 ```
 ### Requirements
-tibber.py depends only on aiohttp and websockets. As of now, the project ***requires Python 3.9+***.
+tibber.py depends on `aiohttp`, `gql`, `gql[websockets]` and `graphql-core`. As of now, the project ***requires Python 3.9+***.
+Soon the project will most likely support Python 3.7 and up.
 
 ## Examples
 ### Getting basic account data

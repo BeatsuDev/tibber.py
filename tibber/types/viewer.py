@@ -34,5 +34,10 @@ class Viewer:
     def homes(self):
         """All homes visible to the logged-in user"""
         return [ TibberHome(home, self.tibber_client) for home in self.cache.get("homes", []) ]
+
+    @property
+    def websocket_subscription_url(self):
+        """The URL to use for websocket subscriptions"""
+        return self.cache.get("websocketSubscriptionUrl")
     
     # TODO: Implement home(id: ID!): Home! method. (get_home and fetch_home)

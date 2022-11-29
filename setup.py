@@ -14,7 +14,9 @@ setup(
     packages=["tibber", "tibber.networking", "tibber.exceptions", "tibber.types"],
     install_requires=[
         "aiohttp>=3.7.0",
-        "websockets>=9.1"
+        "gql>=3.4.0",
+        "gql[websockets]>=3.4.0",
+        "graphql-core>=3.2.3",
     ],
     license="MIT",
     version=__version__,

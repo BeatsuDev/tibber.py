@@ -24,7 +24,7 @@ jobs:
           key: pip_cache
       - name: Install depencency
         run: |
-            pip install aiohttp websockets pytest
+            pip install aiohttp gql gql[websockets] graphql-core pytest
       - name: Pytest
         run: |
             python -m pytest tests

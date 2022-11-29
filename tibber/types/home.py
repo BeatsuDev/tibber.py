@@ -5,7 +5,9 @@ import logging
 from typing import Callable
 from typing import TYPE_CHECKING
 
-import websockets
+import gql
+from gql.transport.websockets import WebsocketsTransport
+from graphql import parse
 
 from tibber import SUBSCRIPTION_ENDPOINT
 from tibber.types.legal_entity import LegalEntity
@@ -209,52 +211,28 @@ class TibberHome(NonDecoratedTibberHome):
         
     async def run_websocket_loop(self):
         """Starts a websocket."""
-        # Tell the websocket that we are wanting to connect
-        connection_init_message = json.dumps(
-            {"type": "connection_init", "payload": {}}
-        )
-            
-        # Request the data we want
-        root_subscription_query = QueryBuilder.live_measurement(self.id)
-        request_message = json.dumps(
-            {"type": "start", "id": "1", "payload": {"query": root_subscription_query}}
-        )
-        
         # Connect the websocket, then fire off the created requests
-        async with websockets.connect(
-            SUBSCRIPTION_ENDPOINT,
-            subprotocols=["graphql-ws"],
-            extra_headers={"Authorization": self.tibber_client.token}
-        ) as websocket:
-            self.logger.debug("Sending initial payloads to start connection with live data websocket.")
-            self.logger.debug("Connection init message:\n" + connection_init_message)
-            self.logger.debug("Request message:\n" + request_message)
-            
-            await websocket.send(connection_init_message)
-            await websocket.send(request_message)
+        transport = WebsocketsTransport(
+            url=self.tibber_client.viewer.websocket_subscription_url,
+            subprotocols=["graphql-transport-ws"],
+            headers={"Authorization": self.tibber_client.token}
+        )
 
+        client = gql.Client(
+            transport=transport,
+            fetch_schema_from_transport=True,
+        )
+
+        query = parse(QueryBuilder.live_measurement(self.id))
+        async for data in client.subscribe_async(query):
             # Now we should be receiving data!
-            async for data in websocket:
-                dict_data = json.loads(data)
-                self.process_websocket_response(dict_data)
+            self.process_websocket_response(data)
 
     def process_websocket_response(self, data):
         """Processes a response with data from the live data websocket."""
-        if data["type"] == "connection_ack":
-            self.logger.debug("Retrieved connection_ack. The websocket connection was accepted.")
-            return
-        
-        elif data["type"] == "ka":
-            self.logger.debug("Received ka (Keep Alive) from websocket.")
-            return
-        
-        elif data["type"] == "error":
-            # TODO: Better error handling
-            raise Exception("Something went wrong: " + data["payload"]["message"])
-            
         # Broadcast the event
         # TODO: Differentiate between consumption data, production data and other data.
-        self.broadcast_event("live_measurement", LiveMeasurement(data["payload"]["data"]["liveMeasurement"], self.tibber_client))
+        self.broadcast_event("live_measurement", LiveMeasurement(data["liveMeasurement"], self.tibber_client))
                     
     def broadcast_event(self, event, data):
         if not event in self._callbacks:
