@@ -111,7 +111,7 @@ def show_accumulated_cost(data):
   print(f"{data.accumulated_cost} {data.currency}")
   
 # Start the live feed. This runs forever.
-home.start_livefeed()
+home.start_live_feed()
 ```
 ## 100% API coverage TODO / Progress list
 All the API features are documented here: https://developer.tibber.com/docs/reference
