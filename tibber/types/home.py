@@ -213,9 +213,9 @@ class TibberHome(NonDecoratedTibberHome):
         """
         if not self.features.real_time_consumption_enabled:
             raise ValueError("The home does not have real time consumption enabled.")
-        self.tibber_client.eventloop.run_until_complete(self.run_websocket_loop(retries=retries, **kwargs))
+        self.tibber_client.eventloop.run_until_complete(self.run_websocket_loop(retries = retries, **kwargs))
         
-    async def run_websocket_loop(self, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
+    async def run_websocket_loop(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
         """Starts a websocket to subscribe for live measurements.
         
         :param retries: The number of times to retry connecting to the websocket if it fails.
@@ -223,6 +223,7 @@ class TibberHome(NonDecoratedTibberHome):
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
         """
         async def retrieve_from_websocket():
+            # Create the websocket
             transport = WebsocketsTransport(
                 **kwargs,
                 url=self.tibber_client.viewer.websocket_subscription_url,
@@ -235,12 +236,14 @@ class TibberHome(NonDecoratedTibberHome):
                 fetch_schema_from_transport=True,
             )
 
+            # Subscribe to the websocket
             query = parse(QueryBuilder.live_measurement(self.id))
-
-            self.logger.debug("Connecting to live measurement data endpoint...")
+            self.logger.debug(f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
             async for data in client.subscribe_async(query):
                 self.logger.debug("Real time data received!")
                 self.process_websocket_response(data)
+                if exit_condition and exit_condition():
+                    break
 
         retry_attempts = 0
         # Try forever if amount of retries is not defined
