@@ -3,6 +3,9 @@
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/BeatsuDev/tibber.py.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/BeatsuDev/tibber.py/context:python)
 ![Code Coverage](https://img.shields.io/codecov/c/github/BeatsuDev/tibber.py)
 [![PyPI version](https://badge.fury.io/py/tibber.py.svg)](https://badge.fury.io/py/tibber.py)
+![](https://img.shields.io/librariesio/github/BeatsuDev/tibber.py)
+![](https://img.shields.io/pypi/dw/tibber.py)
+![](https://img.shields.io/github/contributors-anon/BeatsuDev/tibber.py)
 
 ![Tests 3.9](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.9.yml/badge.svg)
 ![Tests 3.10](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.10.yml/badge.svg)
@@ -10,8 +13,8 @@
 
 Head over to https://tibberpy.readthedocs.io/en/latest/ to read the documentation for this library!
 
-A python wrapper package for communication with the [Tibber API](https://developer.tibber.com/).
-This package aims to cover all functionalities of the Tibber API. You can read all the capabilites of the API and explore it 
+tibber.py is a python wrapper package for communication with the [Tibber API](https://developer.tibber.com/).
+This package aims to cover all functionalities of the Tibber API in the most beginner-friendly way. You can read all the capabilites of the API and explore it 
 with [Tibbers' API explorer](https://developer.tibber.com/explorer). 
 
 Every field of the API types should be found in the corresponding `tibber.type` (e.g. the `size: Int` field of `Home`
