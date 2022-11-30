@@ -237,12 +237,12 @@ class TibberHome(NonDecoratedTibberHome):
             )
 
             # Subscribe to the websocket
-            query = parse(QueryBuilder.live_measurement(self.id))
+            query = QueryBuilder.live_measurement(self.id)
             self.logger.debug(f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
-            async for data in client.subscribe_async(query):
+            async for data in client.subscribe_async(parse(query)):
                 self.logger.debug("Real time data received!")
                 self.process_websocket_response(data)
-                if exit_condition and exit_condition():
+                if exit_condition and exit_condition(data):
                     break
 
         retry_attempts = 0
