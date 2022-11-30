@@ -228,6 +228,13 @@ class TibberHome(NonDecoratedTibberHome):
             if self.websocket_client:
                 self.websocket_running = False
                 self.tibber_client.eventloop.run_until_complete(self.websocket_client.close_async())
+        except BaseException as e:
+            # Close the websocket, then re-raise the exception
+            if self.websocket_client:
+                self.websocket_running = False
+                self.tibber_client.eventloop.run_until_complete(self.websocket_client.close_async())
+            raise e
+
         
     async def run_websocket_loop(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
         """Starts a websocket to subscribe for live measurements.
