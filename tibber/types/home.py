@@ -279,6 +279,9 @@ class TibberHome(NonDecoratedTibberHome):
 
                 retry_attempts += 1
                 await asyncio.sleep(retry_interval)
+            finally:
+                self.websocket_running = False
+                await self.websocket_client.close_async()
         
         if retry_attempts >= retries:
             self.logger.critical(f"Could not connect to the websocket, even after {retry_attempts} tries.")
