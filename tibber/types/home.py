@@ -2,6 +2,7 @@
 import json
 import asyncio
 import logging
+from typing import Union
 from typing import Callable
 from typing import TYPE_CHECKING
 
@@ -202,40 +203,69 @@ class TibberHome(NonDecoratedTibberHome):
                 raise ValueError(f"Could not recognize the event you want to listen for: {event_to_listen_for}")
             return callback
         return decorator
+
+    def start_live_feed(self, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
+        """Creates a websocket and starts pushing data out to registered callbacks.
         
-        
-    def start_live_feed(self):
-        """Creates a websocket and starts pushing data out to registered callbacks."""
+        :param retries: The number of times to retry connecting to the websocket if it fails.
+        :param retry_interval: The interval in seconds to wait before retrying to connect to the websocket.
+        :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
+        """
         if not self.features.real_time_consumption_enabled:
             raise ValueError("The home does not have real time consumption enabled.")
-        self.tibber_client.eventloop.run_until_complete(self.run_websocket_loop())
+        self.tibber_client.eventloop.run_until_complete(self.run_websocket_loop(retries=retries, **kwargs))
         
-    async def run_websocket_loop(self):
-        """Starts a websocket."""
-        # Connect the websocket, then fire off the created requests
-        transport = WebsocketsTransport(
-            url=self.tibber_client.viewer.websocket_subscription_url,
-            subprotocols=["graphql-transport-ws"],
-            headers={"Authorization": self.tibber_client.token}
-        )
+    async def run_websocket_loop(self, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
+        """Starts a websocket to subscribe for live measurements.
+        
+        :param retries: The number of times to retry connecting to the websocket if it fails.
+        :param retry_interval: The interval in seconds to wait before retrying to connect to the websocket.
+        :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
+        """
+        async def retrieve_from_websocket():
+            transport = WebsocketsTransport(
+                **kwargs,
+                url=self.tibber_client.viewer.websocket_subscription_url,
+                subprotocols=["graphql-transport-ws"],
+                headers={"Authorization": self.tibber_client.token}
+            )
 
-        client = gql.Client(
-            transport=transport,
-            fetch_schema_from_transport=True,
-        )
+            client = gql.Client(
+                transport=transport,
+                fetch_schema_from_transport=True,
+            )
 
-        query = parse(QueryBuilder.live_measurement(self.id))
-        async for data in client.subscribe_async(query):
-            # Now we should be receiving data!
-            self.process_websocket_response(data)
+            query = parse(QueryBuilder.live_measurement(self.id))
 
-    def process_websocket_response(self, data):
+            self.logger.debug("Connecting to live measurement data endpoint...")
+            async for data in client.subscribe_async(query):
+                self.logger.debug("Real time data received!")
+                self.process_websocket_response(data)
+
+        retry_attempts = 0
+        # Try forever if amount of retries is not defined
+        while retry_attempts < retries if retries else True:
+            try:
+                await retrieve_from_websocket()
+                retry_attempts = 0
+            except Exception as e:
+                if retry_attempts < retries:
+                    self.logger.error(f"Connection to websocket failed... Retrying in {retry_interval} seconds...\n{e}")
+
+                retry_attempts += 1
+                await asyncio.sleep(retry_interval)
+        
+        if retry_attempts >= retries:
+            self.logger.critical(f"Could not connect to the websocket, even after {retry_attempts} tries.")
+
+
+    def process_websocket_response(self, data) -> None:
         """Processes a response with data from the live data websocket."""
         # Broadcast the event
         # TODO: Differentiate between consumption data, production data and other data.
         self.broadcast_event("live_measurement", LiveMeasurement(data["liveMeasurement"], self.tibber_client))
-                    
-    def broadcast_event(self, event, data):
+
+    def broadcast_event(self, event, data) -> None:
         if not event in self._callbacks:
             self.logger.warning("The event that was broadcasted has no listeners / callbacks! Nothing was run.")
             return
