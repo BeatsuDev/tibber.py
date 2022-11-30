@@ -175,9 +175,14 @@ class NonDecoratedTibberHome:
         return self.address.longitude  # pragma: no cover
 
 class TibberHome(NonDecoratedTibberHome):
+    """A Tibber home with methods to get/fetch home information and subscribe to live data.
+    This class expands on the NonDecoratedTibberHome class by adding methods to subscribe to live data.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.loop = asyncio.get_event_loop()
+        self.websocket_client = None # Used to reference the websocket connection later, if it needs to be closed for example.
+        self.websocket_running = False
         self._callbacks = {}
 
     def event(self, event_to_listen_for) -> Callable:
@@ -204,20 +209,24 @@ class TibberHome(NonDecoratedTibberHome):
             return callback
         return decorator
 
-    def start_live_feed(self, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
+    def start_live_feed(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
         """Creates a websocket and starts pushing data out to registered callbacks.
         
+        :param exit_condition: A function that takes a LiveMeasurement as input and returns a boolean.
+            If the function returns True, the websocket will be closed.
         :param retries: The number of times to retry connecting to the websocket if it fails.
         :param retry_interval: The interval in seconds to wait before retrying to connect to the websocket.
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
         """
         if not self.features.real_time_consumption_enabled:
             raise ValueError("The home does not have real time consumption enabled.")
-        self.tibber_client.eventloop.run_until_complete(self.run_websocket_loop(retries = retries, **kwargs))
+        self.tibber_client.eventloop.run_until_complete(self.run_websocket_loop(exit_condition, retries = retries, **kwargs))
         
     async def run_websocket_loop(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
         """Starts a websocket to subscribe for live measurements.
         
+        :param exit_condition: A function that takes a LiveMeasurement as input and returns a boolean.
+            If the function returns True, the websocket will be closed.
         :param retries: The number of times to retry connecting to the websocket if it fails.
         :param retry_interval: The interval in seconds to wait before retrying to connect to the websocket.
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
@@ -231,26 +240,33 @@ class TibberHome(NonDecoratedTibberHome):
                 headers={"Authorization": self.tibber_client.token}
             )
 
-            client = gql.Client(
+            self.websocket_client = gql.Client(
                 transport=transport,
                 fetch_schema_from_transport=True,
             )
 
+            self.websocket_running = True
+
             # Subscribe to the websocket
             query = QueryBuilder.live_measurement(self.id)
             self.logger.debug(f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
-            async for data in client.subscribe_async(parse(query)):
+            document_node_query = parse(query)
+            
+            async for data in self.websocket_client.subscribe_async(document_node_query):
                 self.logger.debug("Real time data received!")
-                self.process_websocket_response(data)
-                if exit_condition and exit_condition(data):
-                    break
+                self.process_websocket_response(data, exit_condition=exit_condition)
+                if not self.websocket_running: break
+
+            self.websocket_running = False # In case the code ever gets here, the websocket is no longer running.
 
         retry_attempts = 0
         # Try forever if amount of retries is not defined
         while retry_attempts < retries if retries else True:
             try:
+                # This function will exit only if the exit condition is reached or if an Exception is raised.
                 await retrieve_from_websocket()
-                retry_attempts = 0
+                # Meaning this point will only be reachable if the exit condition is reached (because the Exception is caught).
+                break
             except Exception as e:
                 if retry_attempts < retries:
                     self.logger.error(f"Connection to websocket failed... Retrying in {retry_interval} seconds...\n{e}")
@@ -262,11 +278,21 @@ class TibberHome(NonDecoratedTibberHome):
             self.logger.critical(f"Could not connect to the websocket, even after {retry_attempts} tries.")
 
 
-    def process_websocket_response(self, data) -> None:
-        """Processes a response with data from the live data websocket."""
+    def process_websocket_response(self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None) -> None:
+        """Processes a response with data from the live data websocket. This function will call all registered callbacks
+        before checking if the exit condition is met.
+
+        :param data: The data to process.
+        """
         # Broadcast the event
         # TODO: Differentiate between consumption data, production data and other data.
-        self.broadcast_event("live_measurement", LiveMeasurement(data["liveMeasurement"], self.tibber_client))
+        cleaned_data = LiveMeasurement(data["liveMeasurement"], self.tibber_client)
+        self.broadcast_event("live_measurement", cleaned_data)
+        print(data)
+
+        # Check if the exit condition is met
+        if exit_condition and exit_condition(cleaned_data):
+            self.websocket_running = False
 
     def broadcast_event(self, event, data) -> None:
         if not event in self._callbacks:
