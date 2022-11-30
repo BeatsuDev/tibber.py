@@ -220,7 +220,14 @@ class TibberHome(NonDecoratedTibberHome):
         """
         if not self.features.real_time_consumption_enabled:
             raise ValueError("The home does not have real time consumption enabled.")
-        self.tibber_client.eventloop.run_until_complete(self.run_websocket_loop(exit_condition, retries = retries, **kwargs))
+
+        try:
+            self.tibber_client.eventloop.run_until_complete(self.run_websocket_loop(exit_condition, retries = retries, **kwargs))
+        except KeyboardInterrupt:
+            print("Closing websocket...")
+            if self.websocket_client:
+                self.websocket_running = False
+                self.tibber_client.eventloop.run_until_complete(self.websocket_client.close_async())
         
     async def run_websocket_loop(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
         """Starts a websocket to subscribe for live measurements.
@@ -245,13 +252,11 @@ class TibberHome(NonDecoratedTibberHome):
                 fetch_schema_from_transport=True,
             )
 
-            self.websocket_running = True
-
             # Subscribe to the websocket
             query = QueryBuilder.live_measurement(self.id)
             self.logger.debug(f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
             document_node_query = parse(query)
-            
+
             async for data in self.websocket_client.subscribe_async(document_node_query):
                 self.logger.debug("Real time data received!")
                 self.process_websocket_response(data, exit_condition=exit_condition)
@@ -263,6 +268,7 @@ class TibberHome(NonDecoratedTibberHome):
         # Try forever if amount of retries is not defined
         while retry_attempts < retries if retries else True:
             try:
+                self.websocket_running = True
                 # This function will exit only if the exit condition is reached or if an Exception is raised.
                 await retrieve_from_websocket()
                 # Meaning this point will only be reachable if the exit condition is reached (because the Exception is caught).
@@ -288,7 +294,6 @@ class TibberHome(NonDecoratedTibberHome):
         # TODO: Differentiate between consumption data, production data and other data.
         cleaned_data = LiveMeasurement(data["liveMeasurement"], self.tibber_client)
         self.broadcast_event("live_measurement", cleaned_data)
-        print(data)
 
         # Check if the exit condition is met
         if exit_condition and exit_condition(cleaned_data):
