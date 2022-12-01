@@ -19,8 +19,8 @@ class QueryExecutor:
         try:
             self.eventloop = asyncio.get_running_loop()
         except RuntimeError:
-            self.logger.debug("No running event loop was found. Creating a new one with asyncio.get_event_loop()")
-            self.eventloop = asyncio.get_event_loop()
+            self.logger.debug("No running event loop was found. Creating a new one with asyncio.new_event_loop()")
+            self.eventloop = asyncio.new_event_loop()
 
         self.eventloop.run_until_complete(self.__async_init__(websession))
         

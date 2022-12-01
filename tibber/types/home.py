@@ -180,8 +180,11 @@ class TibberHome(NonDecoratedTibberHome):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.loop = asyncio.get_event_loop()
-        self.websocket_client = None # Used to reference the websocket connection later, if it needs to be closed for example.
+        try:
+            self._loop = asyncio.get_running_loop()
+        except RuntimeError:
+            self._loop = asyncio.new_event_loop()
+        self._websocket_client = None # Used to reference the websocket connection later, if it needs to be closed for example.
         self.websocket_running = False
         self._callbacks = {}
 
@@ -222,17 +225,17 @@ class TibberHome(NonDecoratedTibberHome):
             raise ValueError("The home does not have real time consumption enabled.")
 
         try:
-            self.tibber_client.eventloop.run_until_complete(self.run_websocket_loop(exit_condition, retries = retries, **kwargs))
-        except KeyboardInterrupt:
+            self._loop.run_until_complete(self.run_websocket_loop(exit_condition, retries = retries, **kwargs))
+        except KeyboardInterrupt:  # pragma: no cover
             print("Closing websocket...")
-            if self.websocket_client:
+            if self._websocket_client:
                 self.websocket_running = False
-                self.tibber_client.eventloop.run_until_complete(self.websocket_client.close_async())
-        except BaseException as e:
+                self._loop.run_until_complete(self._websocket_client.close_async())
+        except BaseException as e:  # pragma: no cover
             # Close the websocket, then re-raise the exception
-            if self.websocket_client:
+            if self._websocket_client:
                 self.websocket_running = False
-                self.tibber_client.eventloop.run_until_complete(self.websocket_client.close_async())
+                self._loop.run_until_complete(self._websocket_client.close_async())
             raise e
 
         
@@ -254,7 +257,7 @@ class TibberHome(NonDecoratedTibberHome):
                 headers={"Authorization": self.tibber_client.token}
             )
 
-            self.websocket_client = gql.Client(
+            self._websocket_client = gql.Client(
                 transport=transport,
                 fetch_schema_from_transport=True,
             )
@@ -264,7 +267,7 @@ class TibberHome(NonDecoratedTibberHome):
             self.logger.debug(f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
             document_node_query = parse(query)
 
-            async for data in self.websocket_client.subscribe_async(document_node_query):
+            async for data in self._websocket_client.subscribe_async(document_node_query):
                 self.logger.debug("Real time data received!")
                 self.process_websocket_response(data, exit_condition=exit_condition)
                 if not self.websocket_running: break
@@ -288,7 +291,8 @@ class TibberHome(NonDecoratedTibberHome):
                 await asyncio.sleep(retry_interval)
             finally:
                 self.websocket_running = False
-                await self.websocket_client.close_async()
+                if self._websocket_client:
+                    await self._websocket_client.close_async()
         
         if retry_attempts >= retries:
             self.logger.critical(f"Could not connect to the websocket, even after {retry_attempts} tries.")
