@@ -110,50 +110,9 @@ def show_current_power(data):
 def show_accumulated_cost(data):
   print(f"{data.accumulated_cost} {data.currency}")
   
-# Start the live feed. This runs forever.
-home.start_live_feed()
-```
-## 100% API coverage TODO / Progress list
-All the API features are documented here: https://developer.tibber.com/docs/reference
-- [x] Address
-- [x] Consumption
-- [x] ContactInfo
-- [x] Home
-- [x] HomeConsumptionConnection
-- [x] HomeConsumptionEdge
-- [x] HomeConsumptionPageInfo
-- [x] HomeFeatures
-- [x] HomeProductionConnection
-- [x] HomeProductionEdge
-- [x] HomeProductionPageInfo
-- [x] LegalEntity
-- [x] LiveMeasurement
-- [ ] MeterReadingResponse - // Part of RootMutation which has not been developed yet
-- [x] MeteringPointData
-- [x] Price
-- [x] PriceInfo
-- [x] PriceRating
-- [x] PriceRatingEntry
-- [x] PriceRatingThresholdPercentages
-- [x] PriceRatingType
-- [x] Production
-- [x] PushNotificationResponse
-- [x] RootMutation - // Only push notification
-- [x] RootSubscription
-- [x] Subscription - // Will be rewritten
-- [ ] SubscriptionPriceConnection - // Missing?
-- [ ] SubscriptionPriceConnectionPageInfo - // Missing?
-- [ ] SubscriptionPriceEdge - // Missing?
-- [x] Viewer
+def when_to_stop(data):
+  return data.power < 1500
 
-## v1.0.0 TODO list
-A TODO list of things to be done before v1.0.0 is released.
-- [ ] Fix issue #6
-- [ ] Readable and understandable documentation
-- [ ] Minimum 90% test coverage
-- [ ] 100% API coverage
-- [ ] Implement certain fetch methods to fetch specific data (and not just get from cache)
-- [ ] Look into refactoring the QueryBuilder
-- [ ] Better error handling. Throw more detailed exceptions.
-- [ ] Standardize formatting (perhaps black)
-- [ ] Add explanation on how to contribute
+# Start the live feed. This runs until data.power is less than 1500.
+home.start_live_feed(exit_condition = when_to_stop)
+```
