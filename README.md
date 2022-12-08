@@ -116,3 +116,25 @@ def when_to_stop(data):
 # Start the live feed. This runs until data.power is less than 1500.
 home.start_live_feed(exit_condition = when_to_stop)
 ```
+
+## Contributing to the project
+I'm glad to see you're interested in contributing! When programming, I tend to follow some style guides
+and urge you to do the same. Here are two important videos which cover the most important styles to follow
+and how to do so. [Never nest](https://www.youtube.com/watch?v=CFRhGnuXG-4), [How to name variables](https://www.youtube.com/watch?v=-J3wNP6u5YU).
+
+To start contributing to the project, create your own fork of this repository on GitHub by clicking "Fork"
+in the top right corner. Clone your fork of this project to your own computer using [git](https://git-scm.com/).
+Now create a new branch named a short 1-3 word long name, hyphenated (this-is-hyphenated), and prefixed with
+one of these:
+ - `refactor/` - A refactoring of pre-existing code
+ - `bug/` - Fixing a bug
+ - `feature/` - Adding a feature
+ - `other/` - If it really doesn't fit any of the above
+
+Here are some example branch names:
+ - `refactor/async-callbacks`
+ - `bug/query-execution`
+ - `feature/live-data`
+ 
+Once you have created a new branch, play around, code your changes and then add a pull request back to this
+GitHub repository!
