@@ -198,7 +198,18 @@ class NonDecoratedTibberHome:
 
     @property
     def longitude(self) -> str:
-        return self.address.longitude  # pragma: no cover
+        return self.address.longitude
+
+    def __str__(self) -> str:
+        rep = f"{self.app_nickname} is owned by {self.owner.name} with {self.number_of_residents} residents"
+        if self.city is not None:
+            rep += f" at {self.city}"
+
+        return rep
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 
 
 class TibberHome(NonDecoratedTibberHome):
@@ -260,7 +271,8 @@ class TibberHome(NonDecoratedTibberHome):
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
         """
         if not self.features.real_time_consumption_enabled:
-            raise ValueError("The home does not have real time consumption enabled.")
+            raise ValueError(
+                "The home does not have real time consumption enabled.")
 
         if not self.tibber_client.user_agent and not user_agent:
             raise ValueError(
