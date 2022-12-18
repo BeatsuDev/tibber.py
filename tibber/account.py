@@ -6,10 +6,10 @@ from .networking import QueryBuilder
 from .types.viewer import Viewer
 from .types.push_notification_response import PushNotificationResponse
 
-
+_logger = logging.getLogger(__name__)
 class Account(QueryExecutor):
     """The main Tibber class to communicate with the Tibber API."""
-    def __init__(self, token: str, immediate_update: bool = True):
+    def __init__(self, token: str, user_agent: str = None, immediate_update: bool = True):
         """Initialize the tibber client.
 
         :param token: The token to log in with
@@ -20,8 +20,10 @@ class Account(QueryExecutor):
         """
         self.cache: dict = {}
         self._token: str = token
+        self.user_agent = user_agent
 
-        self.logger = logging.getLogger(__name__)
+        _logger.debug("Do you see this?")
+        print(__name__)
 
         super().__init__()
 
@@ -38,12 +40,12 @@ class Account(QueryExecutor):
         
         :param data: The data to add / update values in the cache with.
         """
-        self.logger.debug("Overwriting the cache data.")
-        self.logger.debug("Old data: " + json.dumps(self.cache))
-        self.logger.debug("New data: " + json.dumps(data))
+        _logger.debug("Overwriting the cache data.")
+        _logger.debug("Old data: " + json.dumps(self.cache))
+        _logger.debug("New data: " + json.dumps(data))
         self.cache = QueryBuilder.combine_dicts(self.cache, data)
 
-    def send_push_notification(self, title: str, message: str, screen_to_open: str = None):  # pragma: no cover
+    def send_push_notification(self, title: str, message: str, screen_to_open: str = None):
         """Sends a push notification to all registered devices connected to the account owning the API key."""
         data = QueryBuilder.send_push_notification(title, message, screen_to_open)
         response_data = self.execute_query(self.token, data).get("sendPushNotification")
@@ -56,10 +58,10 @@ class Account(QueryExecutor):
     @token.setter
     def token(self, token: str):
         if not isinstance(token, str):
-            self.logger.error("Attempted to set the token to a non-string datatype: " + type(token))
+            _logger.error("Attempted to set the token to a non-string datatype: " + type(token))
             raise TypeError("The token must be a string.")
         self._token = token
-        self.logger.debug("The tibber token was set to: " + token)
+        _logger.debug("The tibber token was set to: " + token)
         
     @property
     def viewer(self):
