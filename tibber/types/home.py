@@ -6,10 +6,13 @@ from typing import Union
 from typing import Callable
 from typing import TYPE_CHECKING
 
+import websockets
+import backoff
 import gql
 from gql.transport.websockets import WebsocketsTransport
 from graphql import parse
 
+from tibber import __version__
 from tibber.types.legal_entity import LegalEntity
 from tibber.types.address import Address
 from tibber.types.metering_point_data import MeteringPointData
@@ -212,7 +215,7 @@ class TibberHome(NonDecoratedTibberHome):
             return callback
         return decorator
 
-    def start_live_feed(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
+    def start_live_feed(self, user_agent = None, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
         """Creates a websocket and starts pushing data out to registered callbacks.
         
         :param exit_condition: A function that takes a LiveMeasurement as input and returns a boolean.
@@ -223,20 +226,20 @@ class TibberHome(NonDecoratedTibberHome):
         """
         if not self.features.real_time_consumption_enabled:
             raise ValueError("The home does not have real time consumption enabled.")
+        
+        if not self.tibber_client.user_agent and not user_agent:
+            raise ValueError("You must specify a user agent when starting the live feed. E.g. \"Homey/10.0.0\"")
 
+        self.tibber_client.user_agent = user_agent or self.tibber_client.user_agent
         try:
             self._loop.run_until_complete(self.run_websocket_loop(exit_condition, retries = retries, **kwargs))
         except KeyboardInterrupt:  # pragma: no cover
             print("Closing websocket...")
+        finally:
             if self._websocket_client:
                 self.websocket_running = False
                 self._loop.run_until_complete(self._websocket_client.close_async())
-        except BaseException as e:  # pragma: no cover
-            # Close the websocket, then re-raise the exception
-            if self._websocket_client:
-                self.websocket_running = False
-                self._loop.run_until_complete(self._websocket_client.close_async())
-            raise e
+
 
         
     async def run_websocket_loop(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
@@ -248,54 +251,62 @@ class TibberHome(NonDecoratedTibberHome):
         :param retry_interval: The interval in seconds to wait before retrying to connect to the websocket.
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
         """
-        async def retrieve_from_websocket():
-            # Create the websocket
-            transport = WebsocketsTransport(
-                **kwargs,
-                url=self.tibber_client.viewer.websocket_subscription_url,
-                subprotocols=["graphql-transport-ws"],
-                headers={"Authorization": self.tibber_client.token}
-            )
+        if retry_interval < 1:
+            raise ValueError("The retry interval must be at least 1 second.")
 
-            self._websocket_client = gql.Client(
-                transport=transport,
-                fetch_schema_from_transport=True,
-            )
+        # Create the websocket
+        transport = WebsocketsTransport(
+            **kwargs,
+            url = self.tibber_client.viewer.websocket_subscription_url,
+            subprotocols = ["graphql-transport-ws"],
+            init_payload = {"token": self.tibber_client.token},
+            headers = {"User-Agent": f"{self.tibber_client.user_agent} tibber.py/{__version__}"},
+        )
 
-            # Subscribe to the websocket
-            query = QueryBuilder.live_measurement(self.id)
-            self.logger.debug(f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
-            document_node_query = parse(query)
+        self._websocket_client = gql.Client(
+            transport=transport,
+            fetch_schema_from_transport=True,
+        )
 
-            async for data in self._websocket_client.subscribe_async(document_node_query):
-                self.logger.debug("Real time data received!")
-                self.process_websocket_response(data, exit_condition=exit_condition)
-                if not self.websocket_running: break
+        # Subscribe to the websocket
+        query = QueryBuilder.live_measurement(self.id)
+        self.logger.debug(f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
+        document_node_query = parse(query)
 
-            self.websocket_running = False # In case the code ever gets here, the websocket is no longer running.
+        def websocket_connection_retry(*args, **kwargs):
+            """A backoff decorator to provide specific retries parameters for the connections."""
+            # TODO: Fetch real time consumption status from the API instead of using the cached value.
+            if not self.features.real_time_consumption_enabled:
+                raise ValueError("Real time consumption was removed.")
 
-        retry_attempts = 0
-        # Try forever if amount of retries is not defined
-        while retry_attempts < retries if retries else True:
-            try:
-                self.websocket_running = True
-                # This function will exit only if the exit condition is reached or if an Exception is raised.
-                await retrieve_from_websocket()
-                # Meaning this point will only be reachable if the exit condition is reached (because the Exception is caught).
-                break
-            except Exception as e:
-                if retry_attempts < retries:
-                    self.logger.error(f"Connection to websocket failed... Retrying in {retry_interval} seconds...\n{e}")
-
-                retry_attempts += 1
-                await asyncio.sleep(retry_interval)
-            finally:
-                self.websocket_running = False
-                if self._websocket_client:
-                    await self._websocket_client.close_async()
+            self.logger.warning(f"Websocket connection failed. Trying to connect again...")
+            return backoff.on_exception(backoff.expo, websockets.exceptions.WebSocketException, max_value=100, max_tries=retries)(*args, **kwargs)
         
-        if retry_attempts >= retries:
-            self.logger.critical(f"Could not connect to the websocket, even after {retry_attempts} tries.")
+        def websocket_query_retry(*args, **kwargs):
+            """A backoff decorator to provide specific retries parameters for each query."""
+            self.logger.warning(f"Websocket query failed. Retrying query...")
+            return backoff.on_exception(backoff.expo, websockets.exceptions.WebSocketException, max_value=100, max_tries=retries)(*args, **kwargs)
+
+        self.websocket_running = True
+        print("Connecting to websocket")
+        session = await self._websocket_client.connect_async(
+            reconnecting = True,
+            retry_connect = websocket_connection_retry,
+            retry_execute = websocket_query_retry,
+        )
+
+        print("Waiting for data")
+        async for data in session.subscribe(document_node_query):
+            self.logger.debug("Real time data received!")
+
+            self.process_websocket_response(data, exit_condition=exit_condition)
+            if not self.websocket_running: break
+
+        self.websocket_running = False
+        if self._websocket_client:
+            await self._websocket_client.close_async()
+            # Dereference websocket so it gets garbage collected
+            self._websocket_client = None
 
 
     def process_websocket_response(self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None) -> None:
