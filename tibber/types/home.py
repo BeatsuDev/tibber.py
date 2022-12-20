@@ -34,7 +34,6 @@ _logger = logging.getLogger(__name__)
 
 class NonDecoratedTibberHome:
     """A Tibber home with methods to get/fetch home information without the decorator functions to subscribe to live data."""
-
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client
@@ -204,7 +203,6 @@ class NonDecoratedTibberHome:
         rep = f"{self.app_nickname} is owned by {self.owner.name} with {self.number_of_residents} residents"
         if self.city is not None:
             rep += f" at {self.city}"
-
         return rep
 
     def __repr__(self) -> str:
@@ -216,7 +214,6 @@ class TibberHome(NonDecoratedTibberHome):
     """A Tibber home with methods to get/fetch home information and subscribe to live data.
     This class expands on the NonDecoratedTibberHome class by adding methods to subscribe to live data.
     """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._websocket_client = None
@@ -271,8 +268,7 @@ class TibberHome(NonDecoratedTibberHome):
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
         """
         if not self.features.real_time_consumption_enabled:
-            raise ValueError(
-                "The home does not have real time consumption enabled.")
+            raise ValueError("The home does not have real time consumption enabled.")
 
         if not self.tibber_client.user_agent and not user_agent:
             raise ValueError(
