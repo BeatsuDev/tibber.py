@@ -4,12 +4,16 @@ import pytest
 import tibber
 from tibber.types import NonDecoratedTibberHome
 from tibber.types import Viewer
-from tibber.exceptions import InvalidTokenException
+from tibber.exceptions import UnauthenticatedException
 
 
 @pytest.fixture
 def account():
     return tibber.Account(tibber.DEMO_TOKEN)
+
+@pytest.fixture
+def unfetched_account():
+    return tibber.Account(tibber.DEMO_TOKEN, False)
 
 def test_getting_viewer(account):
     assert isinstance(account.viewer, Viewer)
@@ -33,14 +37,13 @@ def test_homes_are_correct_type(account):
     assert all(isinstance(home, NonDecoratedTibberHome) for home in account.homes)
 
 def test_incorrect_token():
-    with pytest.raises(InvalidTokenException):
+    with pytest.raises(UnauthenticatedException):
         account = tibber.Account("invalidtoken")
 
 def test_getting_non_fetched_property_returns_none_or_empty():
     """Trying to get a value which has not yet been fetched should return None"""
-    account = tibber.Account(tibber.DEMO_TOKEN, False)
-    assert account.name == None
-    assert account.viewer.homes == []
+    assert unfetched_account.name == None
+    assert unfetched_account.viewer.homes == []
 
 def test_set_token(account):
     assert account.token == tibber.DEMO_TOKEN

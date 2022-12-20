@@ -17,8 +17,8 @@ class Account(QueryExecutor):
         :param token: The token to log in with
         :param immediate_update: Specifies whether to immediately update all tibber information 
             on initialization.
-        :throws InvalidToken: If the provided token was not accepted by the Tibber API. Note
-            that this will only be checked if the immediate_update parameter is set to True.
+        :throws UnauthenticatedException: If the provided token was not accepted by the Tibber API.
+            Note that this will only be checked if the immediate_update parameter is set to True.
         """
         self.cache: dict = {}
         self._token: str = token

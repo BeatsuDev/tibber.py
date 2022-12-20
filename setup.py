@@ -13,7 +13,6 @@ setup(
     long_description_content_type='text/markdown',
     packages=["tibber", "tibber.networking", "tibber.exceptions", "tibber.types"],
     install_requires=[
-        "aiohttp>=3.7.0",
         "gql>=3.4.0",
         "gql[websockets]>=3.4.0",
         "graphql-core>=3.2.3",
@@ -28,7 +27,6 @@ setup(
     url="https://tibberpy.readthedocs.io/en/latest/",
     classifiers=[
         "Development Status :: 1 - Planning",
-        "Framework :: aiohttp",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
