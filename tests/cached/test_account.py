@@ -13,7 +13,7 @@ def account():
 
 @pytest.fixture
 def unfetched_account():
-    return tibber.Account(tibber.DEMO_TOKEN, False)
+    return tibber.Account(tibber.DEMO_TOKEN, immediate_update=False)
 
 def test_getting_viewer(account):
     assert isinstance(account.viewer, Viewer)
