@@ -27,7 +27,6 @@ if TYPE_CHECKING:
 
 class NonDecoratedTibberHome:
     """A Tibber home with methods to get/fetch home information without the decorator functions to subscribe to live data."""
-
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client
@@ -43,12 +42,9 @@ class NonDecoratedTibberHome:
                           after: str = None,
                           filter_empty_nodes: bool = False) -> HomeConsumptionConnection:
         """Consumption connection"""
-        consumption_query = QueryBuilder.consumption_query(
-            resolution, first, last, before, after, filter_empty_nodes)
-        full_query = QueryBuilder.create_query(
-            "viewer", f"home(id: \"{self.id}\")", consumption_query)
-        unsanitized_data = self.tibber_client.execute_query(
-            self.tibber_client.token, full_query)
+        consumption_query = QueryBuilder.consumption_query(resolution, first, last, before, after, filter_empty_nodes)
+        full_query = QueryBuilder.create_query("viewer", f"home(id: \"{self.id}\")", consumption_query)
+        unsanitized_data = self.tibber_client.execute_query(self.tibber_client.token, full_query)
 
         # The format should be correct, since we requested it this way and the request
         # was successful, so we don't need to worry about key errors.
@@ -62,12 +58,9 @@ class NonDecoratedTibberHome:
                          before: str = None,
                          after: str = None,
                          filter_empty_nodes: bool = False) -> HomeProductionConnection:
-        production_query = QueryBuilder.production_query(
-            resolution, first, last, before, after, filter_empty_nodes)
-        full_query = QueryBuilder.create_query(
-            "viewer", f"home(id: \"{self.id}\")", production_query)
-        unsanitized_data = self.tibber_client.execute_query(
-            self.tibber_client.token, full_query)
+        production_query = QueryBuilder.production_query(resolution, first, last, before, after, filter_empty_nodes)
+        full_query = QueryBuilder.create_query("viewer", f"home(id: \"{self.id}\")", production_query)
+        unsanitized_data = self.tibber_client.execute_query(self.tibber_client.token, full_query)
 
         data = unsanitized_data["viewer"]["home"]["production"]
         return HomeProductionConnection(resolution, data, self.tibber_client)
@@ -185,7 +178,6 @@ class NonDecoratedTibberHome:
         rep = f"{self.app_nickname} is owned by {self.owner.name} with {self.number_of_residents} residents"
         if self.city is not None:
             rep += f" at {self.city}"
-
         return rep
 
     def __repr__(self) -> str:
@@ -196,7 +188,6 @@ class TibberHome(NonDecoratedTibberHome):
     """A Tibber home with methods to get/fetch home information and subscribe to live data.
     This class expands on the NonDecoratedTibberHome class by adding methods to subscribe to live data.
     """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         try:
@@ -226,10 +217,8 @@ class TibberHome(NonDecoratedTibberHome):
                     self._callbacks["live_measurement"] = []
                 # Append the callback function to the dict of callbacks
                 self._callbacks["live_measurement"].append(callback)
-
             else:
-                raise ValueError(
-                    f"Could not recognize the event you want to listen for: {event_to_listen_for}")
+                raise ValueError(f"Could not recognize the event you want to listen for: {event_to_listen_for}")
             return callback
         return decorator
 
@@ -243,24 +232,20 @@ class TibberHome(NonDecoratedTibberHome):
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
         """
         if not self.features.real_time_consumption_enabled:
-            raise ValueError(
-                "The home does not have real time consumption enabled.")
+            raise ValueError("The home does not have real time consumption enabled.")
 
         try:
-            self._loop.run_until_complete(self.run_websocket_loop(
-                exit_condition, retries=retries, **kwargs))
+            self._loop.run_until_complete(self.run_websocket_loop(exit_condition, retries=retries, **kwargs))
         except KeyboardInterrupt:  # pragma: no cover
             print("Closing websocket...")
             if self._websocket_client:
                 self.websocket_running = False
-                self._loop.run_until_complete(
-                    self._websocket_client.close_async())
+                self._loop.run_until_complete(self._websocket_client.close_async())
         except BaseException as e:  # pragma: no cover
             # Close the websocket, then re-raise the exception
             if self._websocket_client:
                 self.websocket_running = False
-                self._loop.run_until_complete(
-                    self._websocket_client.close_async())
+                self._loop.run_until_complete(self._websocket_client.close_async())
             raise e
 
     async def run_websocket_loop(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
@@ -288,14 +273,12 @@ class TibberHome(NonDecoratedTibberHome):
 
             # Subscribe to the websocket
             query = QueryBuilder.live_measurement(self.id)
-            self.logger.debug(
-                f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
+            self.logger.debug(f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
             document_node_query = parse(query)
 
             async for data in self._websocket_client.subscribe_async(document_node_query):
                 self.logger.debug("Real time data received!")
-                self.process_websocket_response(
-                    data, exit_condition=exit_condition)
+                self.process_websocket_response(data, exit_condition=exit_condition)
                 if not self.websocket_running:
                     break
 
@@ -313,8 +296,7 @@ class TibberHome(NonDecoratedTibberHome):
                 break
             except Exception as e:
                 if retry_attempts < retries:
-                    self.logger.error(
-                        f"Connection to websocket failed... Retrying in {retry_interval} seconds...\n{e}")
+                    self.logger.error(f"Connection to websocket failed... Retrying in {retry_interval} seconds...\n{e}")
 
                 retry_attempts += 1
                 await asyncio.sleep(retry_interval)
@@ -324,8 +306,7 @@ class TibberHome(NonDecoratedTibberHome):
                     await self._websocket_client.close_async()
 
         if retry_attempts >= retries:
-            self.logger.critical(
-                f"Could not connect to the websocket, even after {retry_attempts} tries.")
+            self.logger.critical(f"Could not connect to the websocket, even after {retry_attempts} tries.")
 
     def process_websocket_response(self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None) -> None:
         """Processes a response with data from the live data websocket. This function will call all registered callbacks
@@ -335,8 +316,7 @@ class TibberHome(NonDecoratedTibberHome):
         """
         # Broadcast the event
         # TODO: Differentiate between consumption data, production data and other data.
-        cleaned_data = LiveMeasurement(
-            data["liveMeasurement"], self.tibber_client)
+        cleaned_data = LiveMeasurement(data["liveMeasurement"], self.tibber_client)
         self.broadcast_event("live_measurement", cleaned_data)
 
         # Check if the exit condition is met
@@ -345,8 +325,7 @@ class TibberHome(NonDecoratedTibberHome):
 
     def broadcast_event(self, event, data) -> None:
         if not event in self._callbacks:
-            self.logger.warning(
-                "The event that was broadcasted has no listeners / callbacks! Nothing was run.")
+            self.logger.warning("The event that was broadcasted has no listeners / callbacks! Nothing was run.")
             return
 
         for callback in self._callbacks[event]:
