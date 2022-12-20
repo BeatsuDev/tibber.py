@@ -6,7 +6,9 @@ from .networking import QueryBuilder
 from .types.viewer import Viewer
 from .types.push_notification_response import PushNotificationResponse
 
+
 _logger = logging.getLogger(__name__)
+
 class Account(QueryExecutor):
     """The main Tibber class to communicate with the Tibber API."""
     def __init__(self, token: str, user_agent: str = None, immediate_update: bool = True):
@@ -23,7 +25,6 @@ class Account(QueryExecutor):
         self.user_agent = user_agent
 
         _logger.debug("Do you see this?")
-        print(__name__)
 
         super().__init__()
 
