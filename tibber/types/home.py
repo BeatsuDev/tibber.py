@@ -10,6 +10,7 @@ import websockets
 import backoff
 import gql
 from gql.transport.websockets import WebsocketsTransport
+from gql.transport.exceptions import TransportQueryError
 from graphql import parse
 
 from tibber import __version__
@@ -28,14 +29,13 @@ if TYPE_CHECKING:
     from tibber.account import Account 
 
 
+_logger = logging.getLogger(__name__)
+
 class NonDecoratedTibberHome:
     """A Tibber home with methods to get/fetch home information without the decorator functions to subscribe to live data."""
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client
-        
-        # Logging
-        self.logger = logging.getLogger(__name__)
 
     def fetch_consumption(self, 
                           resolution: str, 
@@ -64,7 +64,7 @@ class NonDecoratedTibberHome:
         production_query = QueryBuilder.production_query(resolution, first, last, before, after, filter_empty_nodes)
         full_query = QueryBuilder.create_query("viewer", f"home(id: \"{self.id}\")", production_query)
         unsanitized_data = self.tibber_client.execute_query(self.tibber_client.token, full_query)
-        
+
         data = unsanitized_data["viewer"]["home"]["production"]
         return HomeProductionConnection(resolution, data, self.tibber_client)
 
@@ -130,21 +130,21 @@ class NonDecoratedTibberHome:
     def current_subscription(self) -> Subscription:
         """The current/latest subscription related to the home"""
         return Subscription(self.cache.get("currentSubscription"), self.tibber_client)
-    
+
     @property
     def subscriptions(self) -> list:
         """All historic subscriptions related to the home"""
         return [Subscription(sub, self.tibber_client) for sub in self.cache.get("subscriptions", [])]
-    
+
     @property
     def features(self):
         return HomeFeatures(self.cache.get("features"), self.tibber_client)
-    
+
     # Support 1 to 1 Tibber API representation.
     @property
     def address(self) -> Address:
         return Address(self.cache.get("address"), self.tibber_client)
-    
+
     @property
     def address1(self) -> str:
         return self.address.address1
@@ -183,23 +183,19 @@ class TibberHome(NonDecoratedTibberHome):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        try:
-            self._loop = asyncio.get_running_loop()
-        except RuntimeError:
-            self._loop = asyncio.new_event_loop()
-        self._websocket_client = None # Used to reference the websocket connection later, if it needs to be closed for example.
+        self._websocket_client = None
         self.websocket_running = False
         self._callbacks = {}
 
     def event(self, event_to_listen_for) -> Callable:
         """Returns a decorator that registers the function being
         decorated as a callback function for the given event
-        
+
         :param event_to_listen_for: The event the decorator should register the function as a callback for.
         """
         def decorator(callback):
             """Returns the function as it is, but registers it as a callback for an event.
-            
+
             :param callback: The function being decorated.
             :throws ValueError: if the given event is not a valid event.
             """
@@ -217,7 +213,7 @@ class TibberHome(NonDecoratedTibberHome):
 
     def start_live_feed(self, user_agent = None, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
         """Creates a websocket and starts pushing data out to registered callbacks.
-        
+
         :param exit_condition: A function that takes a LiveMeasurement as input and returns a boolean.
             If the function returns True, the websocket will be closed.
         :param retries: The number of times to retry connecting to the websocket if it fails.
@@ -226,23 +222,19 @@ class TibberHome(NonDecoratedTibberHome):
         """
         if not self.features.real_time_consumption_enabled:
             raise ValueError("The home does not have real time consumption enabled.")
-        
+
         if not self.tibber_client.user_agent and not user_agent:
             raise ValueError("You must specify a user agent when starting the live feed. E.g. \"Homey/10.0.0\"")
 
         self.tibber_client.user_agent = user_agent or self.tibber_client.user_agent
         try:
-            self._loop.run_until_complete(self.run_websocket_loop(exit_condition, retries = retries, **kwargs))
+            asyncio.run(self.start_websocket_loop(exit_condition, retries = retries, **kwargs))
         except KeyboardInterrupt:  # pragma: no cover
             print("Closing websocket...")
         finally:
-            if self._websocket_client:
-                self.websocket_running = False
-                self._loop.run_until_complete(self._websocket_client.close_async())
+            self.close_websocket_connection()
 
-
-        
-    async def run_websocket_loop(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
+    async def start_websocket_loop(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
         """Starts a websocket to subscribe for live measurements.
         
         :param exit_condition: A function that takes a LiveMeasurement as input and returns a boolean.
@@ -268,52 +260,48 @@ class TibberHome(NonDecoratedTibberHome):
             fetch_schema_from_transport=True,
         )
 
-        # Subscribe to the websocket
-        query = QueryBuilder.live_measurement(self.id)
-        self.logger.debug(f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
-        document_node_query = parse(query)
-
-        def websocket_connection_retry(*args, **kwargs):
-            """A backoff decorator to provide specific retries parameters for the connections."""
-            # TODO: Fetch real time consumption status from the API instead of using the cached value.
-            if not self.features.real_time_consumption_enabled:
-                raise ValueError("Real time consumption was removed.")
-
-            self.logger.warning(f"Websocket connection failed. Trying to connect again...")
-            return backoff.on_exception(backoff.expo, websockets.exceptions.WebSocketException, max_value=100, max_tries=retries)(*args, **kwargs)
-        
-        def websocket_query_retry(*args, **kwargs):
-            """A backoff decorator to provide specific retries parameters for each query."""
-            self.logger.warning(f"Websocket query failed. Retrying query...")
-            return backoff.on_exception(backoff.expo, websockets.exceptions.WebSocketException, max_value=100, max_tries=retries)(*args, **kwargs)
+        retry = backoff.on_exception(
+            backoff.expo,
+            Exception,
+            max_value = 100,
+            max_tries = retries,
+            jitter = backoff.full_jitter,
+            giveup = lambda e: isinstance(e, TransportQueryError),
+        )
 
         self.websocket_running = True
         print("Connecting to websocket")
         session = await self._websocket_client.connect_async(
             reconnecting = True,
-            retry_connect = websocket_connection_retry,
-            retry_execute = websocket_query_retry,
+            retry_connect = retry,
+            retry_execute = retry,
         )
+        await retry(self.run_websocket_loop)(session, exit_condition)
 
-        print("Waiting for data")
+    async def run_websocket_loop(self, session, exit_condition):
+        # Subscribe to the websocket
+        query = QueryBuilder.live_measurement(self.id)
+        _logger.debug(f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
+        document_node_query = parse(query)
+
+        _logger.info("Subscribing to websocket.")
         async for data in session.subscribe(document_node_query):
-            self.logger.debug("Real time data received!")
+            _logger.debug("real time data received.")
 
-            self.process_websocket_response(data, exit_condition=exit_condition)
-            if not self.websocket_running: break
+            # Returns True if exit condition is met
+            if self.process_websocket_response(data, exit_condition=exit_condition):
+                _logger.info("Exit condition met.")
+                break
 
-        self.websocket_running = False
-        if self._websocket_client:
-            await self._websocket_client.close_async()
-            # Dereference websocket so it gets garbage collected
-            self._websocket_client = None
+        self.close_websocket_connection()
 
 
-    def process_websocket_response(self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None) -> None:
+    def process_websocket_response(self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None) -> bool:
         """Processes a response with data from the live data websocket. This function will call all registered callbacks
         before checking if the exit condition is met.
 
         :param data: The data to process.
+        :return: Returns True if exit condition was met. False otherwise.
         """
         # Broadcast the event
         # TODO: Differentiate between consumption data, production data and other data.
@@ -322,12 +310,22 @@ class TibberHome(NonDecoratedTibberHome):
 
         # Check if the exit condition is met
         if exit_condition and exit_condition(cleaned_data):
-            self.websocket_running = False
+            return True
+        return False
 
     def broadcast_event(self, event, data) -> None:
         if not event in self._callbacks:
-            self.logger.warning("The event that was broadcasted has no listeners / callbacks! Nothing was run.")
+            _logger.warning("The event that was broadcasted has no listeners / callbacks! Nothing was run.")
             return
-        
+
         for callback in self._callbacks[event]:
             callback(data)
+
+    def close_websocket_connection(self):
+        _logger.info("Closing websocket connection")
+        self.websocket_running = False
+        if self._websocket_client:
+            asyncio.run(self._websocket_client.close_async())
+            self._websocket_client = None  # Dereference for gc
+        else:
+            _logger.debug("self._websocket_client was not defined when attempting to close the websocket.")
