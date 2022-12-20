@@ -40,7 +40,7 @@ def test_incorrect_token():
     with pytest.raises(UnauthenticatedException):
         account = tibber.Account("invalidtoken")
 
-def test_getting_non_fetched_property_returns_none_or_empty():
+def test_getting_non_fetched_property_returns_none_or_empty(unfetched_account):
     """Trying to get a value which has not yet been fetched should return None"""
     assert unfetched_account.name == None
     assert unfetched_account.viewer.homes == []

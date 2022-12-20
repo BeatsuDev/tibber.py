@@ -24,7 +24,7 @@ def test_adding_listener_with_unknown_event_raises_exception(home):
 
 def test_starting_live_feed_with_no_listeners_shows_warning(home, caplog):
     # Return immediately after the first callback
-    home.start_live_feed(exit_condition = lambda data: True)
+    home.start_live_feed(f"tibber.py-tests/{__version__}", exit_condition = lambda data: True)
     assert "The event that was broadcasted has no listeners / callbacks! Nothing was run." in caplog.text
 
 def test_retrieving_live_measurements(home):
