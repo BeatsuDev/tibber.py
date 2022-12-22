@@ -229,10 +229,8 @@ class TibberHome(NonDecoratedTibberHome):
         self.tibber_client.user_agent = user_agent or self.tibber_client.user_agent
         try:
             asyncio.run(self.start_websocket_loop(exit_condition, retries = retries, **kwargs))
-        except KeyboardInterrupt:  # pragma: no cover
-            print("Closing websocket...")
         finally:
-            self.close_websocket_connection()
+            asyncio.run(self.close_websocket_connection())
 
     async def start_websocket_loop(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
         """Starts a websocket to subscribe for live measurements.
@@ -293,7 +291,7 @@ class TibberHome(NonDecoratedTibberHome):
                 _logger.info("Exit condition met.")
                 break
 
-        self.close_websocket_connection()
+        await self.close_websocket_connection()
 
 
     def process_websocket_response(self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None) -> bool:
@@ -321,11 +319,11 @@ class TibberHome(NonDecoratedTibberHome):
         for callback in self._callbacks[event]:
             callback(data)
 
-    def close_websocket_connection(self):
+    async def close_websocket_connection(self):
         _logger.info("Closing websocket connection")
         self.websocket_running = False
         if self._websocket_client:
-            asyncio.run(self._websocket_client.close_async())
+            await self._websocket_client.close_async()
             self._websocket_client = None  # Dereference for gc
         else:
             _logger.debug("self._websocket_client was not defined when attempting to close the websocket.")
