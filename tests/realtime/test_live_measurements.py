@@ -61,9 +61,9 @@ def test_retrieving_live_measurements(home):
         assert data.voltage_phase_1 > 0
         assert data.voltage_phase_2 > 0
         assert data.voltage_phase_3 > 0
-        assert data.current_l1 > 0
-        assert data.current_l2 > 0
-        assert data.current_l3 > 0
+        assert data.currentL1 > 0
+        assert data.currentL2 > 0
+        assert data.currentL3 > 0
 
     # Return immediately after the first callback
     home.start_live_feed(f"tibber.py-tests/{__version__}", exit_condition = lambda data: True)
