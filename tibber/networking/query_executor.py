@@ -62,6 +62,10 @@ class QueryExecutor:
         except TransportQueryError as e:
             for error in e.errors:
                 self._process_error(error)
+        except asyncio.exceptions.TimeoutError:
+            _logger.error("Timed out when executing a query...")
+            _logger.debug("Query information:\n" + query)
+            raise APIException("Timed out when executing query.")
         return result
     
     def _process_error(self, error):
