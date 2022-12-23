@@ -14,6 +14,7 @@ setup(
     packages=["tibber", "tibber.networking", "tibber.exceptions", "tibber.types"],
     install_requires=[
         "gql>=3.4.0",
+        "gql[aiohttp]>=3.4.0",
         "gql[websockets]>=3.4.0",
         "graphql-core>=3.2.3",
         "backoff>=2.2.1"
