@@ -24,8 +24,6 @@ class Account(QueryExecutor):
         self._token: str = token
         self.user_agent = user_agent
 
-        _logger.debug("Do you see this?")
-
         super().__init__()
 
         if immediate_update:
@@ -38,7 +36,7 @@ class Account(QueryExecutor):
 
     def update_cache(self, data):
         """Updates the cache with values from data.
-        
+
         :param data: The data to add / update values in the cache with.
         """
         _logger.debug("Overwriting the cache data.")
@@ -62,7 +60,7 @@ class Account(QueryExecutor):
             _logger.error("Attempted to set the token to a non-string datatype: " + type(token))
             raise TypeError("The token must be a string.")
         self._token = token
-        _logger.debug("The tibber token was set to: " + token)
+        _logger.debug("The tibber token was set to a new value.")
         
     @property
     def viewer(self):
