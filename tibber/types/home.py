@@ -253,9 +253,9 @@ class TibberHome(NonDecoratedTibberHome):
             headers = {"User-Agent": f"{self.tibber_client.user_agent} tibber.py/{__version__}"},
         )
 
-        self._websocket_client = gql.Client(
-            transport=transport,
-            fetch_schema_from_transport=True,
+        self._websocket_client = gql.Client(    
+            transport = transport,
+            fetch_schema_from_transport = True,
         )
 
         retry = backoff.on_exception(
@@ -263,6 +263,7 @@ class TibberHome(NonDecoratedTibberHome):
             Exception,
             max_value = 100,
             max_tries = retries,
+            on_backoff = lambda details: _logger.info("Backing off after {tries} tries. Running {target} in {wait:.1f} seconds.".format(**details)),
             jitter = backoff.full_jitter,
             giveup = lambda e: isinstance(e, TransportQueryError),
         )
@@ -274,7 +275,8 @@ class TibberHome(NonDecoratedTibberHome):
             retry_connect = retry,
             retry_execute = retry,
         )
-        await retry(self.run_websocket_loop)(session, exit_condition)
+        await self.run_websocket_loop(session, exit_condition)
+        await self.close_websocket_connection()
 
     async def run_websocket_loop(self, session, exit_condition):
         # Subscribe to the websocket
@@ -288,7 +290,7 @@ class TibberHome(NonDecoratedTibberHome):
 
             # Returns True if exit condition is met
             if self.process_websocket_response(data, exit_condition=exit_condition):
-                _logger.info("Exit condition met.")
+                _logger.info("Exit condition met. The live loop is now exiting.")
                 break
 
         await self.close_websocket_connection()
@@ -320,10 +322,19 @@ class TibberHome(NonDecoratedTibberHome):
             callback(data)
 
     async def close_websocket_connection(self):
-        _logger.info("Closing websocket connection")
+        _logger.debug("closing websocket connection")
         self.websocket_running = False
         if self._websocket_client:
-            await self._websocket_client.close_async()
-            self._websocket_client = None  # Dereference for gc
+            try:
+                await self._websocket_client.close_async()
+                self._websocket_client = None  # Dereference for gc
+            except AttributeError as e:
+                if "session" in str(e):
+                    _logger.info(
+                        "The websocket connection that was attempted to be closed does not have" +
+                        " an active session associated with it. It is probably already closed."
+                    )
+                else:
+                    raise e
         else:
             _logger.debug("self._websocket_client was not defined when attempting to close the websocket.")

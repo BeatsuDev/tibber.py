@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import json
 from typing import Optional
 
 import backoff
@@ -25,6 +24,17 @@ class QueryExecutor:
         :param max_tries: The amount of attempts before giving up. Set to None for infinite tries.
         :param **kwargs: Arguments to be passed in to the backoff.on_exception decorator
         """
+        # To allow invocations from async contexts, check if a loop is running and attempt
+        # to schedule the execute_async method there. If no loop is found or the loop is not
+        # running, asyncio.run can be run instead. 
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
+            return loop.run_until_complete(self.execute_async(access_token, query, max_tries, **kwargs))
+
         return asyncio.run(self.execute_async(access_token, query, max_tries, **kwargs))
 
     async def execute_async(self, access_token: str, query: str, max_tries: int = 1, **kwargs):
@@ -63,8 +73,8 @@ class QueryExecutor:
             for error in e.errors:
                 self._process_error(error)
         except asyncio.exceptions.TimeoutError:
-            _logger.error("Timed out when executing a query...")
-            _logger.debug("Query information:\n" + query)
+            _logger.error("Timed out when executing a query. Check your connection to the Tibber API or the Tibber API status.")
+            _logger.debug("query information:\n" + query)
             raise APIException("Timed out when executing query.")
         return result
     
@@ -84,7 +94,7 @@ class QueryExecutor:
         ...
 
     def _backoff_handler(self, details):
-        ...
-
+        _logger.info("Backing off after {tries} tries. Calling {target} in {wait:0.1f} seconds.".format(**details))
+        
     def _giveup_handler(self, details):
-        ...
+        _logger.warning("Gave up running {target} after {tries} tries. {elapsed:.1f} seconds have passed.")
