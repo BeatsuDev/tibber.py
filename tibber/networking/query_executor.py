@@ -94,7 +94,7 @@ class QueryExecutor:
         ...
 
     def _backoff_handler(self, details):
-        _logger.info("Backing off after {tries} tries. Calling {target} in {wait:0.1f} seconds.".format(**details))
+        _logger.info("Backing off after {tries} tries. Calling {target} in {wait:.1f} seconds.".format(**details))
         
     def _giveup_handler(self, details):
-        _logger.warning("Gave up running {target} after {tries} tries. {elapsed:.1f} seconds have passed.")
+        _logger.warning("Gave up running {target} after {tries} tries. {elapsed:.1f} seconds have passed.".format(**details))
