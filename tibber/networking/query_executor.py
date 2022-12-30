@@ -2,6 +2,7 @@ import asyncio
 import logging
 from typing import Optional
 
+import websockets
 import backoff
 import gql
 from gql.transport.aiohttp import AIOHTTPTransport
@@ -47,7 +48,7 @@ class QueryExecutor:
         """
         backoff_execution = backoff.on_exception(
             backoff.expo,
-            Exception,
+            [gql.transport.exceptions.TransportClosed, websockets.exceptions.ConnectionClosedError],
             max_tries = max_tries,
             max_time = 100,
             jitter = backoff.full_jitter,
@@ -94,7 +95,7 @@ class QueryExecutor:
         ...
 
     def _backoff_handler(self, details):
-        _logger.info("Backing off after {tries} tries. Calling {target} in {wait:.1f} seconds.".format(**details))
+        _logger.warning("Backing off after {tries} tries. Calling {target} in {wait:.1f} seconds.".format(**details))
         
     def _giveup_handler(self, details):
-        _logger.warning("Gave up running {target} after {tries} tries. {elapsed:.1f} seconds have passed.".format(**details))
+        _logger.error("Gave up running {target} after {tries} tries. {elapsed:.1f} seconds have passed.".format(**details))

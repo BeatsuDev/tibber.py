@@ -37,12 +37,12 @@ class NonDecoratedTibberHome:
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client
 
-    def fetch_consumption(self, 
-                          resolution: str, 
-                          first: int = None, 
-                          last: int = None, 
-                          before: str = None, 
-                          after: str = None, 
+    def fetch_consumption(self,
+                          resolution: str,
+                          first: int = None,
+                          last: int = None,
+                          before: str = None,
+                          after: str = None,
                           filter_empty_nodes: bool = False) -> HomeConsumptionConnection:
         """Consumption connection"""
         consumption_query = QueryBuilder.consumption_query(resolution, first, last, before, after, filter_empty_nodes)
@@ -177,6 +177,7 @@ class NonDecoratedTibberHome:
     def longitude(self) -> str:
         return self.address.longitude  # pragma: no cover
 
+
 class TibberHome(NonDecoratedTibberHome):
     """A Tibber home with methods to get/fetch home information and subscribe to live data.
     This class expands on the NonDecoratedTibberHome class by adding methods to subscribe to live data.
@@ -260,16 +261,16 @@ class TibberHome(NonDecoratedTibberHome):
 
         retry = backoff.on_exception(
             backoff.expo,
-            Exception,
+            [gql.transport.exceptions.TransportClosed, websockets.exceptions.ConnectionClosedError],
             max_value = 100,
             max_tries = retries,
-            on_backoff = lambda details: _logger.info("Backing off after {tries} tries. Running {target} in {wait:.1f} seconds.".format(**details)),
+            on_backoff = lambda details: _logger.warning("Backing off. Running {target} in {wait:.1f} seconds after {tries} tries.".format(**details)),
             jitter = backoff.full_jitter,
             giveup = lambda e: isinstance(e, TransportQueryError),
         )
 
         self.websocket_running = True
-        print("Connecting to websocket")
+        _logger.debug("connecting to websocket")
         session = await self._websocket_client.connect_async(
             reconnecting = True,
             retry_connect = retry,
@@ -337,4 +338,6 @@ class TibberHome(NonDecoratedTibberHome):
                 else:
                     raise e
         else:
-            _logger.debug("self._websocket_client was not defined when attempting to close the websocket.")
+            _logger.info(
+                "self._websocket_client was not defined when attempting to close the websocket." +
+                " The invocation of close_websocket_connection() therefore did nothing...")
