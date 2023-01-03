@@ -28,6 +28,10 @@ class Account(QueryExecutor):
         if immediate_update:
             self.fetch_all()
 
+    def update(self):
+        """Alias for fetch_all()"""
+        self.fetch_all()
+
     def fetch_all(self):
         """Fetches all available data from the API and caches it."""
         data = self.execute_query(self.token, QueryBuilder.query_all_data)
