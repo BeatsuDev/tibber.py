@@ -184,8 +184,8 @@ class TibberHome(NonDecoratedTibberHome):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._websocket_client = None
         self.websocket_running = False
+        self._websocket_client = None
         self._callbacks = {}
 
     def event(self, event_to_listen_for) -> Callable:
@@ -252,6 +252,7 @@ class TibberHome(NonDecoratedTibberHome):
             subprotocols = ["graphql-transport-ws"],
             init_payload = {"token": self.tibber_client.token},
             headers = {"User-Agent": f"{self.tibber_client.user_agent} tibber.py/{__version__}"},
+            ping_interval=10
         )
 
         self._websocket_client = gql.Client(    
