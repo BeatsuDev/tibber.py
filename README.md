@@ -39,11 +39,18 @@ import tibber
 
 account = tibber.Account(tibber.DEMO_TOKEN) # Log in with an access token. All information gets updated here and stored in cache.
 
-# These properties are retrieved from cache
+# These properties are retrieved from cache and DO NOT reflect data at the given time
+# (but rather the data as it was when it last was cached)
 print(account.name)         # "Arya Stark"
 print(account.user_id)      # "dcc2355e-6f55-45c2-beb9-274241fe450c"
 print(account.account_type) # ["tibber", "customer"]
 print(account.login)        # "arya@winterfell.com"
+
+# To update the cache with new data straight from the tibber api, run this:
+account.update()
+
+# Now use the updated data as you would before:
+print(account.name)
 ```
 
 ### Getting basic home data
