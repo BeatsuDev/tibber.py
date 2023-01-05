@@ -17,7 +17,8 @@ setup(
         "gql[aiohttp]>=3.4.0",
         "gql[websockets]>=3.4.0",
         "graphql-core>=3.2.3",
-        "backoff>=2.2.1"
+        "backoff>=2.2.1",
+        "asyncio-atexit>=1.0.1",
     ],
     license="MIT",
     version=__version__,

@@ -1,7 +1,9 @@
+import atexit
 import asyncio
 import logging
 from typing import Optional
 
+import asyncio_atexit
 import websockets
 import backoff
 import gql
@@ -17,6 +19,20 @@ _logger = logging.getLogger(__name__)
 
 class QueryExecutor:
     """A class for executing queries."""
+    def __init__(self, session = None):
+        self.gql_client = None
+        transport = AIOHTTPTransport(
+            url = API_ENDPOINT,
+            headers = {"Authorization": "Bearer " + self.token},
+        )
+        self.gql_client = gql.Client(transport=transport, fetch_schema_from_transport=True)
+
+        asyncio.run(self.__ainit__(session))
+    
+    async def __ainit__(self, session):
+        self.session = session or await self.gql_client.connect_async()
+        asyncio_atexit.register(self.gql_client.close_async)
+
     def execute_query(self, access_token: str, query: str, max_tries: int = 1, **kwargs):
         """Executes a GraphQL query to the Tibber API.
 
@@ -27,7 +43,7 @@ class QueryExecutor:
         """
         # To allow invocations from async contexts, check if a loop is running and attempt
         # to schedule the execute_async method there. If no loop is found or the loop is not
-        # running, asyncio.run can be run instead. 
+        # running, asyncio.run can be run instead.
         try:
             loop = asyncio.get_running_loop()
         except RuntimeError:
@@ -62,14 +78,8 @@ class QueryExecutor:
         return result
 
     async def execute_async_single(self, access_token: str, query: str):
-        transport = AIOHTTPTransport(
-            url = API_ENDPOINT,
-            headers = {"Authorization": "Bearer " + access_token},
-        )
-
-        client = gql.Client(transport=transport, fetch_schema_from_transport=True)
         try:
-            result = await client.execute_async(gql.gql(query))
+            result = await self.gql_client.execute_async(gql.gql(query))
         except TransportQueryError as e:
             for error in e.errors:
                 self._process_error(error)
