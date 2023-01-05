@@ -184,7 +184,6 @@ class TibberHome(NonDecoratedTibberHome):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.websocket_running = False
         self._websocket_client = None
         self._callbacks = {}
 
@@ -229,9 +228,14 @@ class TibberHome(NonDecoratedTibberHome):
 
         self.tibber_client.user_agent = user_agent or self.tibber_client.user_agent
         try:
-            asyncio.run(self.start_websocket_loop(exit_condition, retries = retries, **kwargs))
-        finally:
-            asyncio.run(self.close_websocket_connection())
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
+            return loop.run_until_complete(self.start_websocket_loop(exit_condition, retries = retries, **kwargs))
+
+        return asyncio.run(self.start_websocket_loop(exit_condition, retries = retries, **kwargs))
 
     async def start_websocket_loop(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
         """Starts a websocket to subscribe for live measurements.
@@ -249,10 +253,11 @@ class TibberHome(NonDecoratedTibberHome):
         transport = WebsocketsTransport(
             **kwargs,
             url = self.tibber_client.viewer.websocket_subscription_url,
-            subprotocols = ["graphql-transport-ws"],
+            subprotocols = [WebsocketsTransport.GRAPHQLWS_SUBPROTOCOL],
             init_payload = {"token": self.tibber_client.token},
             headers = {"User-Agent": f"{self.tibber_client.user_agent} tibber.py/{__version__}"},
-            ping_interval=10
+            ping_interval=10,
+            pong_timeout=10,
         )
 
         self._websocket_client = gql.Client(    
@@ -260,27 +265,43 @@ class TibberHome(NonDecoratedTibberHome):
             fetch_schema_from_transport = True,
         )
 
-        retry = backoff.on_exception(
+        retry_connect = backoff.on_exception(
             backoff.expo,
             [gql.transport.exceptions.TransportClosed, websockets.exceptions.ConnectionClosedError],
             max_value = 100,
             max_tries = retries,
-            on_backoff = lambda details: _logger.warning("Backing off. Running {target} in {wait:.1f} seconds after {tries} tries.".format(**details)),
+            on_backoff = lambda details: _logger.warning("Retrying to connect with backoff. Running {target} in {wait:.1f} seconds after {tries} tries.".format(**details)),
             jitter = backoff.full_jitter,
-            giveup = lambda e: isinstance(e, TransportQueryError),
+            giveup = lambda e: isinstance(e, TransportQueryError) or isinstance(e, ValueError),
         )
 
-        self.websocket_running = True
+        retry_subscribe = backoff.on_exception(
+            backoff.expo,
+            Exception,
+            max_value = 100,
+            max_tries = retries,
+            on_backoff = lambda details: _logger.warning("Retrying to subscribe with backoff. Running {target} in {wait:.1f} seconds after {tries} tries.".format(**details)),
+            jitter = backoff.full_jitter,
+            giveup = lambda e: isinstance(e, TransportQueryError) or isinstance(e, ValueError),
+        )
+
         _logger.debug("connecting to websocket")
         session = await self._websocket_client.connect_async(
             reconnecting = True,
-            retry_connect = retry,
-            retry_execute = retry,
+            retry_connect = retry_connect,
         )
+        _logger.info("Connected to websocket.")
         await self.run_websocket_loop(session, exit_condition)
         await self.close_websocket_connection()
 
-    async def run_websocket_loop(self, session, exit_condition):
+    async def run_websocket_loop(self, session, exit_condition) -> None:
+        # Check if real time consumption is enabled
+        _logger.info("Updating home information to check if real time consumption is enabled.")
+        await self.tibber_client.update_async()
+
+        if not self.features.real_time_consumption_enabled:
+            raise ValueError("The home does not have real time consumption enabled.")
+
         # Subscribe to the websocket
         query = QueryBuilder.live_measurement(self.id)
         _logger.debug(f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
@@ -323,22 +344,27 @@ class TibberHome(NonDecoratedTibberHome):
         for callback in self._callbacks[event]:
             callback(data)
 
-    async def close_websocket_connection(self):
-        _logger.debug("closing websocket connection")
-        self.websocket_running = False
-        if self._websocket_client:
+    async def close_websocket_connection(self) -> None:
+        _logger.debug("attempting to close websocket connection")
+        if self.websocket_running:
             try:
                 await self._websocket_client.close_async()
                 self._websocket_client = None  # Dereference for gc
-            except AttributeError as e:
-                if "session" in str(e):
-                    _logger.info(
-                        "The websocket connection that was attempted to be closed does not have" +
-                        " an active session associated with it. It is probably already closed."
-                    )
-                else:
-                    raise e
+                _logger.info("Websocket connection closed.")
+            except KeyboardInterrupt as e:
+                _logger.warning("Keyboard interrupt detected while closing wbsocket connection. This may cause the websocket to be left open.")
+                raise e
         else:
             _logger.info(
-                "self._websocket_client was not defined when attempting to close the websocket." +
+                "The websocket was not running when attempting to close the websocket." +
                 " The invocation of close_websocket_connection() therefore did nothing...")
+    
+    @property
+    def websocket_running(self) -> bool:
+        """Returns True if the websocket is running. False otherwise."""
+        return (
+            self._websocket_client is not None and 
+            isinstance(self._websocket_client.transport, WebsocketsTransport) and
+            self._websocket_client.transport.websocket is not None and
+            self._websocket_client.transport.websocket.open
+        )
