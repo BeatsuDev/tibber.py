@@ -232,10 +232,13 @@ class TibberHome(NonDecoratedTibberHome):
         except RuntimeError:
             loop = None
 
-        if loop and loop.is_running():
-            return loop.run_until_complete(self.start_websocket_loop(exit_condition, retries = retries, **kwargs))
-
-        return asyncio.run(self.start_websocket_loop(exit_condition, retries = retries, **kwargs))
+        try:
+            if loop and loop.is_running():
+                loop.run_until_complete(self.start_websocket_loop(exit_condition, retries = retries, **kwargs))
+            else:
+                asyncio.run(self.start_websocket_loop(exit_condition, retries = retries, **kwargs))
+        except KeyboardInterrupt:
+            _logger.info("Keyboard interrupt detected. Websocket should be closed now.")
 
     async def start_websocket_loop(self, exit_condition: Callable[[LiveMeasurement], bool] = None, retries: int = 3, retry_interval: Union[float, int] = 10, **kwargs) -> None:
         """Starts a websocket to subscribe for live measurements.
@@ -291,8 +294,7 @@ class TibberHome(NonDecoratedTibberHome):
             retry_connect = retry_connect,
         )
         _logger.info("Connected to websocket.")
-        await self.run_websocket_loop(session, exit_condition)
-        await self.close_websocket_connection()
+        await retry_subscribe(self.run_websocket_loop)(session, exit_condition)
 
     async def run_websocket_loop(self, session, exit_condition) -> None:
         # Check if real time consumption is enabled
@@ -317,7 +319,6 @@ class TibberHome(NonDecoratedTibberHome):
                 break
 
         await self.close_websocket_connection()
-
 
     def process_websocket_response(self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None) -> bool:
         """Processes a response with data from the live data websocket. This function will call all registered callbacks
