@@ -7,3 +7,4 @@ dist/*
 tibber.py.egg-info/*
 docs/_build
 .vscode
+test.py
