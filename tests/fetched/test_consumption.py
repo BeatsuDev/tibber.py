@@ -31,15 +31,15 @@ def test_consumption_page_info(home):
     assert page_info.filtered == 0
 
 def test_consumption_nodes(home):
-    home_consumption_connection = home.fetch_consumption("HOURLY", first=3, after="MjAyMi0xMS0yOFQxODowMDowMC4wMDArMDE6MDA=")
+    home_consumption_connection = home.fetch_consumption("HOURLY", first=3, after="MjAyMy0wMS0wMVQwMDowMDowMC4wMDArMDE6MDA=")
     history = home_consumption_connection.nodes
 
-    assert history[0].from_time == "2022-11-28T19:00:00.000+01:00"
-    assert history[0].to_time == "2022-11-28T20:00:00.000+01:00"
+    assert history[0].from_time == "2023-01-01T01:00:00.000+01:00"
+    assert history[0].to_time == "2023-01-01T02:00:00.000+01:00"
 
-    assert [node.cost for node in history] == [7.95558735, 8.85535695, 7.205103525]
-    assert [node.unit_price for node in history] == [3.09195, 2.854725, 2.689475]
-    assert [node.unit_price_vat for node in history] == [0.61839, 0.570945, 0.537895]
-    assert [node.consumption for node in history] == [2.573, 3.102, 2.679]
+    assert [node.cost for node in history] == [0.2364629875, 0.249702075, 0.2600658375]
+    assert [node.unit_price for node in history] == [0.1562875, 0.1382625, 0.1381125]
+    assert [node.unit_price_vat for node in history] == [0.0312575, 0.0276525, 0.0276225]
+    assert [node.consumption for node in history] == [1.513, 1.806, 1.883]
     assert all(node.consumption_unit == "kWh" for node in history)
 
