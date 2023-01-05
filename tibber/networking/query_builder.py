@@ -439,6 +439,7 @@ class QueryBuilder:
                 averagePower
                 maxPower
                 powerProduction
+                powerReactive
                 powerProductionReactive
                 minPowerProduction
                 maxPowerProduction

@@ -1,115 +1,111 @@
+import atexit
 import asyncio
 import logging
-import json
 from typing import Optional
 
-import aiohttp
+import asyncio_atexit
+import websockets
+import backoff
+import gql
+from gql.transport.aiohttp import AIOHTTPTransport
+from gql.transport.exceptions import TransportQueryError
 
 from tibber import API_ENDPOINT
 from tibber.exceptions import APIException
-from tibber.exceptions import InvalidTokenException
+from tibber.exceptions import UnauthenticatedException
 
+
+_logger = logging.getLogger(__name__)
 
 class QueryExecutor:
-    """A class for executing sessions."""
-    def __init__(self, websession: Optional[aiohttp.ClientSession] = None):
-        """Instantiates the query executor. This creates a websession among other things."""
-        self.logger = logging.getLogger(__name__)
-        
-        try:
-            self.eventloop = asyncio.get_running_loop()
-        except RuntimeError:
-            self.logger.debug("No running event loop was found. Creating a new one with asyncio.new_event_loop()")
-            self.eventloop = asyncio.new_event_loop()
+    """A class for executing queries."""
+    def __init__(self, session = None):
+        self.gql_client = None
+        transport = AIOHTTPTransport(
+            url = API_ENDPOINT,
+            headers = {"Authorization": "Bearer " + self.token},
+        )
+        self.gql_client = gql.Client(transport=transport, fetch_schema_from_transport=True)
 
-        self.eventloop.run_until_complete(self.__async_init__(websession))
-        
-    async def __async_init__(self, websession: Optional[aiohttp.ClientSession] = None):
-        if websession:
-            self._websession = websession
-        else:
-            self.logger.debug("A websession was not provided. Creating a new aiohttp.ClientSession.")
-            self._websession = aiohttp.ClientSession()
+        asyncio.run(self.__ainit__(session))
+    
+    async def __ainit__(self, session):
+        self.session = session or await self.gql_client.connect_async()
+        asyncio_atexit.register(self.gql_client.close_async)
 
-    def execute_query(self, access_token: str, query: str, retries: int = 2):
+    def execute_query(self, access_token: str, query: str, max_tries: int = 1, **kwargs):
         """Executes a GraphQL query to the Tibber API.
 
         :param access_token: The Tibber API token to use for the request.
         :param query: The query to send to the Tibber API.
-        :param retries: The amount of retries to attempt before raising an asyncio Timeout error.
+        :param max_tries: The amount of attempts before giving up. Set to None for infinite tries.
+        :param **kwargs: Arguments to be passed in to the backoff.on_exception decorator
         """
-        post_args = self.create_request(access_token, query)
-        return self.eventloop.run_until_complete(self.send_request(post_args))
-        
+        # To allow invocations from async contexts, check if a loop is running and attempt
+        # to schedule the execute_async method there. If no loop is found or the loop is not
+        # running, asyncio.run can be run instead.
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
+            return loop.run_until_complete(self.execute_async(access_token, query, max_tries, **kwargs))
+
+        return asyncio.run(self.execute_async(access_token, query, max_tries, **kwargs))
+
+    async def execute_async(self, access_token: str, query: str, max_tries: int = 1, **kwargs):
+        """Coroutine for executing a GraphQL query to the Tibber API asynchronously.
+
+        :param access_token: The Tibber API token to use for the request.
+        :param query: The query to send to the Tibber API.
+        :param max_tries: The amount of attempts before giving up. Set to None for infinite tries.
+        :param **kwargs: Arguments to be passed in to the backoff.on_exception decorator
+        """
+        backoff_execution = backoff.on_exception(
+            backoff.expo,
+            [gql.transport.exceptions.TransportClosed, websockets.exceptions.ConnectionClosedError],
+            max_tries = max_tries,
+            max_time = 100,
+            jitter = backoff.full_jitter,
+            on_success = self._success_handler,
+            on_backoff = self._backoff_handler,
+            on_giveup = self._giveup_handler,
+            **kwargs,
+        )(self.execute_async_single)
+
+        result = await backoff_execution(access_token, query)
+        return result
+
+    async def execute_async_single(self, access_token: str, query: str):
+        try:
+            result = await self.gql_client.execute_async(gql.gql(query))
+        except TransportQueryError as e:
+            for error in e.errors:
+                self._process_error(error)
+        except asyncio.exceptions.TimeoutError:
+            _logger.error("Timed out when executing a query. Check your connection to the Tibber API or the Tibber API status.")
+            _logger.debug("query information:\n" + query)
+            raise APIException("Timed out when executing query.")
+        return result
     
-    def create_request(self, access_token: str, data: str):
-        """Creates a GraphQL request, but does not execute it. Returns a dict that can
-        be passed to the send_request method.
+    def _process_error(self, error):
+        try:
+            code = error["extensions"]["code"]
+            message = error["message"]
+        except KeyError:
+            raise APIException(error)
+
+        if code == "UNAUTHENTICATED":
+            raise UnauthenticatedException(message)
+
+        raise APIException(error)
+
+    def _success_handler(self, details):
+        ...
+
+    def _backoff_handler(self, details):
+        _logger.warning("Backing off after {tries} tries. Calling {target} in {wait:.1f} seconds.".format(**details))
         
-        :param access_token: The access token to use for the request.
-        :param data: The data to be sent in the request.
-        :param request_type: The root type of the request (e.g. "mutation" or "query").
-        """
-        # TODO: Implement query variables
-        payload = {"query": data, "variables": {}} 
-
-        request = {
-            "headers": {
-                "Authorization": "Bearer " + access_token
-            },
-            "data": payload,
-        }
-        return request
-
-    async def send_request(self, post_args: dict, retries: int = 2):
-        """Sends a request to the Tibber API.
-
-        :param post_args: The arguments to send in the Tibber API web request. The post args should
-            contain a "headers" key with the access token authorization and a "data" key with.
-        :param retries: The amount of retries to attempt before raising an asyncio Timeout error.
-        """
-        # TODO: Only run deepcopy if the logger level is DEBUG.
-        # Log the request we are making (and redact the access token in case users share the logs)
-        from copy import deepcopy
-        debug_post_args = deepcopy(post_args)
-        debug_post_args["headers"]["Authorization"] = "Bearer <## TOKEN REDACTED ##>"
-        debug_query = debug_post_args["data"]["query"]
-        debug_post_args["data"]["query"] = "<QUERY>"
-        self.logger.debug("Executing a query with these post args:\n" + json.dumps(debug_post_args) + "\nWhere <QUERY> is:\n" + debug_query)
-
-        json_response = {}
-        times_attempted = 0
-        while not json_response.get("data") and times_attempted <= retries:
-            if times_attempted > 0:
-                self.logger.info(f"Failed to retrieve data from api request. Retrying ({times_attempted} of {retries} times).")
-
-            response = await self.websession.post(API_ENDPOINT, **post_args)
-            json_response = await response.json()
-            self.logger.debug("Response from API request received. The json data is:\n" + json.dumps(json_response, indent=4))
-
-            errors = json_response.get("errors")
-            if errors:
-                # TODO: Handle errors better
-                # For now, errors are simply logged since the method can still return data although there's an error. (see issue #6)
-                self.logger.error(f"Something went wrong with the request. The following errors occured:\n{json.dumps(errors, indent=4)}")
-                
-                # InvalidToken:
-                if "UNAUTHENTICATED" in map(lambda e: e["extensions"]["code"], errors):
-                    raise InvalidTokenException("Could not authenticate with the given token!")
-
-            times_attempted += 1
-
-        if not json_response.get("data"):
-            raise APIException(f"Something went wrong with the request. The following errors occured:\n{json.dumps(errors, indent=4)}")
-
-        return json_response.get("data")
-
-    @property
-    def websession(self):
-        return self._websession
-    
-    def __del__(self):
-        """Close the websession when the class is deloaded"""
-        if self.eventloop.is_closed(): return
-        if self.websession.closed: return
-        self.eventloop.run_until_complete(self.websession.close())
+    def _giveup_handler(self, details):
+        _logger.error("Gave up running {target} after {tries} tries. {elapsed:.1f} seconds have passed.".format(**details))
