@@ -120,7 +120,8 @@ def when_to_stop(data):
   return data.power < 1500
 
 # Start the live feed. This runs until data.power is less than 1500.
-home.start_live_feed(exit_condition = when_to_stop)
+# If a user agent was not defined earlier, this will be required here
+home.start_live_feed(user_agent = "UserAgent/0.0.1", exit_condition = when_to_stop) 
 ```
 
 ## Contributing to the project
