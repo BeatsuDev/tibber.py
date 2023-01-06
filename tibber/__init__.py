@@ -11,5 +11,4 @@ if os.name == "nt":
 # Import modules after defining constants to avoid circular import error.
 from .account import Account
 
-from .types.home import TibberHome
-from .types.home import NonDecoratedTibberHome
+from .types.home import Home

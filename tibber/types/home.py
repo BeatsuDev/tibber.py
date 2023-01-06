@@ -1,10 +1,8 @@
-"""Classes representing the Home type from the GraphQL Tibber API."""
+from __future__ import annotations
 import json
 import asyncio
 import logging
-from typing import Union
-from typing import Callable
-from typing import TYPE_CHECKING
+from dataclasses import dataclass, field
 
 import websockets
 import backoff
@@ -22,128 +20,33 @@ from tibber.types.home_features import HomeFeatures
 from tibber.types.live_measurement import LiveMeasurement
 from tibber.types.home_consumption_connection import HomeConsumptionConnection
 from tibber.types.home_production_connection import HomeProductionConnection
-from tibber.networking import QueryBuilder
-
-# Import type checking modules
-if TYPE_CHECKING:
-    from tibber.account import Account 
 
 
 _logger = logging.getLogger(__name__)
 
-class NonDecoratedTibberHome:
-    """A Tibber home with methods to get/fetch home information without the decorator functions to subscribe to live data."""
-    def __init__(self, data: dict, tibber_client: "Account"):
-        self.cache: dict = data or {}
-        self.tibber_client: "Account" = tibber_client
+@dataclass
+class Home:
+    """A dataclass representing the Home type from the GraphQL Tibber API with methods to get/fetch home
+    information and the decorator functions to subscribe to live data."""
+    id: str | None = field(default=None)
+    time_zone: str | None = field(default=None)
+    app_nickname: str | None = field(default=None)
+    app_avatar: str | None = field(default=None)
+    size: int | None = field(default=None)
+    type: str | None = field(default=None)
+    number_of_residents: int | None = field(default=None)
+    primary_heating_source: str | None = field(default=None)
+    has_ventilation_system: bool | None = field(default=None)
+    main_fuse_size: int | None = field(default=None)
+    address: Address = field(default=None)
+    owner: LegalEntity = field(default=None)
+    metering_point_data: MeteringPointData = field(default=None)
+    current_subscription: Subscription = field(default=None)
+    subscriptions: list[Subscription] = field(default_factory=list)
+    features: HomeFeatures = field(default=None)
 
-    def fetch_consumption(self,
-                          resolution: str,
-                          first: int = None,
-                          last: int = None,
-                          before: str = None,
-                          after: str = None,
-                          filter_empty_nodes: bool = False) -> HomeConsumptionConnection:
-        """Consumption connection"""
-        consumption_query = QueryBuilder.consumption_query(resolution, first, last, before, after, filter_empty_nodes)
-        full_query = QueryBuilder.create_query("viewer", f"home(id: \"{self.id}\")", consumption_query)
-        unsanitized_data = self.tibber_client.execute_query(self.tibber_client.token, full_query)
-
-        # The format should be correct, since we requested it this way and the request
-        # was successful, so we don't need to worry about key errors. 
-        data = unsanitized_data["viewer"]["home"]["consumption"]
-        return HomeConsumptionConnection(resolution, data, self.tibber_client)
-
-    def fetch_production(self,
-                         resolution: str = None, 
-                         first: int = None, 
-                         last: int = None, 
-                         before: str = None, 
-                         after: str = None, 
-                         filter_empty_nodes: bool = False) -> HomeProductionConnection:
-        production_query = QueryBuilder.production_query(resolution, first, last, before, after, filter_empty_nodes)
-        full_query = QueryBuilder.create_query("viewer", f"home(id: \"{self.id}\")", production_query)
-        unsanitized_data = self.tibber_client.execute_query(self.tibber_client.token, full_query)
-
-        data = unsanitized_data["viewer"]["home"]["production"]
-        return HomeProductionConnection(resolution, data, self.tibber_client)
-
-    @property
-    def id(self) -> str:
-        return self.cache.get("id")
-
-    @property
-    def time_zone(self) -> str:
-        """The time zone the home resides in"""
-        return self.cache.get("timeZone")
-
-    @property
-    def app_nickname(self) -> str:
-        """The nickname given to the home by the user"""
-        return self.cache.get("appNickname")
-
-    @property
-    def app_avatar(self) -> str:
-        """The chosen avatar for the home"""
-        return self.cache.get("appAvatar")
-
-    @property
-    def size(self) -> int:
-        """The size of the home in square meters"""
-        return self.cache.get("size")
-
-    @property
-    def type(self) -> str:
-        """The type of home."""
-        return self.cache.get("type")
-
-    @property
-    def number_of_residents(self) -> int:
-        """The number of people living in the home"""
-        return self.cache.get("numberOfResidents")
-
-    @property
-    def primary_heating_source(self) -> str:
-        """The primary form of heating in the household"""
-        return self.cache.get("primaryHeatingSource")
-
-    @property
-    def has_ventilation_system(self) -> bool:
-        """Whether the home has a ventilation system"""
-        return self.cache.get("hasVentilationSystem")
-
-    @property
-    def main_fuse_size(self) -> int:
-        """The main fuse size"""
-        return self.cache.get("mainFuseSize")
-
-    @property
-    def owner(self) -> LegalEntity:
-        """The registered owner of the house"""
-        return LegalEntity(self.cache.get("owner"), self.tibber_client)
-
-    @property
-    def metering_point_data(self) -> MeteringPointData:
-        return MeteringPointData(self.cache.get("meteringPointData"), self.tibber_client)
-
-    @property
-    def current_subscription(self) -> Subscription:
-        """The current/latest subscription related to the home"""
-        return Subscription(self.cache.get("currentSubscription"), self.tibber_client)
-
-    @property
-    def subscriptions(self) -> list:
-        """All historic subscriptions related to the home"""
-        return [Subscription(sub, self.tibber_client) for sub in self.cache.get("subscriptions", [])]
-
-    @property
-    def features(self):
-        return HomeFeatures(self.cache.get("features"), self.tibber_client)
-
-    # Support 1 to 1 Tibber API representation.
-    @property
-    def address(self) -> Address:
-        return Address(self.cache.get("address"), self.tibber_client)
+    consumption: HomeConsumptionConnection = field(default=None)
+    production: HomeProductionConnection = field(default=None)
 
     @property
     def address1(self) -> str:
@@ -151,37 +54,32 @@ class NonDecoratedTibberHome:
 
     @property
     def address2(self) -> str:
-        return self.address.address2  # pragma: no cover
+        return self.address.address2
 
     @property
     def address3(self) -> str:
-        return self.address.address3  # pragma: no cover
+        return self.address.address3
 
     @property
     def city(self) -> str:
-        return self.address.city  # pragma: no cover
+        return self.address.city
 
     @property
     def postal_code(self) -> str:
-        return self.address.postal_code  # pragma: no cover
+        return self.address.postal_code
 
     @property
     def country(self) -> str:
-        return self.address.country  # pragma: no cover
+        return self.address.country
 
     @property
     def latitude(self) -> str:
-        return self.address.latitude  # pragma: no cover
+        return self.address.latitude
 
     @property
     def longitude(self) -> str:
-        return self.address.longitude  # pragma: no cover
+        return self.address.longitude
 
-
-class TibberHome(NonDecoratedTibberHome):
-    """A Tibber home with methods to get/fetch home information and subscribe to live data.
-    This class expands on the NonDecoratedTibberHome class by adding methods to subscribe to live data.
-    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._websocket_client = None
@@ -369,3 +267,37 @@ class TibberHome(NonDecoratedTibberHome):
             self._websocket_client.transport.websocket is not None and
             self._websocket_client.transport.websocket.open
         )
+
+
+class NonDecoratedTibberHome:
+
+    def fetch_consumption(self,
+                          resolution: str,
+                          first: int = None,
+                          last: int = None,
+                          before: str = None,
+                          after: str = None,
+                          filter_empty_nodes: bool = False) -> HomeConsumptionConnection:
+        """Consumption connection"""
+        consumption_query = QueryBuilder.consumption_query(resolution, first, last, before, after, filter_empty_nodes)
+        full_query = QueryBuilder.create_query("viewer", f"home(id: \"{self.id}\")", consumption_query)
+        unsanitized_data = self.tibber_client.execute_query(self.tibber_client.token, full_query)
+
+        # The format should be correct, since we requested it this way and the request
+        # was successful, so we don't need to worry about key errors. 
+        data = unsanitized_data["viewer"]["home"]["consumption"]
+        return HomeConsumptionConnection(resolution, data, self.tibber_client)
+
+    def fetch_production(self,
+                         resolution: str = None, 
+                         first: int = None, 
+                         last: int = None, 
+                         before: str = None, 
+                         after: str = None, 
+                         filter_empty_nodes: bool = False) -> HomeProductionConnection:
+        production_query = QueryBuilder.production_query(resolution, first, last, before, after, filter_empty_nodes)
+        full_query = QueryBuilder.create_query("viewer", f"home(id: \"{self.id}\")", production_query)
+        unsanitized_data = self.tibber_client.execute_query(self.tibber_client.token, full_query)
+
+        data = unsanitized_data["viewer"]["home"]["production"]
+        return HomeProductionConnection(resolution, data, self.tibber_client)

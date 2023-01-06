@@ -1,6 +1,5 @@
 from tibber.types.home_features import HomeFeatures
-from tibber.types.home import NonDecoratedTibberHome
-from tibber.types.home import TibberHome
+from tibber.types.home import Home
 
 from tibber.types.price_rating_threshold_percentages import PriceRatingThresholdPercentages
 from tibber.types.metering_point_data import MeteringPointData

@@ -1,48 +1,15 @@
-"""A class representing the Production type from the GraphQL Tibber API."""
-from typing import TYPE_CHECKING
-
-# Import type checking modules
-if TYPE_CHECKING:
-    from tibber.account import Account 
+from __future__ import annotations
+from dataclasses import dataclass, field
 
 
+@dataclass
 class Production:
-    """A class containing concrete household electricity production information for a time period."""
-    def __init__(self, data: dict, tibber_client: "Account"):
-        self.cache: dict = data or {}
-        self.tibber_client: "Account" = tibber_client
-
-    @property
-    def from_time(self) -> str:
-        return self.cache.get("from")
-
-    @property
-    def to_time(self) -> str:
-        return self.cache.get("to")
-
-    @property
-    def unit_price(self) -> float:
-        return self.cache.get("unitPrice")
-
-    @property
-    def unit_price_vat(self) -> float:
-        return self.cache.get("unitPriceVAT")
-
-    @property
-    def production(self) -> float:
-        """kWh produced""" # Docs actually say consumed here, but I assume it means to say produced
-        return self.cache.get("production")
-
-    @property
-    def production_unit(self) -> str:
-        return self.cache.get("productionUnit")
-
-    @property
-    def profit(self) -> float:
-        """Total profit of the production"""
-        return self.cache.get("profit")
-
-    @property
-    def currency(self) -> str:
-        """The cost currency"""
-        return self.cache.get("currency")
+    """A dataclass representing the Production type from the GraphQL Tibber API."""
+    from_time: str = field(default=None)
+    to_time: str = field(default=None)
+    unit_price: float = field(default=None)
+    unit_price_vat: float = field(default=None)
+    production: float = field(default=None)
+    production_unit: str = field(default=None)
+    profit: float = field(default=None)
+    currency: str = field(default=None)
