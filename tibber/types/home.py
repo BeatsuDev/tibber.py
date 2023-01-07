@@ -12,6 +12,9 @@ import gql
 from gql.transport.websockets import WebsocketsTransport
 from gql.transport.exceptions import TransportQueryError
 from graphql import parse
+from gqlrequests_api_tibber import Viewer, Home, Consumption, HomeConsumptionConnection, Production, HomeProductionConnection, LiveMeasurement, RootMutation
+from gqlrequests.query import Query
+from gqlrequests.query_method import QueryMethod
 
 from tibber import __version__
 from tibber.types.legal_entity import LegalEntity
@@ -19,10 +22,6 @@ from tibber.types.address import Address
 from tibber.types.metering_point_data import MeteringPointData
 from tibber.types.subscription import Subscription
 from tibber.types.home_features import HomeFeatures
-from tibber.types.live_measurement import LiveMeasurement
-from tibber.types.home_consumption_connection import HomeConsumptionConnection
-from tibber.types.home_production_connection import HomeProductionConnection
-from tibber.networking import QueryBuilder
 
 # Import type checking modules
 if TYPE_CHECKING:
@@ -45,9 +44,20 @@ class NonDecoratedTibberHome:
                           after: str = None,
                           filter_empty_nodes: bool = False) -> HomeConsumptionConnection:
         """Consumption connection"""
-        consumption_query = QueryBuilder.consumption_query(resolution, first, last, before, after, filter_empty_nodes)
-        full_query = QueryBuilder.create_query("viewer", f"home(id: \"{self.id}\")", consumption_query)
-        unsanitized_data = self.tibber_client.execute_query(self.tibber_client.token, full_query)
+
+        query = "{\n" + str(Query(Viewer, fields=[
+            QueryMethod("home", Home, args={"id": self.id}, fields=[
+                QueryMethod("consumption", Consumption, args={
+                    "resolution": resolution,
+                    "first": first,
+                    "last": last,
+                    "before": before,
+                    "after": after,
+                    "filterEmptyNodes": filter_empty_nodes
+                })
+            ])
+        ])) + "\n}"
+        unsanitized_data = self.tibber_client.execute_query(self.tibber_client.token, query)
 
         # The format should be correct, since we requested it this way and the request
         # was successful, so we don't need to worry about key errors. 
@@ -61,10 +71,22 @@ class NonDecoratedTibberHome:
                          before: str = None, 
                          after: str = None, 
                          filter_empty_nodes: bool = False) -> HomeProductionConnection:
-        production_query = QueryBuilder.production_query(resolution, first, last, before, after, filter_empty_nodes)
-        full_query = QueryBuilder.create_query("viewer", f"home(id: \"{self.id}\")", production_query)
-        unsanitized_data = self.tibber_client.execute_query(self.tibber_client.token, full_query)
+        query = "{\n" + str(Query(Viewer, fields=[
+            QueryMethod("home", Home, args={"id": self.id}, fields=[
+                QueryMethod("production", Production, args={
+                    "resolution": resolution,
+                    "first": first,
+                    "last": last,
+                    "before": before,
+                    "after": after,
+                    "filterEmptyNodes": filter_empty_nodes
+                })
+            ])
+        ])) + "\n}"
+        unsanitized_data = self.tibber_client.execute_query(self.tibber_client.token, query)
 
+        # The format should be correct, since we requested it this way and the request
+        # was successful, so we don't need to worry about key errors. 
         data = unsanitized_data["viewer"]["home"]["production"]
         return HomeProductionConnection(resolution, data, self.tibber_client)
 
@@ -305,7 +327,8 @@ class TibberHome(NonDecoratedTibberHome):
             raise ValueError("The home does not have real time consumption enabled.")
 
         # Subscribe to the websocket
-        query = QueryBuilder.live_measurement(self.id)
+        partial_query = Query(RootMutation, fields=[QueryMethod("liveMeasurement", LiveMeasurement, args={"id": self.id})], start_indent = 4)
+        query = "subscription {\n" + partial_query + "\n}"
         _logger.debug(f"Connecting to live measurement data endpoint with query: {' '.join(query.split())}")
         document_node_query = parse(query)
 

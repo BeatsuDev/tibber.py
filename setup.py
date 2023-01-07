@@ -19,6 +19,7 @@ setup(
         "graphql-core>=3.2.3",
         "backoff>=2.2.1",
         "asyncio-atexit>=1.0.1",
+        "gqlrequests-api-tibber>=0.0.1",
     ],
     license="MIT",
     version=__version__,
