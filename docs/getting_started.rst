@@ -1,6 +1,15 @@
 Getting started
 ===============
 
+############
+Installation
+############
+tibber.py is available on PyPI. You can install it with pip:
+
+.. code-block:: bash
+
+   pip install tibber.py
+
 #########################
 Getting basic information
 #########################
