@@ -4,15 +4,15 @@
    contain the root `toctree` directive.
 .. toctree::
    :maxdepth: 1
-   :caption: Getting Started
+   :caption: Welcome
 
    self
 
 .. toctree::
    :maxdepth: 1
-   :caption: Examples
+   :caption: Getting Started
 
-   examples
+   getting_started
 
 
 Welcome to tibber.py's documentation!
