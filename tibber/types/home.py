@@ -343,7 +343,7 @@ class TibberHome(NonDecoratedTibberHome):
             _logger.warning("The event that was broadcasted has no listeners / callbacks! Nothing was run.")
             return
 
-        await asyncio.gather(*self._callbacks[event])
+        await asyncio.gather(*[c(data) for c in self._callbacks[event]])
 
 
     async def close_websocket_connection(self) -> None:
