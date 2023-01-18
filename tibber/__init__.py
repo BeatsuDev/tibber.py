@@ -13,4 +13,11 @@ if os.name == "nt":
 from .account import Account
 from .types.home import NonDecoratedTibberHome, TibberHome
 
-__all__ = ["__version__", "DEMO_TOKEN", "API_ENDPOINT", "Account", "NonDecoratedTibberHome", "TibberHome"]
+__all__ = [
+    "__version__",
+    "DEMO_TOKEN",
+    "API_ENDPOINT",
+    "Account",
+    "NonDecoratedTibberHome",
+    "TibberHome",
+]

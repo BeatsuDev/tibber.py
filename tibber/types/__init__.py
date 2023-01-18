@@ -8,7 +8,8 @@ from tibber.types.price import Price
 from tibber.types.price_info import PriceInfo
 from tibber.types.price_rating import PriceRating
 from tibber.types.price_rating_entry import PriceRatingEntry
-from tibber.types.price_rating_threshold_percentages import PriceRatingThresholdPercentages
+from tibber.types.price_rating_threshold_percentages import \
+    PriceRatingThresholdPercentages
 from tibber.types.price_rating_type import PriceRatingType
 from tibber.types.subscription import Subscription
 from tibber.types.viewer import Viewer
@@ -28,5 +29,5 @@ __all__ = [
     "PriceRatingThresholdPercentages",
     "PriceRatingType",
     "Subscription",
-    "Viewer"
+    "Viewer",
 ]
