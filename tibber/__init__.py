@@ -3,10 +3,9 @@ DEMO_TOKEN = "5K4MVS-OjfWhK_4yrjOlFe1F6kJXPVf7eQYggo8ebAE"
 API_ENDPOINT = "https://api.tibber.com/v1-beta/gql"
 
 import asyncio
-
-# The event loop type causes problems on windows systems when exiting.
 import os
 
+# The event loop type causes problems on windows systems when exiting.
 if os.name == "nt":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
