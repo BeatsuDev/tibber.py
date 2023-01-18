@@ -32,4 +32,4 @@ jobs:
         run: isort --check tibber
       
       - name: Running flake8
-        run: flake8 --per-file-ignores="./tibber/__init__.py:F402"
+        run: flake8 --per-file-ignores="./tibber/__init__.py:E402"
