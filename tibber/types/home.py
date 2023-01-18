@@ -344,7 +344,10 @@ class TibberHome(NonDecoratedTibberHome):
         return False
 
     async def broadcast_event(self, event, data) -> None:
-        if not event in self._callbacks:
+        if event not in self._callbacks:
+            _logger.warning(f"The event \"{event}\" was attempted emitted, but does not exist. Nothing was run.")
+
+        if len(self._callbacks[event]) == 0:
             _logger.warning("The event that was broadcasted has no listeners / callbacks! Nothing was run.")
             return
 
