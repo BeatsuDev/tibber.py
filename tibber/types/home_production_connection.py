@@ -7,11 +7,12 @@ from tibber.types.home_production_edge import HomeProductionEdge
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.account import Account 
+    from tibber.account import Account
 
 
 class HomeProductionConnection:
     """A class containing household electricity production information for a time period."""
+
     def __init__(self, resolution: str, data: dict, tibber_client: "Account"):
         self.resolution = resolution
         self.cache: dict = data or {}
@@ -19,15 +20,22 @@ class HomeProductionConnection:
 
     @property
     def page_info(self) -> str:
-        return HomeProductionPageInfo(self.resolution, self.cache.get("pageInfo"), self.tibber_client)
+        return HomeProductionPageInfo(
+            self.resolution, self.cache.get("pageInfo"), self.tibber_client
+        )
 
     @property
     def nodes(self) -> list:
-        return [Production(node, self.tibber_client) for node in self.cache.get("nodes")]
+        return [
+            Production(node, self.tibber_client) for node in self.cache.get("nodes")
+        ]
 
     @property
     def edges(self) -> list:
-        return [HomeProductionEdge(self.resolution, edge, self.tibber_client) for edge in self.cache.get("edges")]
-    
+        return [
+            HomeProductionEdge(self.resolution, edge, self.tibber_client)
+            for edge in self.cache.get("edges")
+        ]
+
     def __iter__(self):
         return iter(self.nodes)

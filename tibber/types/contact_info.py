@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 
 class ContactInfo:
     """A class to get email and mobile. This info is probably of a LegalEntity."""
+
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client

@@ -5,6 +5,7 @@ API_ENDPOINT = "https://api.tibber.com/v1-beta/gql"
 # The event loop type causes problems on windows systems when exiting.
 import os
 import asyncio
+
 if os.name == "nt":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 

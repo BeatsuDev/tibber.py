@@ -5,10 +5,12 @@ from tibber.types.price import Price
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.account import Account 
+    from tibber.account import Account
+
 
 class PriceInfo:
     """A class to get price info."""
+
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client
@@ -26,6 +28,8 @@ class PriceInfo:
     @property
     def tomorrow(self) -> list[Price]:
         """The hourly prices of the upcoming day"""
-        return [Price(hour, self.tibber_client) for hour in self.cache.get("tomorrow", [])]
-    
+        return [
+            Price(hour, self.tibber_client) for hour in self.cache.get("tomorrow", [])
+        ]
+
     # TODO: Implement range(resolution, first, last, ...) method

@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 
 class Address:
     """An address type to get information about the location of a TibberHome."""
+
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client

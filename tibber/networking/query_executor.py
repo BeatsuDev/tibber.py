@@ -17,23 +17,29 @@ from tibber.exceptions import UnauthenticatedException
 
 _logger = logging.getLogger(__name__)
 
+
 class QueryExecutor:
     """A class for executing queries."""
-    def __init__(self, session = None):
+
+    def __init__(self, session=None):
         self.gql_client = None
         transport = AIOHTTPTransport(
-            url = API_ENDPOINT,
-            headers = {"Authorization": "Bearer " + self.token},
+            url=API_ENDPOINT,
+            headers={"Authorization": "Bearer " + self.token},
         )
-        self.gql_client = gql.Client(transport=transport, fetch_schema_from_transport=True)
+        self.gql_client = gql.Client(
+            transport=transport, fetch_schema_from_transport=True
+        )
 
         asyncio.run(self.__ainit__(session))
-    
+
     async def __ainit__(self, session):
         self.session = session or await self.gql_client.connect_async()
         asyncio_atexit.register(self.gql_client.close_async)
 
-    def execute_query(self, access_token: str, query: str, max_tries: int = 1, **kwargs):
+    def execute_query(
+        self, access_token: str, query: str, max_tries: int = 1, **kwargs
+    ):
         """Executes a GraphQL query to the Tibber API.
 
         :param access_token: The Tibber API token to use for the request.
@@ -50,11 +56,15 @@ class QueryExecutor:
             loop = None
 
         if loop and loop.is_running():
-            return loop.run_until_complete(self.execute_async(access_token, query, max_tries, **kwargs))
+            return loop.run_until_complete(
+                self.execute_async(access_token, query, max_tries, **kwargs)
+            )
 
         return asyncio.run(self.execute_async(access_token, query, max_tries, **kwargs))
 
-    async def execute_async(self, access_token: str, query: str, max_tries: int = 1, **kwargs):
+    async def execute_async(
+        self, access_token: str, query: str, max_tries: int = 1, **kwargs
+    ):
         """Coroutine for executing a GraphQL query to the Tibber API asynchronously.
 
         :param access_token: The Tibber API token to use for the request.
@@ -64,13 +74,16 @@ class QueryExecutor:
         """
         backoff_execution = backoff.on_exception(
             backoff.expo,
-            [gql.transport.exceptions.TransportClosed, websockets.exceptions.ConnectionClosedError],
-            max_tries = max_tries,
-            max_time = 100,
-            jitter = backoff.full_jitter,
-            on_success = self._success_handler,
-            on_backoff = self._backoff_handler,
-            on_giveup = self._giveup_handler,
+            [
+                gql.transport.exceptions.TransportClosed,
+                websockets.exceptions.ConnectionClosedError,
+            ],
+            max_tries=max_tries,
+            max_time=100,
+            jitter=backoff.full_jitter,
+            on_success=self._success_handler,
+            on_backoff=self._backoff_handler,
+            on_giveup=self._giveup_handler,
             **kwargs,
         )(self.execute_async_single)
 
@@ -84,11 +97,13 @@ class QueryExecutor:
             for error in e.errors:
                 self._process_error(error)
         except asyncio.exceptions.TimeoutError:
-            _logger.error("Timed out when executing a query. Check your connection to the Tibber API or the Tibber API status.")
+            _logger.error(
+                "Timed out when executing a query. Check your connection to the Tibber API or the Tibber API status."
+            )
             _logger.debug("query information:\n" + query)
             raise APIException("Timed out when executing query.")
         return result
-    
+
     def _process_error(self, error):
         try:
             code = error["extensions"]["code"]
@@ -105,7 +120,15 @@ class QueryExecutor:
         ...
 
     def _backoff_handler(self, details):
-        _logger.warning("Backing off after {tries} tries. Calling {target} in {wait:.1f} seconds.".format(**details))
-        
+        _logger.warning(
+            "Backing off after {tries} tries. Calling {target} in {wait:.1f} seconds.".format(
+                **details
+            )
+        )
+
     def _giveup_handler(self, details):
-        _logger.error("Gave up running {target} after {tries} tries. {elapsed:.1f} seconds have passed.".format(**details))
+        _logger.error(
+            "Gave up running {target} after {tries} tries. {elapsed:.1f} seconds have passed.".format(
+                **details
+            )
+        )

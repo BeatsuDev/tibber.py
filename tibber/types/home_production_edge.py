@@ -5,11 +5,12 @@ from tibber.types.production import Production
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.account import Account 
+    from tibber.account import Account
 
 
 class HomeProductionEdge:
     """A class containing household electricity production information for a time period."""
+
     def __init__(self, resolution: str, data: dict, tibber_client: "Account"):
         self.resolution = resolution
         self.cache: dict = data or {}

@@ -3,11 +3,12 @@ from typing import TYPE_CHECKING
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.account import Account 
+    from tibber.account import Account
 
 
 class LiveMeasurement:
     """A class containing the live household electricity information."""
+
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client
@@ -114,7 +115,7 @@ class LiveMeasurement:
 
     @property
     def voltage_phase_1(self) -> float:
-        """Voltage on phase 1; on Kaifa and Aidon meters the value is not part 
+        """Voltage on phase 1; on Kaifa and Aidon meters the value is not part
         of every HAN data frame therefore the value is null at timestamps with
         second value other than 0, 10, 20, 30, 40, 50. There can be other deviations
         based on concrete meter firmware."""
@@ -122,7 +123,7 @@ class LiveMeasurement:
 
     @property
     def voltage_phase_2(self) -> float:
-        """Voltage on phase 2; on Kaifa and Aidon meters the value is not part 
+        """Voltage on phase 2; on Kaifa and Aidon meters the value is not part
         of every HAN data frame therefore the value is null at timestamps with
         second value other than 0, 10, 20, 30, 40, 50. There can be other deviations
         based on concrete meter firmware."""
@@ -130,7 +131,7 @@ class LiveMeasurement:
 
     @property
     def voltage_phase_3(self) -> float:
-        """Voltage on phase 3; on Kaifa and Aidon meters the value is not part 
+        """Voltage on phase 3; on Kaifa and Aidon meters the value is not part
         of every HAN data frame therefore the value is null at timestamps with
         second value other than 0, 10, 20, 30, 40, 50. There can be other deviations
         based on concrete meter firmware."""

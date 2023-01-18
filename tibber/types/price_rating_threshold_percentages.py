@@ -3,11 +3,12 @@ from typing import TYPE_CHECKING
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.account import Account 
+    from tibber.account import Account
 
 
 class PriceRatingThresholdPercentages:
     """A class to get price info."""
+
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client

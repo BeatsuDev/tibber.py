@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 class HomeConsumptionEdge:
     """A class containing household electricity consumption information for a time period."""
+
     def __init__(self, resolution: str, data: dict, tibber_client: "Account"):
         self.resolution = resolution
         self.cache: dict = data or {}
