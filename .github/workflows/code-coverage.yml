@@ -1,4 +1,4 @@
-name: Tests Python 3.10
+name: Tests Python 3.11
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.10"
+          - "3.11"
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}

@@ -1,2 +1,3 @@
-from tibber.exceptions.api import UnauthenticatedException
-from tibber.exceptions.api import APIException
+from tibber.exceptions.api import APIException, UnauthenticatedException
+
+__all__ = ["APIException", "UnauthenticatedException"]

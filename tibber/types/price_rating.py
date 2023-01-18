@@ -1,16 +1,20 @@
 """A class representing the PriceRating type from the GraphQL Tibber API."""
 from typing import TYPE_CHECKING
 
-from tibber.types.price_rating_threshold_percentages import PriceRatingThresholdPercentages
 from tibber.types.price_rating_type import PriceRatingType
+
+from tibber.types.price_rating_threshold_percentages import (  # isort:skip
+    PriceRatingThresholdPercentages,
+)
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.account import Account 
+    from tibber.account import Account
 
 
 class PriceRating:
     """A class to get the rating of a price in relative terms."""
+
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client
@@ -18,7 +22,9 @@ class PriceRating:
     @property
     def threshold_percentages(self) -> dict:
         """The different 'high'/'low' price breakpoints (market dependent)"""
-        return PriceRatingThresholdPercentages(self.cache.get("thresholdPercentages"), self.tibber_client)
+        return PriceRatingThresholdPercentages(
+            self.cache.get("thresholdPercentages"), self.tibber_client
+        )
 
     @property
     def hourly(self) -> dict:

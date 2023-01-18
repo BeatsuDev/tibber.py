@@ -1,16 +1,16 @@
 """A class representing the PriceRatingType type from the GraphQL Tibber API."""
-from typing import List
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from tibber.types.price_rating_entry import PriceRatingEntry
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.account import Account 
+    from tibber.account import Account
 
 
 class PriceRatingType:
     """A class to get the rating of a price in relative terms."""
+
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client
@@ -43,4 +43,7 @@ class PriceRatingType:
     @property
     def entries(self) -> List[PriceRatingEntry]:
         """The individual price entries aggregated by hourly/daily/monthly values"""
-        return [PriceRatingEntry(entry, self.tibber_client) for entry in self.cache.get("entries", [])]
+        return [
+            PriceRatingEntry(entry, self.tibber_client)
+            for entry in self.cache.get("entries", [])
+        ]

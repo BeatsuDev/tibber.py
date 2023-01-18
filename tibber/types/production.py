@@ -3,11 +3,12 @@ from typing import TYPE_CHECKING
 
 # Import type checking modules
 if TYPE_CHECKING:
-    from tibber.account import Account 
+    from tibber.account import Account
 
 
 class Production:
     """A class containing concrete household electricity production information for a time period."""
+
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client
@@ -30,7 +31,7 @@ class Production:
 
     @property
     def production(self) -> float:
-        """kWh produced""" # Docs actually say consumed here, but I assume it means to say produced
+        """kWh produced"""  # Docs actually say consumed here, but I assume it means to say produced
         return self.cache.get("production")
 
     @property

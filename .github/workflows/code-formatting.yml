@@ -1,0 +1,35 @@
+name: Tests Python 3.11
+
+on:
+  push:
+  pull_request:
+    
+jobs:
+  validate:
+    runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        python-version:
+          - "3.11"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: pip_cache
+      - name: Install formatting tools
+        run: pip install black isort flake8
+
+      - name: Running black
+        run: black --check tibber
+      
+      - name: Running isort
+        run: isort --check tibber
+      
+      - name: Running flake8
+        run: flake8 --per-file-ignores="./tibber/__init__.py:E402"

@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 
 class Consumption:
     """A class containing concrete household electricity consumption information for a time period."""
+
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client
