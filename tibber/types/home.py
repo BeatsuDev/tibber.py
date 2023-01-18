@@ -186,7 +186,9 @@ class TibberHome(NonDecoratedTibberHome):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._websocket_client = None
-        self._callbacks = {}
+        self._callbacks = {
+            "live_measurement": []
+        }
 
     def event(self, event_to_listen_for) -> Callable:
         """Returns a decorator that registers the function being
@@ -200,17 +202,17 @@ class TibberHome(NonDecoratedTibberHome):
             :param callback: The function being decorated.
             :throws ValueError: if the given event is not a valid event.
             """
+            # Check if callback is a coroutine
             if not inspect.iscoroutinefunction(callback):
                 raise ValueError("Callback functions must be coroutines! Use the `async def` syntax, instead of just `def`.")
-            if event_to_listen_for == "live_measurement":
-                # Create the live_measurement key if it does not exist already
-                if not ("live_measurement" in self._callbacks):
-                    self._callbacks["live_measurement"] = []
-                # Append the callback function to the dict of callbacks
-                self._callbacks["live_measurement"].append(callback)
 
-            else: 
+            # If the key is not found - the event is not a valid event! 
+            # Valid events will be added directly to the line where _callbacks is initialized.
+            try:
+                self._callbacks[event_to_listen_for].append(callback)
+            except KeyError:
                 raise ValueError(f"Could not recognize the event you want to listen for: {event_to_listen_for}")
+
             return callback
         return decorator
 
