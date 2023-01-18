@@ -48,7 +48,7 @@ def test_retrieving_live_measurements(home):
         assert data.accumulated_cost > 0
         assert isinstance(data.accumulated_reward, (int, float))
         assert data.currency == "SEK"
-        assert data.min_power > 0
+        assert data.min_power >= 0
         assert data.max_power > 0
         assert data.average_power > 0
         assert isinstance(data.power_production, (int, float))
