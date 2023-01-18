@@ -8,10 +8,6 @@ from tibber.exceptions import UnauthenticatedException
 
 
 @pytest.fixture
-def account():
-    return tibber.Account(tibber.DEMO_TOKEN)
-
-@pytest.fixture
 def unfetched_account():
     return tibber.Account(tibber.DEMO_TOKEN, immediate_update=False)
 

@@ -5,12 +5,8 @@ import tibber
 from tibber.types import LegalEntity
 
 @pytest.fixture
-def legal_entity():
-    account = tibber.Account(tibber.DEMO_TOKEN)
-    try:
-        return account.homes[0].owner
-    except IndexError:
-        raise ValueError("The instanciated demo account does not have any homes. Cannot perform home tests.")
+def legal_entity(home):
+    return home.owner
 
 def test_correct_type(legal_entity):
     assert isinstance(legal_entity, LegalEntity)

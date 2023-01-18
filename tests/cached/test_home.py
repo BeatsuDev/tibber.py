@@ -9,14 +9,6 @@ from tibber.types import HomeFeatures
 from tibber.types import Address
 
 
-@pytest.fixture
-def home():
-    account = tibber.Account(tibber.DEMO_TOKEN)
-    try:
-        return account.homes[0]
-    except IndexError:
-        raise ValueError("The instanciated demo account does not have any homes. Cannot perform home tests.")
-
 def test_getting_id(home):
     assert home.id == "96a14971-525a-4420-aae9-e5aedaa129ff"
     

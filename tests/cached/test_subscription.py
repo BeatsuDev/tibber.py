@@ -9,12 +9,8 @@ from tibber.types import PriceRating
 
 
 @pytest.fixture
-def subscription():
-    account = tibber.Account(tibber.DEMO_TOKEN)
-    try:
-        return account.homes[0].current_subscription
-    except IndexError:
-        raise ValueError("The instanciated demo account does not have any homes. Cannot perform home tests.")
+def subscription(home):
+    return home.current_subscription
 
 
 def test_correct_type(subscription):
