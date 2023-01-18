@@ -1,7 +1,6 @@
 """Classes representing the Home type from the GraphQL Tibber API."""
 import asyncio
 import inspect
-import json
 import logging
 from typing import TYPE_CHECKING, Callable, Union
 

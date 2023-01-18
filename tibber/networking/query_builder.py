@@ -73,7 +73,7 @@ class QueryBuilder:
         for key, value in dict2.items():
             # The key in the second dict does not exist in the first so it's safe to add it
             # without overwriting the value from dict1 (because there is none)
-            if not key in dict1.keys():
+            if key not in dict1.keys():
                 result_dict[key] = value
 
             # If the value in dict1 is a string, and we know the key exists in both dict1

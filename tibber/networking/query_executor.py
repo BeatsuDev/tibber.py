@@ -1,7 +1,5 @@
 import asyncio
-import atexit
 import logging
-from typing import Optional
 
 import asyncio_atexit
 import backoff
