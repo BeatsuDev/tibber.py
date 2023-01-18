@@ -314,13 +314,14 @@ class TibberHome(NonDecoratedTibberHome):
             _logger.debug("real time data received.")
 
             # Returns True if exit condition is met
-            if self.process_websocket_response(data, exit_condition=exit_condition):
+            exit_condition_met = await self.process_websocket_response(data, exit_condition=exit_condition)
+            if exit_condition_met:
                 _logger.info("Exit condition met. The live loop is now exiting.")
                 break
 
         await self.close_websocket_connection()
 
-    def process_websocket_response(self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None) -> bool:
+    async def process_websocket_response(self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None) -> bool:
         """Processes a response with data from the live data websocket. This function will call all registered callbacks
         before checking if the exit condition is met.
 
@@ -330,20 +331,20 @@ class TibberHome(NonDecoratedTibberHome):
         # Broadcast the event
         # TODO: Differentiate between consumption data, production data and other data.
         cleaned_data = LiveMeasurement(data["liveMeasurement"], self.tibber_client)
-        self.broadcast_event("live_measurement", cleaned_data)
+        await self.broadcast_event("live_measurement", cleaned_data)
 
         # Check if the exit condition is met
         if exit_condition and exit_condition(cleaned_data):
             return True
         return False
 
-    def broadcast_event(self, event, data) -> None:
+    async def broadcast_event(self, event, data) -> None:
         if not event in self._callbacks:
             _logger.warning("The event that was broadcasted has no listeners / callbacks! Nothing was run.")
             return
 
-        for callback in self._callbacks[event]:
-            callback(data)
+        await asyncio.gather(*self._callbacks[event])
+
 
     async def close_websocket_connection(self) -> None:
         _logger.debug("attempting to close websocket connection")
