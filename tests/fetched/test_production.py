@@ -7,15 +7,6 @@ import pytest
 import tibber
 
 
-@pytest.fixture
-def home():
-    account = tibber.Account(tibber.DEMO_TOKEN)
-    try:
-        return account.homes[0]
-    except IndexError:
-        raise ValueError("The instanciated demo account does not have any homes. Cannot perform home tests.")
-
-
 # DISABLED in version 0.1.1 because the demo account has no power production...
 
 # def test_production_page_info(home):
