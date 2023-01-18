@@ -2,6 +2,7 @@
 import json
 import asyncio
 import logging
+import inspect
 from typing import Union
 from typing import Callable
 from typing import TYPE_CHECKING
@@ -199,6 +200,8 @@ class TibberHome(NonDecoratedTibberHome):
             :param callback: The function being decorated.
             :throws ValueError: if the given event is not a valid event.
             """
+            if not inspect.iscoroutinefunction(callback):
+                raise ValueError("Callback functions must be coroutines! Use the `async def` syntax, instead of just `def`.")
             if event_to_listen_for == "live_measurement":
                 # Create the live_measurement key if it does not exist already
                 if not ("live_measurement" in self._callbacks):
