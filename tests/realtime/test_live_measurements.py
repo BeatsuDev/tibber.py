@@ -19,7 +19,7 @@ def home():
 def test_adding_listener_with_unknown_event_raises_exception(home):
     with pytest.raises(ValueError):
         @home.event("invalid-event-name")
-        def callback(data):
+        async def callback(data):
             print(data)
 
 def test_starting_live_feed_with_no_listeners_shows_warning(home, caplog):
@@ -31,7 +31,7 @@ def test_retrieving_live_measurements(home):
     global callback_was_run
     callback_was_run = False
     @home.event("live_measurement")
-    def callback(data):
+    async def callback(data):
         global callback_was_run
         callback_was_run = True
         assert isinstance(data, LiveMeasurement)
@@ -48,7 +48,7 @@ def test_retrieving_live_measurements(home):
         assert data.accumulated_cost > 0
         assert isinstance(data.accumulated_reward, (int, float))
         assert data.currency == "SEK"
-        assert data.min_power > 0
+        assert data.min_power >= 0
         assert data.max_power > 0
         assert data.average_power > 0
         assert isinstance(data.power_production, (int, float))

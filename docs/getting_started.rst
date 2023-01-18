@@ -118,7 +118,7 @@ a live measurement is available.
    home = account.homes[0]
 
    @home.event("live_measurement")  # register the following function to run when the live_measurement event is emitted
-   def process_data(data):  # Note the data parameter in the function. This is required and is of type LiveMeasurement.
+   async def process_data(data):  # Note the data parameter in the function. This is required and is of type LiveMeasurement.
       print(data.power)
 
    # Now start retrieving live measurements
@@ -141,7 +141,7 @@ will be stopped (and code execution will continue).
    home = account.homes[0]
 
    @home.event("live_measurement")  # register the following function to run when the live_measurement event is emitted
-   def process_data(data):  # Note the data parameter in the function. This is required and is of type LiveMeasurement.
+   async def process_data(data):  # Note the data parameter in the function. This is required and is of type LiveMeasurement.
       print(data.power)
 
    # Now start retrieving live measurements
@@ -155,7 +155,7 @@ will be stopped (and code execution will continue).
       home = account.homes[0]
    
       @home.event("live_measurement")  # register the following function to run when the live_measurement event is emitted
-      def process_data(data):  # Note the data parameter in the function. This is required and is of type LiveMeasurement.
+      async def process_data(data):  # Note the data parameter in the function. This is required and is of type LiveMeasurement.
          print(data.power)
 
       def my_exit_function(live_measurement_data):

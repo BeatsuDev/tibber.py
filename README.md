@@ -98,9 +98,7 @@ for hour in hour_data:
 
 ### Reading live measurements
 Note how you can register multiple callbacks for the same event. These will be run
-in order of which they were registered.
- > INFO: In the future, events should be declared async and all callbacks will be
- > ran asynchronously instead of sequentially.
+in asynchronously (at the same time)!
 ```python
 import tibber
 
@@ -108,12 +106,12 @@ account = tibber.Account(tibber.DEMO_TOKEN)
 home = account.homes[0]
 
 @home.event("live_measurement")
-def show_current_power(data):
+async def show_current_power(data):
   print(data.power)
 
 # Multiple callback functions for the same event!
 @home.event("live_measurement")
-def show_accumulated_cost(data):
+async def show_accumulated_cost(data):
   print(f"{data.accumulated_cost} {data.currency}")
   
 def when_to_stop(data):

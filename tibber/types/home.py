@@ -2,6 +2,7 @@
 import json
 import asyncio
 import logging
+import inspect
 from typing import Union
 from typing import Callable
 from typing import TYPE_CHECKING
@@ -185,7 +186,9 @@ class TibberHome(NonDecoratedTibberHome):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._websocket_client = None
-        self._callbacks = {}
+        self._callbacks = {
+            "live_measurement": []
+        }
 
     def event(self, event_to_listen_for) -> Callable:
         """Returns a decorator that registers the function being
@@ -199,15 +202,17 @@ class TibberHome(NonDecoratedTibberHome):
             :param callback: The function being decorated.
             :throws ValueError: if the given event is not a valid event.
             """
-            if event_to_listen_for == "live_measurement":
-                # Create the live_measurement key if it does not exist already
-                if not ("live_measurement" in self._callbacks):
-                    self._callbacks["live_measurement"] = []
-                # Append the callback function to the dict of callbacks
-                self._callbacks["live_measurement"].append(callback)
+            # Check if callback is a coroutine
+            if not inspect.iscoroutinefunction(callback):
+                raise ValueError("Callback functions must be coroutines! Use the `async def` syntax, instead of just `def`.")
 
-            else: 
+            # If the key is not found - the event is not a valid event! 
+            # Valid events will be added directly to the line where _callbacks is initialized.
+            try:
+                self._callbacks[event_to_listen_for].append(callback)
+            except KeyError:
                 raise ValueError(f"Could not recognize the event you want to listen for: {event_to_listen_for}")
+
             return callback
         return decorator
 
@@ -314,13 +319,14 @@ class TibberHome(NonDecoratedTibberHome):
             _logger.debug("real time data received.")
 
             # Returns True if exit condition is met
-            if self.process_websocket_response(data, exit_condition=exit_condition):
+            exit_condition_met = await self.process_websocket_response(data, exit_condition=exit_condition)
+            if exit_condition_met:
                 _logger.info("Exit condition met. The live loop is now exiting.")
                 break
 
         await self.close_websocket_connection()
 
-    def process_websocket_response(self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None) -> bool:
+    async def process_websocket_response(self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None) -> bool:
         """Processes a response with data from the live data websocket. This function will call all registered callbacks
         before checking if the exit condition is met.
 
@@ -330,20 +336,23 @@ class TibberHome(NonDecoratedTibberHome):
         # Broadcast the event
         # TODO: Differentiate between consumption data, production data and other data.
         cleaned_data = LiveMeasurement(data["liveMeasurement"], self.tibber_client)
-        self.broadcast_event("live_measurement", cleaned_data)
+        await self.broadcast_event("live_measurement", cleaned_data)
 
         # Check if the exit condition is met
         if exit_condition and exit_condition(cleaned_data):
             return True
         return False
 
-    def broadcast_event(self, event, data) -> None:
-        if not event in self._callbacks:
+    async def broadcast_event(self, event, data) -> None:
+        if event not in self._callbacks:
+            _logger.warning(f"The event \"{event}\" was attempted emitted, but does not exist. Nothing was run.")
+
+        if len(self._callbacks[event]) == 0:
             _logger.warning("The event that was broadcasted has no listeners / callbacks! Nothing was run.")
             return
 
-        for callback in self._callbacks[event]:
-            callback(data)
+        await asyncio.gather(*[c(data) for c in self._callbacks[event]])
+
 
     async def close_websocket_connection(self) -> None:
         _logger.debug("attempting to close websocket connection")
