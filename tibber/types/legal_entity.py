@@ -1,8 +1,8 @@
 """A class representing the LegalEntity type from the GraphQL Tibber API."""
 from typing import TYPE_CHECKING
 
-from tibber.types.contact_info import ContactInfo
 from tibber.types.address import Address
+from tibber.types.contact_info import ContactInfo
 
 # Import type checking modules
 if TYPE_CHECKING:

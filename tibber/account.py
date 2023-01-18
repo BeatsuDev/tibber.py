@@ -1,11 +1,9 @@
-import logging
 import json
+import logging
 
-from .networking import QueryExecutor
-from .networking import QueryBuilder
-from .types.viewer import Viewer
+from .networking import QueryBuilder, QueryExecutor
 from .types.push_notification_response import PushNotificationResponse
-
+from .types.viewer import Viewer
 
 _logger = logging.getLogger(__name__)
 

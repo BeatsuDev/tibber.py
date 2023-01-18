@@ -1,29 +1,27 @@
 """Classes representing the Home type from the GraphQL Tibber API."""
-import json
 import asyncio
-import logging
 import inspect
-from typing import Union
-from typing import Callable
-from typing import TYPE_CHECKING
+import json
+import logging
+from typing import TYPE_CHECKING, Callable, Union
 
-import websockets
 import backoff
 import gql
-from gql.transport.websockets import WebsocketsTransport
+import websockets
 from gql.transport.exceptions import TransportQueryError
+from gql.transport.websockets import WebsocketsTransport
 from graphql import parse
 
 from tibber import __version__
-from tibber.types.legal_entity import LegalEntity
+from tibber.networking import QueryBuilder
 from tibber.types.address import Address
+from tibber.types.home_consumption_connection import HomeConsumptionConnection
+from tibber.types.home_features import HomeFeatures
+from tibber.types.home_production_connection import HomeProductionConnection
+from tibber.types.legal_entity import LegalEntity
+from tibber.types.live_measurement import LiveMeasurement
 from tibber.types.metering_point_data import MeteringPointData
 from tibber.types.subscription import Subscription
-from tibber.types.home_features import HomeFeatures
-from tibber.types.live_measurement import LiveMeasurement
-from tibber.types.home_consumption_connection import HomeConsumptionConnection
-from tibber.types.home_production_connection import HomeProductionConnection
-from tibber.networking import QueryBuilder
 
 # Import type checking modules
 if TYPE_CHECKING:

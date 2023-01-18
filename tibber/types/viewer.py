@@ -1,6 +1,7 @@
 """A class representing the Viewer type from the GraphQL Tibber API."""
-from tibber.types.home import TibberHome
 from typing import TYPE_CHECKING
+
+from tibber.types.home import TibberHome
 
 # Import type checking modules
 if TYPE_CHECKING:

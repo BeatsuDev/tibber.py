@@ -1,6 +1,5 @@
 """A class representing the PriceRatingType type from the GraphQL Tibber API."""
-from typing import List
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from tibber.types.price_rating_entry import PriceRatingEntry
 

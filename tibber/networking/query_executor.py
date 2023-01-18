@@ -1,19 +1,17 @@
-import atexit
 import asyncio
+import atexit
 import logging
 from typing import Optional
 
 import asyncio_atexit
-import websockets
 import backoff
 import gql
+import websockets
 from gql.transport.aiohttp import AIOHTTPTransport
 from gql.transport.exceptions import TransportQueryError
 
 from tibber import API_ENDPOINT
-from tibber.exceptions import APIException
-from tibber.exceptions import UnauthenticatedException
-
+from tibber.exceptions import APIException, UnauthenticatedException
 
 _logger = logging.getLogger(__name__)
 
