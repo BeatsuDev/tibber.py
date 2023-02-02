@@ -266,6 +266,8 @@ class TibberHome(NonDecoratedTibberHome):
             )
 
         self.tibber_client.user_agent = user_agent or self.tibber_client.user_agent
+
+        # The folllowing code is just to run the websocket loop in the correct loop.
         try:
             loop = asyncio.get_running_loop()
         except RuntimeError:
