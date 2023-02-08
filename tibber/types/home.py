@@ -249,6 +249,7 @@ class TibberHome(NonDecoratedTibberHome):
         exit_condition: Callable[[LiveMeasurement], bool] = None,
         retries: int = 3,
         retry_interval: Union[float, int] = 10,
+        on_exception: Callable[[Exception], None] = None,
         **kwargs,
     ) -> None:
         """Creates a websocket and starts pushing data out to registered callbacks.
@@ -278,11 +279,11 @@ class TibberHome(NonDecoratedTibberHome):
         try:
             if loop and loop.is_running():
                 loop.run_until_complete(
-                    self.start_websocket_loop(exit_condition, retries=retries, **kwargs)
+                    self.start_websocket_loop(exit_condition, retries=retries, on_exception=on_exception, **kwargs)
                 )
             else:
                 asyncio.run(
-                    self.start_websocket_loop(exit_condition, retries=retries, **kwargs)
+                    self.start_websocket_loop(exit_condition, retries=retries, on_exception=on_exception, **kwargs)
                 )
         except KeyboardInterrupt:
             _logger.info("Keyboard interrupt detected. Websocket should be closed now.")
@@ -292,6 +293,7 @@ class TibberHome(NonDecoratedTibberHome):
         exit_condition: Callable[[LiveMeasurement], bool] = None,
         retries: int = 3,
         retry_interval: Union[float, int] = 10,
+        on_exception: Callable[[Exception], None] = None,
         **kwargs,
     ) -> None:
         """Starts a websocket to subscribe for live measurements.
@@ -323,6 +325,16 @@ class TibberHome(NonDecoratedTibberHome):
             fetch_schema_from_transport=True,
         )
 
+        # Define exception handlers for the retry mechanism (using the backoff library)
+        if not on_exception:
+            on_exception = lambda details: _logger.warning(
+                "Retrying to connect with backoff. Running {target} in {wait:.1f} seconds after {tries} tries.".format(
+                    **details
+                )
+            )
+
+        
+        # Construct the retry mechanism for reconnecting to the websocket
         retry_connect = backoff.on_exception(
             backoff.expo,
             [
@@ -331,16 +343,13 @@ class TibberHome(NonDecoratedTibberHome):
             ],
             max_value=100,
             max_tries=retries,
-            on_backoff=lambda details: _logger.warning(
-                "Retrying to connect with backoff. Running {target} in {wait:.1f} seconds after {tries} tries.".format(
-                    **details
-                )
-            ),
+            on_backoff=on_exception,
             jitter=backoff.full_jitter,
             giveup=lambda e: isinstance(e, TransportQueryError)
             or isinstance(e, ValueError),
         )
 
+        # Construct the retry mechanism for subscribing to the websocket
         retry_subscribe = backoff.on_exception(
             backoff.expo,
             Exception,
@@ -356,11 +365,14 @@ class TibberHome(NonDecoratedTibberHome):
             or isinstance(e, ValueError),
         )
 
+        # Connect to the websocket
         _logger.debug("connecting to websocket")
         session = await self._websocket_client.connect_async(
             reconnecting=True,
             retry_connect=retry_connect,
         )
+
+        # Subscribe to the websocket
         _logger.info("Connected to websocket.")
         await retry_subscribe(self.run_websocket_loop)(session, exit_condition)
 
