@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 """Classes representing the Home type from the GraphQL Tibber API."""
+import random
 import asyncio
 import inspect
 import logging
@@ -246,7 +247,7 @@ class TibberHome(NonDecoratedTibberHome):
         self,
         user_agent=None,
         exit_condition: Callable[[LiveMeasurement], bool] = None,
-        retries: int = 3,
+        retries: int = 5,
         on_error: Callable[[Exception], None] = None,
         **kwargs,
     ) -> None:
@@ -318,14 +319,17 @@ class TibberHome(NonDecoratedTibberHome):
         )
 
         # Connect to the websocket
+        retry_count = 0
+        while retry_count < retries:
+
         _logger.debug("connecting to websocket")
         session = await self._websocket_client.connect_async(
             reconnecting=True,
             retry_connect=retry_connect,
         )
+        _logger.info("Connected to websocket.")
 
         # Subscribe to the websocket
-        _logger.info("Connected to websocket.")
         await self.run_websocket_loop(session, exit_condition)
         await session.close_async()
 
