@@ -319,9 +319,6 @@ class TibberHome(NonDecoratedTibberHome):
         )
 
         # Connect to the websocket
-        retry_count = 0
-        while retry_count < retries:
-
         _logger.debug("connecting to websocket")
         session = await self._websocket_client.connect_async(
             reconnecting=True,
