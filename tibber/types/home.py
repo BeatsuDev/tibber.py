@@ -248,7 +248,8 @@ class TibberHome(NonDecoratedTibberHome):
         user_agent=None,
         exit_condition: Callable[[LiveMeasurement], bool] = None,
         retries: int = 5,
-        on_error: Callable[[Exception], None] = None,
+        on_connection_error: Callable[[Exception], None] = None,
+        on_query_error: Callable[[Exception], None] = None,
         **kwargs,
     ) -> None:
         """Creates a websocket and starts pushing data out to registered callbacks.
@@ -257,6 +258,10 @@ class TibberHome(NonDecoratedTibberHome):
         :param exit_condition: A function that takes a LiveMeasurement as input and returns a boolean.
             If the function returns True, the websocket will be closed.
         :param retries: The number of times to retry connecting to the websocket if it fails.
+        :param on_connection_error: A function that is run when an error occurs while connecting to the websocket.
+            This will be called every time a connection attempt fails.
+        :param on_query_error: A function that is run when query to the websocket returns an error.
+            This will be called every time a query fails.
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
         """
         if not self.features.real_time_consumption_enabled:
@@ -270,28 +275,27 @@ class TibberHome(NonDecoratedTibberHome):
         self.tibber_client.user_agent = user_agent or self.tibber_client.user_agent
 
         # The folllowing code is just to run the websocket loop in the correct loop.
+        websocket_loop_coroutine = self.start_websocket_loop(
+            exit_condition, retries=retries, on_exception=on_exception, **kwargs
+        )
+        _run_async_in_correct_event_loop(websocket_loop_coroutine)
+
+    def _run_async_in_correct_event_loop(self, coroutine):
         try:
             loop = asyncio.get_running_loop()
         except RuntimeError:
             loop = None
 
-        try:
-            if loop and loop.is_running():
-                loop.run_until_complete(
-                    self.start_websocket_loop(exit_condition, retries=retries, on_exception=on_exception, **kwargs)
-                )
-            else:
-                asyncio.run(
-                    self.start_websocket_loop(exit_condition, retries=retries, on_exception=on_exception, **kwargs)
-                )
-        except KeyboardInterrupt:
-            _logger.info("Keyboard interrupt detected. Websocket should be closed now.")
+        if loop and loop.is_running():
+            return loop.run_until_complete(coroutine)
+        else:
+            return asyncio.run(coroutine)
 
     async def start_websocket_loop(
         self,
         exit_condition: Callable[[LiveMeasurement], bool] = None,
         retries: int = 5,
-        on_exception: Callable[[Exception], None] = None,
+        on_query_error: Callable[[Exception], None] = None,
         **kwargs,
     ) -> None:
         """Starts a websocket to subscribe for live measurements.
@@ -299,7 +303,8 @@ class TibberHome(NonDecoratedTibberHome):
         :param exit_condition: A function that takes a LiveMeasurement as input and returns a boolean.
             If the function returns True, the websocket will be closed.
         :param retries: The number of times to retry connecting to the websocket if it fails.
-        
+        :param on_query_error: A function that is run when query to the websocket returns an error.
+            This will be called every time a query fails.
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
         """
         # Create the websocket
@@ -327,10 +332,10 @@ class TibberHome(NonDecoratedTibberHome):
         _logger.info("Connected to websocket.")
 
         # Subscribe to the websocket
-        await self.run_websocket_loop(session, exit_condition)
+        await self._run_websocket_loop(session, exit_condition)
         await session.close_async()
 
-    async def run_websocket_loop(self, session, exit_condition) -> None:
+    async def _run_websocket_loop(self, session, exit_condition) -> None:
         # Check if real time consumption is enabled
         _logger.info(
             "Updating home information to check if real time consumption is enabled."
@@ -352,14 +357,14 @@ class TibberHome(NonDecoratedTibberHome):
             _logger.debug("real time data received.")
 
             # Returns True if exit condition is met
-            exit_condition_met = await self.process_websocket_response(
+            exit_condition_met = await self._process_websocket_response(
                 data, exit_condition=exit_condition
             )
             if exit_condition_met:
                 _logger.info("Exit condition met. The live loop is now exiting.")
                 break
 
-    async def process_websocket_response(
+    async def _process_websocket_response(
         self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None
     ) -> bool:
         """Processes a response with data from the live data websocket. This function will call all registered callbacks
@@ -371,14 +376,14 @@ class TibberHome(NonDecoratedTibberHome):
         # Broadcast the event
         # TODO: Differentiate between consumption data, production data and other data.
         cleaned_data = LiveMeasurement(data["liveMeasurement"], self.tibber_client)
-        await self.broadcast_event("live_measurement", cleaned_data)
+        await self._broadcast_event("live_measurement", cleaned_data)
 
         # Check if the exit condition is met
         if exit_condition and exit_condition(cleaned_data):
             return True
         return False
 
-    async def broadcast_event(self, event, data) -> None:
+    async def _broadcast_event(self, event, data) -> None:
         if event not in self._callbacks:
             _logger.warning(
                 f'The event "{event}" was attempted emitted, but does not exist. Nothing was run.'
