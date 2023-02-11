@@ -247,7 +247,6 @@ class TibberHome(NonDecoratedTibberHome):
         user_agent=None,
         exit_condition: Callable[[LiveMeasurement], bool] = None,
         retries: int = 3,
-        retry_interval: Union[float, int] = 10,
         on_error: Callable[[Exception], None] = None,
         **kwargs,
     ) -> None:
@@ -257,7 +256,6 @@ class TibberHome(NonDecoratedTibberHome):
         :param exit_condition: A function that takes a LiveMeasurement as input and returns a boolean.
             If the function returns True, the websocket will be closed.
         :param retries: The number of times to retry connecting to the websocket if it fails.
-        :param retry_interval: The interval in seconds to wait before retrying to connect to the websocket.
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
         """
         if not self.features.real_time_consumption_enabled:
@@ -292,7 +290,6 @@ class TibberHome(NonDecoratedTibberHome):
         self,
         exit_condition: Callable[[LiveMeasurement], bool] = None,
         retries: int = 5,
-        retry_interval: Union[float, int] = 10,
         on_exception: Callable[[Exception], None] = None,
         **kwargs,
     ) -> None:
@@ -301,13 +298,9 @@ class TibberHome(NonDecoratedTibberHome):
         :param exit_condition: A function that takes a LiveMeasurement as input and returns a boolean.
             If the function returns True, the websocket will be closed.
         :param retries: The number of times to retry connecting to the websocket if it fails.
-        :param retry_interval: The interval in seconds to wait before retrying to connect to the websocket.
         
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
         """
-        if retry_interval < 1:
-            raise ValueError("The retry interval must be at least 1 second.")
-
         # Create the websocket
         transport = WebsocketsTransport(
             **kwargs,
