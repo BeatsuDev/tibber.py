@@ -310,8 +310,6 @@ class TibberHome(NonDecoratedTibberHome):
             headers={
                 "User-Agent": f"{self.tibber_client.user_agent} tibber.py/{__version__}"
             },
-            ping_interval=10,
-            pong_timeout=10,
         )
 
         self._websocket_client = gql.Client(
