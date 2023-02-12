@@ -122,6 +122,46 @@ def when_to_stop(data):
 home.start_live_feed(user_agent = "UserAgent/0.0.1", exit_condition = when_to_stop) 
 ```
 
+### Handling errors in a websocket connection
+```python
+import tibber
+
+from tibber.exceptions import ConnectionErrorList
+from tibber.exceptions import QueryErrorList
+from tibber.exceptions import MalformedQueryException
+
+account = tibber.Account(tibber.DEMO_TOKEN)
+home = account.homes[0]
+
+@home.event("live_measurement")
+async def show_current_power(data):
+  print(data.power)
+
+
+# Define error handlers:
+def connection_error_handler(errors: ConnectionErrorList, additional_data: dict):
+  for error in errors:
+    print(error)
+
+  # Returning true will make tibber.py continue retrying the connection
+  # to the websocket until max retries has been reached.
+  # Returning False will exit the real time data feed regardless of 
+  # how many connection attempts has already been done.
+  return True
+
+def query_error_handler(errors: QueryErrorList, additional_data: dict):
+  if isinstance(error, MalformedQueryException):
+    print(data.query)  # Prints the query that failed
+    return False  # Exit the real time data feed when a MalformedQueryException happens
+  return True
+
+home.start_live_feed(
+  user_agent = "UserAgent/0.0.1",
+  on_connection_error = connection_error_handler  # Runs when the websocket fails to connect
+  on_query_error = query_error_handler  # Run when the subscription query returns an error
+)
+```
+
 ## Contributing to the project
 I'm glad to see you're interested in contributing! When programming, I tend to follow some style guides
 and urge you to do the same. Here are two important videos which cover the most important styles to follow
