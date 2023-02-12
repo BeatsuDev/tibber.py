@@ -210,6 +210,10 @@ class TibberHome(NonDecoratedTibberHome):
         super().__init__(*args, **kwargs)
         self._websocket_client = None
         self._callbacks = {"live_measurement": []}
+        self._connection_retries = (
+            0  # The amount of times the websocket connection has been retried.
+        )
+        self._query_retries = 0  # The amount of times the query has been retried.
 
     def event(self, event_to_listen_for) -> Callable:
         """Returns a decorator that registers the function being
@@ -274,11 +278,18 @@ class TibberHome(NonDecoratedTibberHome):
 
         self.tibber_client.user_agent = user_agent or self.tibber_client.user_agent
 
-        # The folllowing code is just to run the websocket loop in the correct loop.
-        websocket_loop_coroutine = self.start_websocket_loop(
-            exit_condition, retries=retries, on_exception=on_exception, **kwargs
-        )
-        _run_async_in_correct_event_loop(websocket_loop_coroutine)
+        # Keep trying to connect to the websocket until it succeeds or has tried `retries` times.
+        while self._connection_retries < retries:
+            try:
+                websocket_loop_coroutine = self.start_websocket_loop(
+                    exit_condition, retries=retries, on_exception=on_exception, **kwargs
+                )
+                self._run_async_in_correct_event_loop(websocket_loop_coroutine)
+            except Exception as e:
+                if not on_connection_error:
+                    raise e
+                on_connection_error(e)
+                self._connection_retries += 1
 
     def _run_async_in_correct_event_loop(self, coroutine):
         try:
@@ -325,11 +336,10 @@ class TibberHome(NonDecoratedTibberHome):
 
         # Connect to the websocket
         _logger.debug("connecting to websocket")
-        session = await self._websocket_client.connect_async(
-            reconnecting=True,
-            retry_connect=retry_connect,
-        )
+        session = await self._websocket_client.connect_async()
         _logger.info("Connected to websocket.")
+
+        self._connection_retries = 0  # Connection was successful. Reset the counter.
 
         # Subscribe to the websocket
         await self._run_websocket_loop(session, exit_condition)
