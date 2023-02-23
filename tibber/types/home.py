@@ -285,9 +285,11 @@ class TibberHome(NonDecoratedTibberHome):
         self.running = True
         # Keep trying to connect to the websocket until it succeeds or has tried `retries` times
         while self._connection_retry_attempts < connection_retries and self.running:
-            time.sleep(
-                min((2**self._connection_retry_attempts - 1) * random.random(), 100)
-            )
+            to_sleep = min((2**self._connection_retry_attempts - 1) * random.random(), 100)
+            if self._connection_retry_attempts > 0:
+                _logger.warning(f"Retrying to CONNECT in {to_sleep:.1f} seconds. This is retry number {self._connection_retry_attempts}.")
+            time.sleep(to_sleep)
+
             try:
                 websocket_loop_coroutine = self.start_websocket_loop(
                     exit_condition,
@@ -298,10 +300,10 @@ class TibberHome(NonDecoratedTibberHome):
                 self._run_async_in_correct_event_loop(websocket_loop_coroutine)
             except Exception as e:
                 self._connection_retry_attempts += 1
+                _logger.warning("Exception occured when attempting to CONNECT to the websocket!: " + str(e))
                 # Raise the exception if no connection error handler is specified.
-                if not on_connection_error:
-                    raise e
-                on_connection_error(e)
+                if on_connection_error:
+                    on_connection_error(e)
 
     def _run_async_in_correct_event_loop(self, coroutine):
         try:
@@ -357,16 +359,18 @@ class TibberHome(NonDecoratedTibberHome):
 
         # Subscribe to the websocket
         while self._query_retry_attempts < query_retries and self.running:
-            await asyncio.sleep(
-                min((2**self._query_retry_attempts - 1) * random.random(), 100)
-            )
+            to_sleep = min((2**self._connection_retry_attempts - 1) * random.random(), 100)
+            if self._connection_retry_attempts > 0:
+                _logger.warning(f"Retrying QUERY in {to_sleep:.1f} seconds. This is retry number {self._connection_retry_attempts}.")
+            await asyncio.sleep(to_sleep)
             try:
                 await self._run_websocket_loop(session, exit_condition)
             except Exception as e:
-                if not on_query_error:
-                    raise e
-                on_query_error(e)
                 self._query_retry_attempts += 1
+                _logger.warning("Exception occured when attempting to send subscription QUERY!: " + str(e))
+                if on_query_error:
+                   on_query_error(e)
+
         await self._websocket_client.close_async()
 
     async def _run_websocket_loop(self, session, exit_condition) -> None:
