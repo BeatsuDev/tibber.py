@@ -298,6 +298,9 @@ class TibberHome(NonDecoratedTibberHome):
                     **kwargs,
                 )
                 self._run_async_in_correct_event_loop(websocket_loop_coroutine)
+            except KeyboardInterrupt:
+                self.running = False
+                _logger.info("Keyboard interrupt detected. Stopping live feed.")
             except Exception as e:
                 self._connection_retry_attempts += 1
                 _logger.warning("Exception occured when attempting to CONNECT to the websocket!: [" + e.__class__.__name__ + "] " + str(e))
@@ -369,6 +372,9 @@ class TibberHome(NonDecoratedTibberHome):
             await asyncio.sleep(to_sleep)
             try:
                 await self._run_websocket_loop(session, exit_condition)
+            except KeyboardInterrupt:
+                self.running = False
+                _logger.info("Keyboard interrupt detected. Stopping live feed.")
             except Exception as e:
                 self._query_retry_attempts += 1
                 _logger.warning("Exception occured when attempting to send subscription QUERY!: [" + e.__class__.__name__ + "] " + str(e))
