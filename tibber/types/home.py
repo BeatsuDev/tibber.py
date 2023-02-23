@@ -356,6 +356,7 @@ class TibberHome(NonDecoratedTibberHome):
         self._connection_retry_attempts = (
             0  # Connection was successful. Reset the counter.
         )
+        self._query_retry_attempts = 0
 
         # Subscribe to the websocket
         while self._query_retry_attempts < query_retries and self.running:
@@ -393,6 +394,7 @@ class TibberHome(NonDecoratedTibberHome):
         _logger.info("Subscribing to websocket.")
         async for data in session.subscribe(document_node_query):
             _logger.debug("real time data received.")
+            self._query_retry_attempts = 0  # Query was successful. Reset the counter.
 
             # Returns True if exit condition is met
             exit_condition_met = await self._process_websocket_response(
