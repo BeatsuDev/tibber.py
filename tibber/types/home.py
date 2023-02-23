@@ -284,7 +284,7 @@ class TibberHome(NonDecoratedTibberHome):
         # Keep trying to connect to the websocket until it succeeds or has tried `retries` times.
         while self._connection_retry_attempts < connection_retries:
             time.sleep(
-                min((2**self._connection_retry_attempts - 1) * random.random()), 100
+                min((2**self._connection_retry_attempts - 1) * random.random(), 100)
             )
             try:
                 websocket_loop_coroutine = self.start_websocket_loop(
@@ -356,7 +356,7 @@ class TibberHome(NonDecoratedTibberHome):
         # Subscribe to the websocket
         while self._query_retry_attempts < query_retries:
             await asyncio.sleep(
-                min((2**self._query_retry_attempts - 1) * random.random()), 100
+                min((2**self._query_retry_attempts - 1) * random.random(), 100)
             )
             try:
                 await self._run_websocket_loop(session, exit_condition)
