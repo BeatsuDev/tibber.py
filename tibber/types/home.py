@@ -205,6 +205,7 @@ class TibberHome(NonDecoratedTibberHome):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.running = False
         self._websocket_client = None
         self._callbacks = {"live_measurement": []}
         self._connection_retry_attempts = (
@@ -279,8 +280,9 @@ class TibberHome(NonDecoratedTibberHome):
 
         self.tibber_client.user_agent = user_agent or self.tibber_client.user_agent
 
-        # Keep trying to connect to the websocket until it succeeds or has tried `retries` times.
-        while self._connection_retry_attempts < connection_retries:
+        self.running = True
+        # Keep trying to connect to the websocket until it succeeds or has tried `retries` times
+        while self._connection_retry_attempts < connection_retries and self.running:
             time.sleep(
                 min((2**self._connection_retry_attempts - 1) * random.random(), 100)
             )
@@ -352,7 +354,7 @@ class TibberHome(NonDecoratedTibberHome):
         )
 
         # Subscribe to the websocket
-        while self._query_retry_attempts < query_retries:
+        while self._query_retry_attempts < query_retries and self.running:
             await asyncio.sleep(
                 min((2**self._query_retry_attempts - 1) * random.random(), 100)
             )
@@ -392,6 +394,7 @@ class TibberHome(NonDecoratedTibberHome):
             )
             if exit_condition_met:
                 _logger.info("Exit condition met. The live loop is now exiting.")
+                self.running = False
                 break
 
     async def _process_websocket_response(
