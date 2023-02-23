@@ -361,7 +361,7 @@ class TibberHome(NonDecoratedTibberHome):
         # Subscribe to the websocket
         while self._query_retry_attempts < query_retries and self.running:
             to_sleep = min((2**self._connection_retry_attempts - 1) * random.random(), 100)
-            if self._connection_retry_attempts > 0:
+            if self._query_retry_attempts > 0:
                 _logger.warning(f"Retrying QUERY in {to_sleep:.1f} seconds. This is retry number {self._connection_retry_attempts}.")
             await asyncio.sleep(to_sleep)
             try:
