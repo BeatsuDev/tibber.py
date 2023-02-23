@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 """Classes representing the Home type from the GraphQL Tibber API."""
-import random
 import asyncio
 import inspect
 import logging
+import random
+import time
 from typing import TYPE_CHECKING, Callable
 
 import gql
@@ -282,7 +283,7 @@ class TibberHome(NonDecoratedTibberHome):
 
         # Keep trying to connect to the websocket until it succeeds or has tried `retries` times.
         while self._connection_retry_attempts < connection_retries:
-            await asyncio.sleep(
+            time.sleep(
                 min((2**self._connection_retry_attempts - 1) * random.random()), 100
             )
             try:
