@@ -301,6 +301,7 @@ class TibberHome(NonDecoratedTibberHome):
             except KeyboardInterrupt:
                 self.running = False
                 _logger.info("Keyboard interrupt detected. Stopping live feed.")
+                break
             except Exception as e:
                 self._connection_retry_attempts += 1
                 _logger.warning("Exception occured when attempting to CONNECT to the websocket!: [" + e.__class__.__name__ + "] " + str(e))
@@ -375,6 +376,7 @@ class TibberHome(NonDecoratedTibberHome):
             except KeyboardInterrupt:
                 self.running = False
                 _logger.info("Keyboard interrupt detected. Stopping live feed.")
+                break
             except Exception as e:
                 self._query_retry_attempts += 1
                 _logger.warning("Exception occured when attempting to send subscription QUERY!: [" + e.__class__.__name__ + "] " + str(e))
