@@ -305,8 +305,9 @@ class TibberHome(NonDecoratedTibberHome):
                 if on_connection_error:
                     on_connection_error(e)
         
+        # Show error message if the connection failed too many times.
         if self._connection_retry_attempts >= connection_retries:
-            _logger.error(f"Failed to CONNECT to the websocket after {self._connection_retry_attempts} retries.")
+            _logger.error(f"Could not connect to the websocket after {connection_retries - 1} retries.")
 
     def _run_async_in_correct_event_loop(self, coroutine):
         try:
