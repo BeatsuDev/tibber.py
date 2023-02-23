@@ -300,7 +300,7 @@ class TibberHome(NonDecoratedTibberHome):
                 self._run_async_in_correct_event_loop(websocket_loop_coroutine)
             except Exception as e:
                 self._connection_retry_attempts += 1
-                _logger.warning("Exception occured when attempting to CONNECT to the websocket!: " + str(e))
+                _logger.warning("Exception occured when attempting to CONNECT to the websocket!: " + e.__class__.__name__ + str(e))
                 # Raise the exception if no connection error handler is specified.
                 if on_connection_error:
                     on_connection_error(e)
@@ -367,7 +367,7 @@ class TibberHome(NonDecoratedTibberHome):
                 await self._run_websocket_loop(session, exit_condition)
             except Exception as e:
                 self._query_retry_attempts += 1
-                _logger.warning("Exception occured when attempting to send subscription QUERY!: " + str(e))
+                _logger.warning("Exception occured when attempting to send subscription QUERY!: " + e.__class__.__name__ + str(e))
                 if on_query_error:
                    on_query_error(e)
 
