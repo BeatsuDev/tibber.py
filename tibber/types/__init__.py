@@ -1,3 +1,4 @@
+from __future__ import annotations
 from tibber.types.address import Address
 from tibber.types.contact_info import ContactInfo
 from tibber.types.home import NonDecoratedTibberHome, TibberHome
