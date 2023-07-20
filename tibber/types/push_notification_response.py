@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 """A class representing the PushNotificationResponse type from the GraphQL Tibber API."""
 from typing import TYPE_CHECKING
 
