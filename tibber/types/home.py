@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Classes representing the Home type from the GraphQL Tibber API."""
 import asyncio
 import inspect

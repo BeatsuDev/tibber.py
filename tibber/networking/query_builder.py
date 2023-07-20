@@ -35,7 +35,7 @@ class QueryBuilder:
         according to the GraphQL structure of the Tibber API.
 
         Exmaple:
-            create_query("viewer", "homes", "currentSubscription", QueryBuilder.price_info)
+            create_query("viewer", "homes", "currentSubscription", QueryBuilder.price_info())
 
             This returns a string query that queries specifically for the
             price_info of the current subscription in all homes.
@@ -99,24 +99,21 @@ class QueryBuilder:
         return result_dict
 
     @classmethod
-    @property
     def query_all_data(cls) -> str:
-        return cls.create_query_from_dict(QueryBuilder.query)
+        return cls.create_query_from_dict(QueryBuilder.query())
 
     # -------------------------------------------------------------------
     # Query dicts for the Tibber API types. Remember that values ignored.
     # -------------------------------------------------------------------
 
     @classmethod
-    @property
     def query(cls) -> dict:
         """Return a dict with query values as keys for all information on the `Query` type. This type is the base type
         which all queries are nested in. Therefore, this query returns all information available from the api.
         """
-        return {"viewer": QueryBuilder.viewer}
+        return {"viewer": QueryBuilder.viewer()}
 
     @classmethod
-    @property
     def viewer(cls) -> dict:
         """Return a dict with query values as keys for all information on the `Viewer` type."""
         return {
@@ -124,12 +121,11 @@ class QueryBuilder:
             "userId": "",
             "name": "",
             "accountType": [],
-            "homes": QueryBuilder.home,
+            "homes": QueryBuilder.home(),
             "websocketSubscriptionUrl": "",
         }
 
     @classmethod
-    @property
     def home(cls) -> dict:
         """Return a dict with query values as keys for all information on the `Home` type."""
         return {
@@ -143,16 +139,15 @@ class QueryBuilder:
             "primaryHeatingSource": "",
             "hasVentilationSystem": False,
             "mainFuseSize": 0,
-            "address": QueryBuilder.address,
-            "owner": QueryBuilder.legal_entity,
-            "meteringPointData": QueryBuilder.metering_point_data,
-            "currentSubscription": QueryBuilder.subscription,
-            "subscriptions": QueryBuilder.subscription,
-            "features": QueryBuilder.features,
+            "address": QueryBuilder.address(),
+            "owner": QueryBuilder.legal_entity(),
+            "meteringPointData": QueryBuilder.metering_point_data(),
+            "currentSubscription": QueryBuilder.subscription(),
+            "subscriptions": QueryBuilder.subscription(),
+            "features": QueryBuilder.features(),
         }
 
     @classmethod
-    @property
     def address(cls) -> dict:
         """Return a dict with query values as keys for all information on the `Address` type."""
         return {
@@ -167,7 +162,6 @@ class QueryBuilder:
         }
 
     @classmethod
-    @property
     def legal_entity(cls) -> dict:
         """Return a dict with query values as keys for all information on the `LegalEntity` type."""
         return {
@@ -179,12 +173,11 @@ class QueryBuilder:
             "lastName": "",
             "organizationNo": "",
             "language": "",
-            "contactInfo": QueryBuilder.contact_info,
-            "address": QueryBuilder.address,
+            "contactInfo": QueryBuilder.contact_info(),
+            "address": QueryBuilder.address(),
         }
 
     @classmethod
-    @property
     def metering_point_data(cls) -> dict:
         """Return a dict with query values as keys for all information on the `MeteringPointData` type."""
         return {
@@ -199,54 +192,48 @@ class QueryBuilder:
         }
 
     @classmethod
-    @property
     def subscription(cls) -> dict:
         """Return a dict with query values as keys for all information on the `Subscription` type."""
         return {
             "id": "",
-            "subscriber": QueryBuilder.legal_entity,
+            "subscriber": QueryBuilder.legal_entity(),
             "validFrom": "",
             "validTo": "",
             "status": "",
-            "priceInfo": QueryBuilder.price_info,
-            "priceRating": QueryBuilder.price_rating,
+            "priceInfo": QueryBuilder.price_info(),
+            "priceRating": QueryBuilder.price_rating(),
         }
 
     @classmethod
-    @property
     def features(cls) -> dict:
         """Return a dict with query values as keys for all information on the `HomeFeatures` type."""
         return {"realTimeConsumptionEnabled": False}
 
     @classmethod
-    @property
     def contact_info(cls) -> dict:
         """Return a dict with query values as keys for all information on the `ContactInfo` type."""
         return {"email": "", "mobile": ""}
 
     @classmethod
-    @property
     def price_info(cls) -> dict:
         """Return a dict with query values as keys for all information on the `PriceInfo` type."""
         return {
-            "current": QueryBuilder.price,
-            "today": QueryBuilder.price,
-            "tomorrow": QueryBuilder.price,
+            "current": QueryBuilder.price(),
+            "today": QueryBuilder.price(),
+            "tomorrow": QueryBuilder.price(),
         }
 
     @classmethod
-    @property
     def price_rating(cls) -> dict:
         """Return a dict with query values as keys for all information on the `PriceRating` type."""
         return {
-            "thresholdPercentages": QueryBuilder.price_rating_threshold_percentages,
-            "hourly": QueryBuilder.price_rating_type,
-            "daily": QueryBuilder.price_rating_type,
-            "monthly": QueryBuilder.price_rating_type,
+            "thresholdPercentages": QueryBuilder.price_rating_threshold_percentages(),
+            "hourly": QueryBuilder.price_rating_type(),
+            "daily": QueryBuilder.price_rating_type(),
+            "monthly": QueryBuilder.price_rating_type(),
         }
 
     @classmethod
-    @property
     def price(cls) -> dict:
         """Return a dict with query values as keys for all information on the `Price` type."""
         return {
@@ -259,13 +246,11 @@ class QueryBuilder:
         }
 
     @classmethod
-    @property
     def price_rating_threshold_percentages(cls) -> dict:
         """Return a dict with query values as keys for all information on the `PriceRatingThresholdPercentages` type."""
         return {"high": 0.0, "low": 0.0}
 
     @classmethod
-    @property
     def price_rating_type(cls) -> dict:
         """Return a dict with query values as keys for all information on the `PriceRatingType` type."""
         return {
@@ -274,11 +259,10 @@ class QueryBuilder:
             "minTotal": 0.0,
             "maxTotal": 0.0,
             "currency": "",
-            "entries": QueryBuilder.price_rating_entry,
+            "entries": QueryBuilder.price_rating_entry(),
         }
 
     @classmethod
-    @property
     def price_rating_entry(cls) -> dict:
         """Return a dict with query values as keys for all information on the `PriceRatingEntry` type."""
         return {
@@ -297,7 +281,7 @@ class QueryBuilder:
 
     @classmethod
     def single_home(home_id: str) -> dict:
-        return {f"home({home_id})": QueryBuilder.home}
+        return {f"home({home_id})": QueryBuilder.home()}
 
     @classmethod
     def consumption_query(
@@ -320,9 +304,9 @@ class QueryBuilder:
         )
         return {
             f"consumption(resolution: {resolution}, {args}, filterEmptyNodes: {str(filter_empty_nodes).lower()})": {
-                "pageInfo": QueryBuilder.home_consumption_page_info,
-                "nodes": QueryBuilder.consumption,
-                "edges": QueryBuilder.home_consumption_edge,
+                "pageInfo": QueryBuilder.home_consumption_page_info(),
+                "nodes": QueryBuilder.consumption(),
+                "edges": QueryBuilder.home_consumption_edge(),
             }
         }
 
@@ -346,14 +330,13 @@ class QueryBuilder:
         )
         return {
             f"production(resolution: {resolution}, {args}, filterEmptyNodes: {str(filter_empty_nodes).lower()})": {
-                "pageInfo": QueryBuilder.home_production_page_info,
-                "nodes": QueryBuilder.production,
-                "edges": QueryBuilder.home_production_edge,
+                "pageInfo": QueryBuilder.home_production_page_info(),
+                "nodes": QueryBuilder.production(),
+                "edges": QueryBuilder.home_production_edge(),
             }
         }
 
     @classmethod
-    @property
     def home_consumption_page_info(cls):
         return {
             "endCursor": "",
@@ -368,7 +351,6 @@ class QueryBuilder:
         }
 
     @classmethod
-    @property
     def consumption(cls):
         return {
             "from": "",
@@ -382,12 +364,10 @@ class QueryBuilder:
         }
 
     @classmethod
-    @property
     def home_consumption_edge(cls):
-        return {"cursor": "", "node": QueryBuilder.consumption}
+        return {"cursor": "", "node": QueryBuilder.consumption()}
 
     @classmethod
-    @property
     def home_production_page_info(cls):
         return {
             "endCursor": "",
@@ -402,7 +382,6 @@ class QueryBuilder:
         }
 
     @classmethod
-    @property
     def production(cls):
         return {
             "from": "",
@@ -416,9 +395,8 @@ class QueryBuilder:
         }
 
     @classmethod
-    @property
     def home_production_edge(cls):
-        return {"cursor": "", "node": QueryBuilder.production}
+        return {"cursor": "", "node": QueryBuilder.production()}
 
     # Live data - This WILL be rewritten together with this whole class.
     # TODO: Rewrite the whole class from a dict-based approach to a string-based approach.

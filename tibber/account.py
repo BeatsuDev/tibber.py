@@ -39,13 +39,13 @@ class Account(QueryExecutor):
         """Fetches all available data from the API and caches it. This method is used in async
         contexts to avoid errors about an event loop already running."""
         data = await self.execute_async(
-            self.token, QueryBuilder.query_all_data, retries
+            self.token, QueryBuilder.query_all_data(), retries
         )
         self.update_cache(data)
 
     def fetch_all(self, retries=1):
         """Fetches all available data from the API and caches it."""
-        data = self.execute_query(self.token, QueryBuilder.query_all_data)
+        data = self.execute_query(self.token, QueryBuilder.query_all_data())
         self.update_cache(data)
 
     def update_cache(self, data):
