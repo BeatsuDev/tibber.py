@@ -17,8 +17,7 @@ This package aims to cover all functionalities of the Tibber API in the most beg
 with [Tibbers' API explorer](https://developer.tibber.com/explorer). 
 
 Every field of the API types should be found in the corresponding `tibber.type` (e.g. the `size: Int` field of `Home`
-type, should be accessed in the tibber.py package as: `Home.size` and return an int). In addition to these "1 to 1",
-field to property/method functions, there might be extra properties or methods for simpler access of common properties
+type, should be accessed in the tibber.py package as: `Home.size` and return an int). In addition to these "1 to 1" relations between the tibber.py package and the Tibber API, there might be extra properties or methods for simpler access of common properties
 (one example: it is possible to simply write `home.address1` instead of `home.address.address1`, although the latter is
 also supported). The docstrings of the `tibber.types` correspond to the description of each type in the api explorer
 docs (located on the right side of the Tibber API explorer).
