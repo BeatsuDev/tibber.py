@@ -6,8 +6,7 @@
 ![](https://img.shields.io/pypi/dw/tibber.py)
 ![](https://img.shields.io/github/contributors-anon/BeatsuDev/tibber.py)
 
-![Tests 3.9](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.9.yml/badge.svg)
-![Tests 3.10](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytest-version-3.10.yml/badge.svg)
+[![Pytest Python 3.7 / 3.11](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytests.yml/badge.svg)](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytests.yml)
 ![Publish to PyPi status](https://github.com/BeatsuDev/tibber.py/actions/workflows/publish-to-pypi.yml/badge.svg)
 
 Head over to https://tibberpy.readthedocs.io/en/latest/ to read the documentation for this library!
