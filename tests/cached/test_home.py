@@ -19,7 +19,7 @@ def test_getting_app_nickname(home):
     assert home.app_nickname == "Vitahuset"
     
 def test_getting_size(home):
-    assert home.size == 195
+    assert home.size == 210
     
 def test_getting_type(home):
     assert home.type == "HOUSE"
