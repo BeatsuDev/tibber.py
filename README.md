@@ -1,25 +1,27 @@
 # tibber.py - The Python wrapper for the Tibber API
-![MIT license badge](https://img.shields.io/github/license/BeatsuDev/tibber.py)
-![Code Coverage](https://img.shields.io/codecov/c/github/BeatsuDev/tibber.py)
-[![PyPI version](https://badge.fury.io/py/tibber.py.svg)](https://badge.fury.io/py/tibber.py)
-![](https://img.shields.io/librariesio/github/BeatsuDev/tibber.py)
-![](https://img.shields.io/pypi/dw/tibber.py)
-![](https://img.shields.io/github/contributors-anon/BeatsuDev/tibber.py)
-
-[![Pytest Python 3.7 / 3.11](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytests.yml/badge.svg)](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytests.yml)
-![Publish to PyPi status](https://github.com/BeatsuDev/tibber.py/actions/workflows/publish-to-pypi.yml/badge.svg)
-
-Head over to https://tibberpy.readthedocs.io/en/latest/ to read the documentation for this library!
-
 tibber.py is a python wrapper package for communication with the [Tibber API](https://developer.tibber.com/).
-This package aims to cover all functionalities of the Tibber API in the most beginner-friendly way. You can read all the capabilites of the API and explore it 
-with [Tibbers' API explorer](https://developer.tibber.com/explorer). 
+This package aims to cover all functionalities of the Tibber API in the most beginner-friendly modern Pythonic way. You can read all the capabilites of the API and explore it 
+with [Tibbers' API explorer](https://developer.tibber.com/explorer). For documentation on how to use tibber.py head over to https://tibberpy.readthedocs.io/en/latest/.
 
 Every field of the API types should be found in the corresponding `tibber.type` (e.g. the `size: Int` field of `Home`
 type, should be accessed in the tibber.py package as: `Home.size` and return an int). In addition to these "1 to 1" relations between the tibber.py package and the Tibber API, there might be extra properties or methods for simpler access of common properties
 (one example: it is possible to simply write `home.address1` instead of `home.address.address1`, although the latter is
 also supported). The docstrings of the `tibber.types` correspond to the description of each type in the api explorer
 docs (located on the right side of the Tibber API explorer).
+
+![MIT license badge](https://img.shields.io/github/license/BeatsuDev/tibber.py)
+![Code Coverage](https://img.shields.io/codecov/c/github/BeatsuDev/tibber.py)
+[![PyPI version](https://badge.fury.io/py/tibber.py.svg)](https://badge.fury.io/py/tibber.py)
+![](https://img.shields.io/pypi/dw/tibber.py)
+![](https://img.shields.io/github/contributors-anon/BeatsuDev/tibber.py) <-- You can be here ❗❗
+
+[![Pytest Python 3.7 / 3.11](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytests.yml/badge.svg)](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytests.yml)
+![Publish to PyPi status](https://github.com/BeatsuDev/tibber.py/actions/workflows/publish-to-pypi.yml/badge.svg)
+
+
+
+Do you want to ask a question, report an issue, or even showcase your project that uses tibber.py? 🤩<br>Find out where to post by [checking out this overview](https://github.com/BeatsuDev/tibber.py/discussions/46).
+
 
 ## Installation
 ### Install via pip
