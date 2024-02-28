@@ -53,7 +53,7 @@ Click the yellow underlined text "Home" and check out the documentation. We see 
 
 .. code-block:: python
 
-   consumption = home.consumption(resolution = "HOURLY", last = 24)  # last 24 hours
+   consumption = home.fetch_consumption(resolution = "HOURLY", last = 24)  # last 24 hours
    print(consumption)  # <HomeConsumptionConnection: HomeConsumptionConnection>
 
 Clicking the yellow underlined text "HomeConsumptionConnection" we see that it has a "nodes" attribute wich
