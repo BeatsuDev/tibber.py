@@ -112,8 +112,7 @@ class QueryExecutor:
 
         raise APIException(error)
 
-    def _success_handler(self, details):
-        ...
+    def _success_handler(self, details): ...
 
     def _backoff_handler(self, details):
         _logger.warning(
