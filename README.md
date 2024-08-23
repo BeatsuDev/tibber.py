@@ -1,5 +1,8 @@
 # tibber.py - The Python wrapper for the Tibber API
-tibber.py is a python wrapper package for communication with the [Tibber API](https://developer.tibber.com/).
+
+> Note that this is NOT [pyTibber](https://github.com/Danielhiversen/pyTibber) which is the official python wrapper endorsed by Tibber themselves.
+
+tibber.py is an unofficial python wrapper package for communication with the [Tibber API](https://developer.tibber.com/).
 This package aims to cover all functionalities of the Tibber API in the most beginner-friendly modern Pythonic way. You can read all the capabilites of the API and explore it 
 with [Tibbers' API explorer](https://developer.tibber.com/explorer). For documentation on how to use tibber.py head over to https://tibberpy.readthedocs.io/en/latest/.
 
