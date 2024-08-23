@@ -25,7 +25,7 @@ def test_getting_type(home):
     assert home.type == "HOUSE"
     
 def test_getting_number_of_residents(home):
-    assert home.number_of_residents == 1
+    assert home.number_of_residents == 5
     
 def test_getting_primary_heating_source(home):
     assert home.primary_heating_source == "GROUND"
