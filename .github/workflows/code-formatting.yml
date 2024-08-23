@@ -3,14 +3,14 @@ name: Tests Python 3.11
 on:
   push:
   pull_request:
-    
+
 jobs:
   validate:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
         python-version:
-          - "3.11"
+          - "3.12"
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -27,9 +27,9 @@ jobs:
 
       - name: Running black
         run: black --check tibber
-      
+
       - name: Running isort
         run: isort --check tibber
-      
+
       - name: Running flake8
         run: flake8 --per-file-ignores="./tibber/__init__.py:E402"

@@ -1,16 +1,16 @@
-name: Tests Python 3.11
+name: Tests Python 3.12
 
 on:
   push:
   pull_request:
-    
+
 jobs:
   validate:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
         python-version:
-          - "3.11"
+          - "3.12"
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -24,12 +24,12 @@ jobs:
           key: pip_cache
       - name: Install depencency
         run: |
-            pip install gql gql[aiohttp] gql[websockets] graphql-core asyncio-atexit pytest pytest-cov
+          pip install gql gql[aiohttp] gql[websockets] graphql-core asyncio-atexit pytest pytest-cov
       - name: Pytest
         run: |
-            python -m pytest --cov=tibber tests/ --cov-report xml:coverage.xml
+          python -m pytest --cov=tibber tests/ --cov-report xml:coverage.xml
       - name: Upload to codecov
         run: |
-            curl -Os https://uploader.codecov.io/v0.1.0_4653/linux/codecov
-            chmod +x codecov
-            ./codecov -t ${CODECOV_TOKEN}
+          curl -Os https://uploader.codecov.io/v0.1.0_4653/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${CODECOV_TOKEN}
