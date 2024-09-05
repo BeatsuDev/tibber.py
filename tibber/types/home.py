@@ -34,7 +34,6 @@ _logger = logging.getLogger(__name__)
 
 class NonDecoratedTibberHome:
     """A Tibber home with methods to get/fetch home information without the decorator functions to subscribe to live data."""
-
     def __init__(self, data: dict, tibber_client: "Account"):
         self.cache: dict = data or {}
         self.tibber_client: "Account" = tibber_client
@@ -198,14 +197,23 @@ class NonDecoratedTibberHome:
 
     @property
     def longitude(self) -> str:
-        return self.address.longitude  # pragma: no cover
+        return self.address.longitude
+
+    def __str__(self) -> str:
+        rep = f"{self.app_nickname} is owned by {self.owner.name} with {self.number_of_residents} residents"
+        if self.city is not None:
+            rep += f" at {self.city}"
+        return rep
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 
 
 class TibberHome(NonDecoratedTibberHome):
     """A Tibber home with methods to get/fetch home information and subscribe to live data.
     This class expands on the NonDecoratedTibberHome class by adding methods to subscribe to live data.
     """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._websocket_client = None
