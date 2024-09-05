@@ -285,9 +285,13 @@ class TibberHome(NonDecoratedTibberHome):
         self.running = True
         # Keep trying to connect to the websocket until it succeeds or has tried `retries` times
         while self._connection_retry_attempts < connection_retries and self.running:
-            to_sleep = min((2**self._connection_retry_attempts - 1) * random.random(), 100)
+            to_sleep = min(
+                (2**self._connection_retry_attempts - 1) * random.random(), 100
+            )
             if self._connection_retry_attempts > 0:
-                _logger.warning(f"Retrying to CONNECT in {to_sleep:.1f} seconds. This is retry number {self._connection_retry_attempts}.")
+                _logger.warning(
+                    f"Retrying to CONNECT in {to_sleep:.1f} seconds. This is retry number {self._connection_retry_attempts}."
+                )
             time.sleep(to_sleep)
 
             try:
@@ -304,14 +308,21 @@ class TibberHome(NonDecoratedTibberHome):
                 break
             except Exception as e:
                 self._connection_retry_attempts += 1
-                _logger.warning("Exception occured when attempting to CONNECT to the websocket!: [" + e.__class__.__name__ + "] " + str(e))
+                _logger.warning(
+                    "Exception occured when attempting to CONNECT to the websocket!: ["
+                    + e.__class__.__name__
+                    + "] "
+                    + str(e)
+                )
                 # Raise the exception if no connection error handler is specified.
                 if on_connection_error:
                     on_connection_error(e)
-        
+
         # Show error message if the connection failed too many times.
         if self._connection_retry_attempts >= connection_retries:
-            _logger.error(f"Could not connect to the websocket after {connection_retries - 1} retries.")
+            _logger.error(
+                f"Could not connect to the websocket after {connection_retries - 1} retries."
+            )
 
     def _run_async_in_correct_event_loop(self, coroutine):
         try:
@@ -369,7 +380,9 @@ class TibberHome(NonDecoratedTibberHome):
         while self._query_retry_attempts < query_retries and self.running:
             to_sleep = min((2**self._query_retry_attempts - 1) * random.random(), 100)
             if self._query_retry_attempts > 0:
-                _logger.warning(f"Retrying QUERY in {to_sleep:.1f} seconds. This is retry number {self._query_retry_attempts}.")
+                _logger.warning(
+                    f"Retrying QUERY in {to_sleep:.1f} seconds. This is retry number {self._query_retry_attempts}."
+                )
             await asyncio.sleep(to_sleep)
             try:
                 await self._run_websocket_loop(session, exit_condition)
@@ -379,10 +392,15 @@ class TibberHome(NonDecoratedTibberHome):
                 break
             except Exception as e:
                 self._query_retry_attempts += 1
-                _logger.warning("Exception occured when attempting to send subscription QUERY!: [" + e.__class__.__name__ + "] " + str(e))
+                _logger.warning(
+                    "Exception occured when attempting to send subscription QUERY!: ["
+                    + e.__class__.__name__
+                    + "] "
+                    + str(e)
+                )
                 if on_query_error:
-                   on_query_error(e)
-                
+                    on_query_error(e)
+
                 # If the query fails, we want to close the websocket and reconnect before trying again.
                 # Next time around, if the query fails again, we will try the query again but with a longer delay.
                 # (the query retry counter will stay incremented and will not reset until a successful query is made)
