@@ -1,4 +1,4 @@
-name: Tests Python 3.11
+name: Code format checker
 
 on:
   push:
