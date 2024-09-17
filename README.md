@@ -3,7 +3,7 @@
 > Note that this is NOT [pyTibber](https://github.com/Danielhiversen/pyTibber) which is the official python wrapper endorsed by Tibber themselves.
 
 tibber.py is an unofficial python wrapper package for communication with the [Tibber API](https://developer.tibber.com/).
-This package aims to cover all functionalities of the Tibber API in the most beginner-friendly modern Pythonic way. You can read all the capabilites of the API and explore it 
+This package aims to cover all functionalities of the Tibber API in the most beginner-friendly modern Pythonic way. You can read all the capabilites of the API and explore it
 with [Tibbers' API explorer](https://developer.tibber.com/explorer). For documentation on how to use tibber.py head over to https://tibberpy.readthedocs.io/en/latest/.
 
 Every field of the API types should be found in the corresponding `tibber.type` (e.g. the `size: Int` field of `Home`
@@ -21,21 +21,24 @@ docs (located on the right side of the Tibber API explorer).
 [![Pytest Python 3.7 / 3.11](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytests.yml/badge.svg)](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytests.yml)
 ![Publish to PyPi status](https://github.com/BeatsuDev/tibber.py/actions/workflows/publish-to-pypi.yml/badge.svg)
 
-
-
 Do you want to ask a question, report an issue, or even showcase your project that uses tibber.py? 🤩<br>Find out where to post by [checking out this overview](https://github.com/BeatsuDev/tibber.py/discussions/46).
 
-
 ## Installation
+
 ### Install via pip
+
 ```
 python -m pip install tibber.py
 ```
+
 ### Requirements
+
 tibber.py depends on `gql`, `gql[aiohttp]`, `gql[websockets]` and `graphql-core`. tibber.py supports Python versions 3.7 and up!
 
 ## Examples
+
 ### Getting basic account data
+
 ```python
 import tibber
 
@@ -56,6 +59,7 @@ print(account.name)
 ```
 
 ### Getting basic home data
+
 ```python
 import tibber
 
@@ -75,6 +79,7 @@ print(home.main_fuse_size)         # 25
 ```
 
 ### Reading historical data
+
 ```python
 import tibber
 
@@ -99,8 +104,10 @@ for hour in hour_data:
 ```
 
 ### Reading live measurements
+
 Note how you can register multiple callbacks for the same event. These will be run
 in asynchronously (at the same time)!
+
 ```python
 import tibber
 
@@ -115,11 +122,52 @@ async def show_current_power(data):
 @home.event("live_measurement")
 async def show_accumulated_cost(data):
   print(f"{data.accumulated_cost} {data.currency}")
-  
+
 def when_to_stop(data):
   return data.power < 1500
 
 # Start the live feed. This runs until data.power is less than 1500.
 # If a user agent was not defined earlier, this will be required here
-home.start_live_feed(user_agent = "UserAgent/0.0.1", exit_condition = when_to_stop) 
+home.start_live_feed(user_agent = "UserAgent/0.0.1", exit_condition = when_to_stop)
+```
+
+### Handling errors in a websocket connection
+
+```python
+import tibber
+
+from tibber.exceptions import ConnectionErrorList
+from tibber.exceptions import QueryErrorList
+from tibber.exceptions import MalformedQueryException
+
+account = tibber.Account(tibber.DEMO_TOKEN)
+home = account.homes[0]
+
+@home.event("live_measurement")
+async def show_current_power(data):
+  print(data.power)
+
+
+# Define error handlers:
+def connection_error_handler(errors: ConnectionErrorList, additional_data: dict):
+  for error in errors:
+    print(error)
+
+  # Returning true will make tibber.py continue retrying the connection
+  # to the websocket until max retries has been reached.
+  # Returning False will exit the real time data feed regardless of
+  # how many connection attempts has already been done.
+  return True
+
+def query_error_handler(errors: QueryErrorList, additional_data: dict):
+  if isinstance(error, MalformedQueryException):
+    print(data.query)  # Prints the query that failed
+    return False  # Exit the real time data feed when a MalformedQueryException happens
+  return True
+
+home.start_live_feed(
+  user_agent = "UserAgent/0.0.1",
+  on_connection_error = connection_error_handler  # Runs when the websocket fails to connect
+  on_query_error = query_error_handler  # Run when the subscription query returns an error
+)
 ```
