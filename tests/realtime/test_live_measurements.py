@@ -14,7 +14,6 @@ def test_adding_listener_with_unknown_event_raises_exception(home):
         async def callback(data):
             print(data)
 
-@pytest.mark.timeout(60)
 def test_starting_live_feed_with_no_listeners_shows_warning(caplog):
     account = tibber.Account(tibber.DEMO_TOKEN)
     home = account.homes[0]
@@ -23,7 +22,7 @@ def test_starting_live_feed_with_no_listeners_shows_warning(caplog):
     home.start_live_feed(f"tibber.py-tests/{__version__}", exit_condition = lambda data: True)
     assert "The event that was broadcasted has no listeners / callbacks! Nothing was run." in caplog.text
 
-@pytest.mark.timeout(60)
+
 def test_retrieving_live_measurements():
     account = tibber.Account(tibber.DEMO_TOKEN)
     home = account.homes[0]

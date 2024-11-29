@@ -4,12 +4,11 @@ from __future__ import annotations
 import asyncio
 import inspect
 import logging
-from typing import TYPE_CHECKING, Callable, Union
+import random
+import time
+from typing import TYPE_CHECKING, Callable
 
-import backoff
 import gql
-import websockets
-from gql.transport.exceptions import TransportQueryError
 from gql.transport.websockets import WebsocketsTransport
 from graphql import parse
 
@@ -208,8 +207,15 @@ class TibberHome(NonDecoratedTibberHome):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.running = False
         self._websocket_client = None
         self._callbacks = {"live_measurement": []}
+        self._connection_retry_attempts = (
+            0  # The amount of times the websocket connection has been retried.
+        )
+        self._query_retry_attempts = (
+            0  # The amount of times the query has been retried.
+        )
 
     def event(self, event_to_listen_for) -> Callable:
         """Returns a decorator that registers the function being
@@ -231,7 +237,7 @@ class TibberHome(NonDecoratedTibberHome):
                 )
 
             # If the key is not found - the event is not a valid event!
-            # Valid events will be added directly to the line where _callbacks is initialized.
+            # In the future, valid events will be added directly to the line where _callbacks is initialized.
             try:
                 self._callbacks[event_to_listen_for].append(callback)
             except KeyError:
@@ -247,16 +253,23 @@ class TibberHome(NonDecoratedTibberHome):
         self,
         user_agent=None,
         exit_condition: Callable[[LiveMeasurement], bool] = None,
-        retries: int = 3,
-        retry_interval: Union[float, int] = 10,
+        connection_retries: int = 5,
+        query_retries: int = 5,
+        on_connection_error: Callable[[Exception], None] = None,
+        on_query_error: Callable[[Exception], None] = None,
         **kwargs,
     ) -> None:
         """Creates a websocket and starts pushing data out to registered callbacks.
 
+        :param user_agent: The user agent to use when connecting to the websocket.
         :param exit_condition: A function that takes a LiveMeasurement as input and returns a boolean.
             If the function returns True, the websocket will be closed.
-        :param retries: The number of times to retry connecting to the websocket if it fails.
-        :param retry_interval: The interval in seconds to wait before retrying to connect to the websocket.
+        :param connection_retries: The number of times to retry connecting to the websocket if it fails.
+        :param query_retries: The number of times to retry sending a query to the websocket if it fails.
+        :param on_connection_error: A function that is run when an error occurs while connecting to the websocket.
+            This will be called every time a connection attempt fails.
+        :param on_query_error: A function that is run when query to the websocket returns an error.
+            This will be called every time a query fails.
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
         """
         if not self.features.real_time_consumption_enabled:
@@ -269,42 +282,75 @@ class TibberHome(NonDecoratedTibberHome):
 
         self.tibber_client.user_agent = user_agent or self.tibber_client.user_agent
 
-        # The folllowing code is just to run the websocket loop in the correct loop.
+        self.running = True
+        # Keep trying to connect to the websocket until it succeeds or has tried `retries` times
+        while self._connection_retry_attempts < connection_retries and self.running:
+            to_sleep = min(
+                (2**self._connection_retry_attempts - 1) * random.random(), 100
+            )
+            if self._connection_retry_attempts > 0:
+                _logger.warning(
+                    f"Retrying to CONNECT in {to_sleep:.1f} seconds. This is retry number {self._connection_retry_attempts}."
+                )
+            time.sleep(to_sleep)
+
+            try:
+                websocket_loop_coroutine = self.start_websocket_loop(
+                    exit_condition,
+                    query_retries=query_retries,
+                    on_query_error=on_query_error,
+                    **kwargs,
+                )
+                self._run_async_in_correct_event_loop(websocket_loop_coroutine)
+            except KeyboardInterrupt:
+                self.running = False
+                _logger.info("Keyboard interrupt detected. Stopping live feed.")
+                break
+            except Exception as e:
+                self._connection_retry_attempts += 1
+                _logger.warning(
+                    "Exception occured when attempting to CONNECT to the websocket!: ["
+                    + e.__class__.__name__
+                    + "] "
+                    + str(e)
+                )
+                # Raise the exception if no connection error handler is specified.
+                if on_connection_error:
+                    on_connection_error(e)
+
+        # Show error message if the connection failed too many times.
+        if self._connection_retry_attempts >= connection_retries:
+            _logger.error(
+                f"Could not connect to the websocket after {connection_retries - 1} retries."
+            )
+
+    def _run_async_in_correct_event_loop(self, coroutine):
         try:
             loop = asyncio.get_running_loop()
         except RuntimeError:
             loop = None
 
-        try:
-            if loop and loop.is_running():
-                loop.run_until_complete(
-                    self.start_websocket_loop(exit_condition, retries=retries, **kwargs)
-                )
-            else:
-                asyncio.run(
-                    self.start_websocket_loop(exit_condition, retries=retries, **kwargs)
-                )
-        except KeyboardInterrupt:
-            _logger.info("Keyboard interrupt detected. Websocket should be closed now.")
+        if loop and loop.is_running():
+            return loop.run_until_complete(coroutine)
+        else:
+            return asyncio.run(coroutine)
 
     async def start_websocket_loop(
         self,
         exit_condition: Callable[[LiveMeasurement], bool] = None,
-        retries: int = 3,
-        retry_interval: Union[float, int] = 10,
+        query_retries: int = 5,
+        on_query_error: Callable[[Exception], None] = None,
         **kwargs,
     ) -> None:
-        """Starts a websocket to subscribe for live measurements.
+        """Connects a websocket for live measurements.
 
         :param exit_condition: A function that takes a LiveMeasurement as input and returns a boolean.
             If the function returns True, the websocket will be closed.
-        :param retries: The number of times to retry connecting to the websocket if it fails.
-        :param retry_interval: The interval in seconds to wait before retrying to connect to the websocket.
+        :param query_retries: The number of times to retry connecting to the websocket if it fails.
+        :param on_query_error: A function that is run when query to the websocket returns an error.
+            This will be called every time a query fails.
         :param kwargs: Additional arguments to pass to the websocket (gql.transport.WebsocketsTransport).
         """
-        if retry_interval < 1:
-            raise ValueError("The retry interval must be at least 1 second.")
-
         # Create the websocket
         transport = WebsocketsTransport(
             **kwargs,
@@ -314,8 +360,6 @@ class TibberHome(NonDecoratedTibberHome):
             headers={
                 "User-Agent": f"{self.tibber_client.user_agent} tibber.py/{__version__}"
             },
-            ping_interval=10,
-            pong_timeout=10,
         )
 
         self._websocket_client = gql.Client(
@@ -323,48 +367,50 @@ class TibberHome(NonDecoratedTibberHome):
             fetch_schema_from_transport=True,
         )
 
-        retry_connect = backoff.on_exception(
-            backoff.expo,
-            [
-                gql.transport.exceptions.TransportClosed,
-                websockets.exceptions.ConnectionClosedError,
-            ],
-            max_value=100,
-            max_tries=retries,
-            on_backoff=lambda details: _logger.warning(
-                "Retrying to connect with backoff. Running {target} in {wait:.1f} seconds after {tries} tries.".format(
-                    **details
-                )
-            ),
-            jitter=backoff.full_jitter,
-            giveup=lambda e: isinstance(e, TransportQueryError)
-            or isinstance(e, ValueError),
-        )
-
-        retry_subscribe = backoff.on_exception(
-            backoff.expo,
-            Exception,
-            max_value=100,
-            max_tries=retries,
-            on_backoff=lambda details: _logger.warning(
-                "Retrying to subscribe with backoff. Running {target} in {wait:.1f} seconds after {tries} tries.".format(
-                    **details
-                )
-            ),
-            jitter=backoff.full_jitter,
-            giveup=lambda e: isinstance(e, TransportQueryError)
-            or isinstance(e, ValueError),
-        )
-
+        # Connect to the websocket
         _logger.debug("connecting to websocket")
-        session = await self._websocket_client.connect_async(
-            reconnecting=True,
-            retry_connect=retry_connect,
-        )
+        session = await self._websocket_client.connect_async()
         _logger.info("Connected to websocket.")
-        await retry_subscribe(self.run_websocket_loop)(session, exit_condition)
 
-    async def run_websocket_loop(self, session, exit_condition) -> None:
+        self._connection_retry_attempts = (
+            0  # Connection was successful. Reset the counter.
+        )
+
+        # Subscribe to the websocket
+        while self._query_retry_attempts < query_retries and self.running:
+            to_sleep = min((2**self._query_retry_attempts - 1) * random.random(), 100)
+            if self._query_retry_attempts > 0:
+                _logger.warning(
+                    f"Retrying QUERY in {to_sleep:.1f} seconds. This is retry number {self._query_retry_attempts}."
+                )
+            await asyncio.sleep(to_sleep)
+            try:
+                await self._run_websocket_loop(session, exit_condition)
+            except KeyboardInterrupt:
+                self.running = False
+                _logger.info("Keyboard interrupt detected. Stopping live feed.")
+                break
+            except Exception as e:
+                self._query_retry_attempts += 1
+                _logger.warning(
+                    "Exception occured when attempting to send subscription QUERY!: ["
+                    + e.__class__.__name__
+                    + "] "
+                    + str(e)
+                )
+                if on_query_error:
+                    on_query_error(e)
+
+                # If the query fails, we want to close the websocket and reconnect before trying again.
+                # Next time around, if the query fails again, we will try the query again but with a longer delay.
+                # (the query retry counter will stay incremented and will not reset until a successful query is made)
+
+                # TODO: Note to future self: It might not be necessary to retry queries. Retrying the connection should be enough.
+                break
+
+        await self._websocket_client.close_async()
+
+    async def _run_websocket_loop(self, session, exit_condition) -> None:
         # Check if real time consumption is enabled
         _logger.info(
             "Updating home information to check if real time consumption is enabled."
@@ -384,18 +430,18 @@ class TibberHome(NonDecoratedTibberHome):
         _logger.info("Subscribing to websocket.")
         async for data in session.subscribe(document_node_query):
             _logger.debug("real time data received.")
+            self._query_retry_attempts = 0  # Query was successful. Reset the counter.
 
             # Returns True if exit condition is met
-            exit_condition_met = await self.process_websocket_response(
+            exit_condition_met = await self._process_websocket_response(
                 data, exit_condition=exit_condition
             )
             if exit_condition_met:
                 _logger.info("Exit condition met. The live loop is now exiting.")
+                self.running = False
                 break
 
-        await self.close_websocket_connection()
-
-    async def process_websocket_response(
+    async def _process_websocket_response(
         self, data: dict, exit_condition: Callable[[LiveMeasurement], bool] = None
     ) -> bool:
         """Processes a response with data from the live data websocket. This function will call all registered callbacks
@@ -407,14 +453,14 @@ class TibberHome(NonDecoratedTibberHome):
         # Broadcast the event
         # TODO: Differentiate between consumption data, production data and other data.
         cleaned_data = LiveMeasurement(data["liveMeasurement"], self.tibber_client)
-        await self.broadcast_event("live_measurement", cleaned_data)
+        await self._broadcast_event("live_measurement", cleaned_data)
 
         # Check if the exit condition is met
         if exit_condition and exit_condition(cleaned_data):
             return True
         return False
 
-    async def broadcast_event(self, event, data) -> None:
+    async def _broadcast_event(self, event, data) -> None:
         if event not in self._callbacks:
             _logger.warning(
                 f'The event "{event}" was attempted emitted, but does not exist. Nothing was run.'
@@ -427,24 +473,6 @@ class TibberHome(NonDecoratedTibberHome):
             return
 
         await asyncio.gather(*[c(data) for c in self._callbacks[event]])
-
-    async def close_websocket_connection(self) -> None:
-        _logger.debug("attempting to close websocket connection")
-        if self.websocket_running:
-            try:
-                await self._websocket_client.close_async()
-                self._websocket_client = None  # Dereference for gc
-                _logger.info("Websocket connection closed.")
-            except KeyboardInterrupt as e:
-                _logger.warning(
-                    "Keyboard interrupt detected while closing wbsocket connection. This may cause the websocket to be left open."
-                )
-                raise e
-        else:
-            _logger.info(
-                "The websocket was not running when attempting to close the websocket."
-                + " The invocation of close_websocket_connection() therefore did nothing..."
-            )
 
     @property
     def websocket_running(self) -> bool:
