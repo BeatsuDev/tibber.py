@@ -50,7 +50,7 @@ Retrieving consumption/production information
 Moving on from the previous example, what can we do with a home? Let's check out the documentation again.
 Click the yellow underlined text "Home" and check out the documentation. We see that the Home type has a
 "consumption" method! Let's try to call that method with some parameters and get the HomeConsumptionConnection type back!
-Since we're fetching data from the API and not just getting it from the cache, we need to prepend the method call with "fetch_".
+Since we're fetching data from the API and not just getting it from the cache, we need to prepend the method call with "fetch\_".
 
 .. code-block:: python
 
