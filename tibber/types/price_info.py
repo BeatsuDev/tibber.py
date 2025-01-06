@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 """A class representing the PriceInfo type from the GraphQL Tibber API."""
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from tibber.types.price import Price
+from tibber.types.subscription_price_connection import SubscriptionPriceConnection
+from tibber.networking.query_builder import QueryBuilder
 
 # Import type checking modules
 if TYPE_CHECKING:
@@ -34,4 +36,36 @@ class PriceInfo:
             Price(hour, self.tibber_client) for hour in self.cache.get("tomorrow", [])
         ]
 
-    # TODO: Implement range(resolution, first, last, ...) method
+    def fetch_range(
+        self,
+        resolution: str,
+        first: Optional[str] = None,
+        last: Optional[str] = None,
+        before: Optional[str] = None,
+        after: Optional[str] = None,
+        home_id: Optional[str] = None,
+    ) -> SubscriptionPriceConnection:
+        """Fetch the price range.
+
+        The before and after arguments are Base64 encoded ISO 8601 datetimes."""
+        range_query_dict = QueryBuilder.range_query(
+            resolution, first, last, before, after
+        )
+
+        range_query = QueryBuilder.create_query("viewer", "homes", "currentSubscription", "priceInfo", range_query_dict)
+        full_data = self.tibber_client.execute_query(self.tibber_client.token, range_query)
+
+
+        home = full_data["viewer"]["homes"][0]
+        if home_id:
+            home_of_id = [
+                    home
+                    for home in full_data["viewer"]["homes"]
+                    if home["id"] == home_id
+            ][0] 
+
+            if home_of_id:
+                home = home_of_id
+
+        return SubscriptionPriceConnection(home["currentSubscription"]["priceInfo"]["range"], self.tibber_client)
+
