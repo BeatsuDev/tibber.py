@@ -162,3 +162,5 @@ will be stopped (and code execution will continue).
       # Now start retrieving live measurements
       home.start_live_feed(user_agent="program/1.0", exit_condition = my_exit_function)  # This will stop the live feed when the power is above 1000
       print("We made it! The power is above 1000!")
+
+For more examples, check out the [README](https://github.com/BeatsuDev/tibber.py) of the project on GitHub.
