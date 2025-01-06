@@ -4,9 +4,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from tibber.types.price import Price
-from tibber.types.subscription_price_connection_page_info import \
-    SubscriptionPriceConnectionPageInfo
 from tibber.types.subscription_price_edge import SubscriptionPriceEdge
+
+from tibber.types.subscription_price_connection_page_info import (  # isort:skip
+    SubscriptionPriceConnectionPageInfo,
+)
 
 if TYPE_CHECKING:
     from tibber.account import Account
