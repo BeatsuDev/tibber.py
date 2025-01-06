@@ -29,7 +29,7 @@ class SubscriptionPriceConnection:
         ]
 
     @property
-    def pageInfo(self) -> SubscriptionPriceConnectionPageInfo:
+    def page_info(self) -> SubscriptionPriceConnectionPageInfo:
         return SubscriptionPriceConnectionPageInfo(
             self.cache.get("pageInfo"), self.tibber_client
         )
