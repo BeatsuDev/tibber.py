@@ -18,8 +18,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'tibber.py'
-copyright = '2022, BeatsuDev'
-author = 'BeatsuDev'
+copyright = '2025, Eric Bieszczad-Stie'
+author = 'Eric Bieszczad-Stie'
 
 # The full version, including alpha/beta/rc tags
 release = '0.5.0'
