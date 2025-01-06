@@ -8,7 +8,7 @@ import tibber
 
 
 def test_consumption_page_info(home):
-    home_consumption_connection = home.fetch_consumption("HOURLY", first=5, after="MjAyMi0xMS0yOFQxODowMDowMC4wMDArMDE6MDA=")
+    home_consumption_connection = home.fetch_consumption("HOURLY", first=5, after="MjAyMy0wMi0wNlQwMTowMDowMC4wMDArMDE6MDA=")
     page_info = home_consumption_connection.page_info
 
     assert page_info.end_cursor == home_consumption_connection.edges[-1].cursor
@@ -18,12 +18,12 @@ def test_consumption_page_info(home):
 
     assert page_info.count == 5
     assert page_info.currency == "SEK"
-    assert page_info.total_cost == 39.5775870375
-    assert page_info.total_consumption == 15.132
+    assert page_info.total_cost == 25.4909709625
+    assert page_info.total_consumption == 16.633
     assert page_info.filtered == 0
 
 def test_consumption_nodes(home):
-    home_consumption_connection = home.fetch_consumption("HOURLY", first=3, after="MjAyMy0wMi0wNlQwMDowMDowMC4wMDArMDE6MDA=")
+    home_consumption_connection = home.fetch_consumption("HOURLY", first=3, after="MjAyMy0wMi0wNlQwMTowMDowMC4wMDArMDE6MDA=")
     history = home_consumption_connection.nodes
 
     assert history[0].from_time == "2023-02-06T01:00:00.000+01:00"
