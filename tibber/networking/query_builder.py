@@ -284,6 +284,30 @@ class QueryBuilder:
         return {f"home({home_id})": QueryBuilder.home()}
 
     @classmethod
+    def range_query(
+        cls, resolution: str, first: int, last: int, before: str, after: str
+    ):
+        first_arg = f"first: {first}" if first else None
+        last_arg = f"last: {last}" if last else None
+        before_arg = f'before: "{before}"' if before else None
+        after_arg = f'after: "{after}"' if after else None
+
+        args = ", ".join(
+            [
+                arg
+                for arg in [first_arg, last_arg, before_arg, after_arg]
+                if arg is not None
+            ]
+        )
+        return {
+            f"range(resolution: {resolution}, {args})": {
+                "pageInfo": QueryBuilder.subscription_price_connection_page_info(),
+                "edges": QueryBuilder.subscription_price_edge(),
+                "nodes": QueryBuilder.price(),
+            }
+        }
+
+    @classmethod
     def consumption_query(
         cls,
         resolution: str,
@@ -397,6 +421,30 @@ class QueryBuilder:
     @classmethod
     def home_production_edge(cls):
         return {"cursor": "", "node": QueryBuilder.production()}
+
+    @classmethod
+    def subscription_price_connection_page_info(cls):
+        return {
+            "endCursor": "",
+            "hasNextPage": False,
+            "hasPreviousPage": False,
+            "startCursor": "",
+            "resolution": "",
+            "currency": "",
+            "count": 0,
+            "precision": "",
+            "minEnergy": 0.0,
+            "minTotal": 0.0,
+            "maxEnergy": 0.0,
+            "maxTotal": 0.0,
+        }    
+
+    @classmethod
+    def subscription_price_edge(cls):
+        return {
+            "cursor": "",
+            "node": QueryBuilder.price(),
+        }
 
     # Live data - This WILL be rewritten together with this whole class.
     # TODO: Rewrite the whole class from a dict-based approach to a string-based approach.
