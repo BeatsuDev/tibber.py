@@ -437,7 +437,7 @@ class QueryBuilder:
             "minTotal": 0.0,
             "maxEnergy": 0.0,
             "maxTotal": 0.0,
-        }    
+        }
 
     @classmethod
     def subscription_price_edge(cls):
