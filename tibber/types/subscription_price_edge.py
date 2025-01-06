@@ -5,6 +5,9 @@ from typing import TYPE_CHECKING
 
 from tibber.types.price import Price
 
+if TYPE_CHECKING:
+    from tibber.account import Account
+
 
 class SubscriptionPriceEdge:
     def __init__(self, data: dict, tibber_client: "Account"):
