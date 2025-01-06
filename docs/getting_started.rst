@@ -49,28 +49,26 @@ Retrieving consumption/production information
 
 Moving on from the previous example, what can we do with a home? Let's check out the documentation again.
 Click the yellow underlined text "Home" and check out the documentation. We see that the Home type has a
-"consumption" method! Let's try to call that method with some paramters and get the HomeConsumptionConnection type back!
+"consumption" method! Let's try to call that method with some parameters and get the HomeConsumptionConnection type back!
+Since we're fetching data from the API and not just getting it from the cache, we need to prepend the method call with "fetch_".
 
 .. code-block:: python
 
    consumption = home.fetch_consumption(resolution = "HOURLY", last = 24)  # last 24 hours
    print(consumption)  # <HomeConsumptionConnection: HomeConsumptionConnection>
 
-Clicking the yellow underlined text "HomeConsumptionConnection" we see that it has a "nodes" attribute wich
-has a list of consumptions. Within the Consumption type you have all the goodies such as total cost, unit price,
-currency etc. Let's print the total cost of the last 24 hours!
+Back in the API explorer documentation, clicking the yellow underlined text "HomeConsumptionConnection" we see that it has a
+"nodes" attribute wich has a list of consumptions. Within the Consumption type you have all the goodies such as cost,
+unit price, currency etc. Let's print the cost of the last 24 hours!
 
 .. code-block:: python
 
-   running_total = 0
-   for node in consumption.nodes:
-      running_total += node.total_cost  # Note that the naming convention for the attributes is snake_case
+   total = sum(node.cost for node in consumption.nodes if node.cost is not None)
+   print(total)  # 123.45
 
-   print(running_total)  # 123.45
-
-Looking back at the documentation, we see that the HomeConsumptionConnection type also has a PageInfo type.
-The PageInfo actually has a totalCost property that we can use instead of looping through all the nodes!
-Here's how to achieve the same thing as above, but using the page info we have instead!
+Looking back at the documentation, we see that the HomeConsumptionConnection type also has a HomeConsumptionPageInfo type.
+The HomeConsumptionPageInfo actually has a totalCost property that we can use instead of looping through all the nodes!
+Here's how to achieve the same thing as above, but using the page info we have instead.
 
 .. code-block:: python
 
@@ -122,7 +120,7 @@ a live measurement is available.
       print(data.power)
 
    # Now start retrieving live measurements
-   home.start_live_feed()
+   home.start_live_feed(user_agent="program/1.0")
 
 .. note::
    Any code after home.start_live_feed() will not run! This is because the
@@ -145,7 +143,7 @@ will be stopped (and code execution will continue).
       print(data.power)
 
    # Now start retrieving live measurements
-   home.start_live_feed(exit_condition = lambda: True)  # This will stop the live feed after the first measurement
+   home.start_live_feed(user_agent="program/1.0", exit_condition = lambda: True)  # This will stop the live feed after the first measurement
 
 .. code-block:: python
    
@@ -162,5 +160,5 @@ will be stopped (and code execution will continue).
          return live_measurement_data.power > 1000:
    
       # Now start retrieving live measurements
-      home.start_live_feed(exit_condition = my_exit_function)  # This will stop the live feed when the power is above 1000
+      home.start_live_feed(user_agent="program/1.0", exit_condition = my_exit_function)  # This will stop the live feed when the power is above 1000
       print("We made it! The power is above 1000!")
