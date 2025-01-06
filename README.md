@@ -3,7 +3,7 @@
 > Note that this is NOT [pyTibber](https://github.com/Danielhiversen/pyTibber) which is the official python wrapper endorsed by Tibber themselves.
 
 tibber.py is an unofficial python wrapper package for communication with the [Tibber API](https://developer.tibber.com/).
-This package aims to cover all functionalities of the Tibber API in the most beginner-friendly modern Pythonic way. You can read all the capabilites of the API and explore it 
+This package aims to cover all functionalities of the Tibber API in the most beginner-friendly modern Pythonic way. You can read all the capabilites of the API and explore it
 with [Tibbers' API explorer](https://developer.tibber.com/explorer). For documentation on how to use tibber.py head over to https://tibberpy.readthedocs.io/en/latest/.
 
 Every field of the API types should be found in the corresponding `tibber.type` (e.g. the `size: Int` field of `Home`
@@ -21,21 +21,24 @@ docs (located on the right side of the Tibber API explorer).
 [![Pytest Python 3.7 / 3.11](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytests.yml/badge.svg)](https://github.com/BeatsuDev/tibber.py/actions/workflows/pytests.yml)
 ![Publish to PyPi status](https://github.com/BeatsuDev/tibber.py/actions/workflows/publish-to-pypi.yml/badge.svg)
 
-
-
 Do you want to ask a question, report an issue, or even showcase your project that uses tibber.py? 🤩<br>Find out where to post by [checking out this overview](https://github.com/BeatsuDev/tibber.py/discussions/46).
 
-
 ## Installation
+
 ### Install via pip
+
 ```
 python -m pip install tibber.py
 ```
+
 ### Requirements
+
 tibber.py depends on `gql`, `gql[aiohttp]`, `gql[websockets]` and `graphql-core`. tibber.py supports Python versions 3.7 and up!
 
 ## Examples
+
 ### Getting basic account data
+
 ```python
 import tibber
 
@@ -56,6 +59,7 @@ print(account.name)
 ```
 
 ### Getting basic home data
+
 ```python
 import tibber
 
@@ -74,7 +78,8 @@ print(home.has_ventilation_system) # False
 print(home.main_fuse_size)         # 25
 ```
 
-### Reading historical data
+### Reading historical consumption data
+
 ```python
 import tibber
 
@@ -98,9 +103,32 @@ for hour in hour_data:
     print(hour.cost)
 ```
 
+### Reading historical price data
+
+```python
+import tibber
+import datetime
+import base64
+
+
+account = tibber.Account(tibber.DEMO_TOKEN)
+price_info = account.homes[0].current_subscription.price_info
+
+# The API requires the date to be passed as a base64 encoded string with timezone information
+date = datetime.datetime(2025, 1, 1, 0, 0, 0)
+encoded_date = base64.b64encode(date.astimezone().isoformat().encode("utf-8")).decode("utf-8")
+
+# Only HOURLY and DAILY
+connection = price_info.fetch_range("HOURLY", first=10, after=encoded_date)
+
+connection.nodes  # A list of Price objects
+```
+
 ### Reading live measurements
+
 Note how you can register multiple callbacks for the same event. These will be run
 in asynchronously (at the same time)!
+
 ```python
 import tibber
 
@@ -115,11 +143,11 @@ async def show_current_power(data):
 @home.event("live_measurement")
 async def show_accumulated_cost(data):
   print(f"{data.accumulated_cost} {data.currency}")
-  
+
 def when_to_stop(data):
   return data.power < 1500
 
 # Start the live feed. This runs until data.power is less than 1500.
 # If a user agent was not defined earlier, this will be required here
-home.start_live_feed(user_agent = "UserAgent/0.0.1", exit_condition = when_to_stop) 
+home.start_live_feed(user_agent = "UserAgent/0.0.1", exit_condition = when_to_stop)
 ```
